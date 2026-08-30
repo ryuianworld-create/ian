@@ -29,6 +29,8 @@ export class Companion {
 
     this.hasArrow = false;
     this.hasSword = false;
+    this.hasWand = false;
+    this.hasHammer = false;
     this.arrowCooldown = 0;
     this.swordCooldown = 0;
 
@@ -65,6 +67,8 @@ export class Companion {
         this.stripColor();
         this.hasArrow = false;
         this.hasSword = false;
+        this.hasWand = false;
+        this.hasHammer = false;
         const anchor = this._respawnAnchor || playerEntity.position;
         this.position.set(anchor.x + (Math.random() - 0.5) * 3, 0, anchor.z + (Math.random() - 0.5) * 3);
         this.mover.reset();

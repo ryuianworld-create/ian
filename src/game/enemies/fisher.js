@@ -5,7 +5,7 @@ import { forwardVector, facingFromDelta } from "../constants.js";
 
 const VISION_RANGE = 15;
 const VISION_HALF_ANGLE = Math.PI * 0.55; // 넓게 훑어봄 (~100도)
-const TELEGRAPH_TIME = 0.65;
+export const TELEGRAPH_TIME = 0.65;
 const CAST_TIME = 0.4;
 const COOLDOWN_TIME = 2.6;
 const LINE_HIT_RADIUS = 0.7;

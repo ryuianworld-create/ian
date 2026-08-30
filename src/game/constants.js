@@ -36,6 +36,26 @@ export const SWORD_RADIUS = 3;
 export const SWORD_COOLDOWN = 1.2;
 export const SWORD_EFFECT_DURATION = 0.5;
 
+// 마법봉 - 쓰면 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)이
+// 플레이어 주변으로 끌려와서 곧장 위협해온다. 강력한 만큼 재사용 대기시간이 길다.
+export const WAND_COOLDOWN = 10;
+export const WAND_LURE_DURATION = 14;
+export const WAND_TELEPORT_RADIUS = 5;
+export const WAND_EFFECT_DURATION = 0.6;
+
+// 망치 - 가까운 먼지를 부수고, 가까운 벽(테두리 제외) 하나를 부숴 새 길을 낸다.
+export const HAMMER_RADIUS = 2.4;
+export const HAMMER_COOLDOWN = 1.6;
+export const HAMMER_EFFECT_DURATION = 0.5;
+
+// 엘리베이터 - 미로 곳곳에 서 있으며, 가까이 가서 층 번호(1~21)를 누르면
+// 그 층으로 순간이동한다. 두 자리 층은 십의자리/일의자리를 짧은 시간 안에
+// 함께 눌러서 입력한다.
+export const ELEVATOR_COUNT = 10;
+export const ELEVATOR_MAX_FLOOR = 21;
+export const ELEVATOR_INTERACT_RADIUS = 2.2;
+export const ELEVATOR_DIGIT_GRACE = 0.35;
+
 export function randomColor() {
   return RAINBOW_PALETTE[Math.floor(Math.random() * RAINBOW_PALETTE.length)];
 }

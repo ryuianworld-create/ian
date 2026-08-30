@@ -9,6 +9,11 @@ const camoBadge = document.getElementById("camoBadge");
 const freezeBadge = document.getElementById("freezeBadge");
 const arrowBadge = document.getElementById("arrowBadge");
 const swordBadge = document.getElementById("swordBadge");
+const wandBadge = document.getElementById("wandBadge");
+const hammerBadge = document.getElementById("hammerBadge");
+const floorBadge = document.getElementById("floorBadge");
+const elevatorPrompt = document.getElementById("elevatorPrompt");
+const elevatorDigits = document.getElementById("elevatorDigits");
 const startScreen = document.getElementById("startScreen");
 const endScreen = document.getElementById("endScreen");
 const endTitle = document.getElementById("endTitle");
@@ -69,16 +74,38 @@ const hud = {
     }
     arrowBadge.classList.toggle("hidden", !data.hasArrow);
     swordBadge.classList.toggle("hidden", !data.hasSword);
+    wandBadge.classList.toggle("hidden", !data.hasWand);
+    hammerBadge.classList.toggle("hidden", !data.hasHammer);
+
+    elevatorPrompt.classList.toggle("hidden", !data.elevatorActive);
+    if (data.elevatorActive) {
+      elevatorDigits.textContent = data.elevatorDigits && data.elevatorDigits.length ? data.elevatorDigits.join("") : "";
+    }
   },
   onItemPickup(kind) {
-    pickupToast.textContent = kind === "arrow" ? "화살 획득! (Space로 쏘기)" : "검 획득! (F로 사용)";
+    const ITEM_TOAST = {
+      arrow: "화살 획득! (Space로 쏘기)",
+      sword: "검 획득! (F로 사용)",
+      wand: "마법봉 획득! (Q로 사용)",
+      hammer: "망치 획득! (E로 사용)",
+    };
+    const ITEM_BADGE = { arrow: arrowBadge, sword: swordBadge, wand: wandBadge, hammer: hammerBadge };
+    pickupToast.textContent = ITEM_TOAST[kind];
     pickupToast.classList.remove("hidden");
     pickupToast.classList.add("show");
     clearTimeout(pickupToast._hideTimer);
     pickupToast._hideTimer = setTimeout(() => pickupToast.classList.remove("show"), 1400);
-    const badge = kind === "arrow" ? arrowBadge : swordBadge;
+    const badge = ITEM_BADGE[kind];
     badge.classList.add("pop");
     setTimeout(() => badge.classList.remove("pop"), 160);
+  },
+  onFloorChange(floorNumber, themeLabel) {
+    floorBadge.textContent = `${floorNumber}층 · ${themeLabel}`;
+    pickupToast.textContent = `${floorNumber}층(${themeLabel}) 도착!`;
+    pickupToast.classList.remove("hidden");
+    pickupToast.classList.add("show");
+    clearTimeout(pickupToast._hideTimer);
+    pickupToast._hideTimer = setTimeout(() => pickupToast.classList.remove("show"), 1400);
   },
   onPickup(color) {
     flashPickup(color);

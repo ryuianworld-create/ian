@@ -23,8 +23,12 @@ export class Player {
 
     this.hasArrow = false;
     this.hasSword = false;
+    this.hasWand = false;
+    this.hasHammer = false;
     this.arrowCooldown = 0;
     this.swordCooldown = 0;
+    this.wandCooldown = 0;
+    this.hammerCooldown = 0;
 
     // 손전등(헤드램프) - 아주 어두운 공장에서 시야를 확보해준다.
     // 몸 바깥쪽에 살짝 띄워 배치해 자기 몸이 과다 노출(하얗게 뜨는 현상)되지 않도록 한다.
@@ -63,6 +67,8 @@ export class Player {
 
     if (this.arrowCooldown > 0) this.arrowCooldown -= dt;
     if (this.swordCooldown > 0) this.swordCooldown -= dt;
+    if (this.wandCooldown > 0) this.wandCooldown -= dt;
+    if (this.hammerCooldown > 0) this.hammerCooldown -= dt;
 
     if (input.turnLeft) this.facing += PLAYER_TURN_SPEED * dt;
     if (input.turnRight) this.facing -= PLAYER_TURN_SPEED * dt;

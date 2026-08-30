@@ -79,3 +79,67 @@ export function buildSwordEffectMesh(radius) {
   mesh.rotation.x = -Math.PI / 2;
   return mesh;
 }
+
+// 바닥에 떨어진 마법봉/망치 아이템의 모양. 화살/검과 같은 비콘 처리로
+// 멀리서도 눈에 띄게 한다.
+export function buildToolPickupMesh(kind) {
+  const group = new THREE.Group();
+  const glowColor = kind === "wand" ? 0xffcf5e : 0xff8a3d;
+  if (kind === "wand") {
+    const mat = new THREE.MeshStandardMaterial({ color: 0x3a2c5c, roughness: 0.4 });
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.95, 8), mat);
+    rod.rotation.z = Math.PI / 2.6;
+    group.add(rod);
+    const orbMat = new THREE.MeshStandardMaterial({ color: 0xffe9ac, emissive: 0xffcf5e, emissiveIntensity: 1.6, roughness: 0.2 });
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), orbMat);
+    orb.position.set(0.42, 0.36, 0);
+    group.add(orb);
+  } else {
+    const mat = new THREE.MeshStandardMaterial({ color: 0x6b5a4a, roughness: 0.6 });
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.85, 8), mat);
+    handle.rotation.z = Math.PI / 2.3;
+    group.add(handle);
+    const headMat = new THREE.MeshStandardMaterial({ color: 0xffab5e, emissive: 0xff8a3d, emissiveIntensity: 1.2, roughness: 0.4 });
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.26, 0.26), headMat);
+    head.position.set(0.36, 0.2, 0);
+    group.add(head);
+  }
+  const light = new THREE.PointLight(glowColor, 6, 8, 1.6);
+  group.add(light);
+
+  const beaconHeight = 3.2;
+  const beaconMat = new THREE.MeshBasicMaterial({
+    color: glowColor,
+    transparent: true,
+    opacity: 0.3,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, beaconHeight, 10, 1, true), beaconMat);
+  beacon.position.y = beaconHeight / 2 - 0.6;
+  group.add(beacon);
+
+  group.position.y = 0.6;
+  return group;
+}
+
+// 마법봉을 쓸 때 플레이어 발밑에서 퍼져나가는 황금빛 소환 원.
+export function buildWandEffectMesh(radius) {
+  const mesh = new THREE.Mesh(
+    new THREE.RingGeometry(radius * 0.55, radius, 48),
+    new THREE.MeshBasicMaterial({ color: 0xffcf5e, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  return mesh;
+}
+
+// 망치로 벽/먼지를 부술 때 생기는 충격파 원.
+export function buildHammerEffectMesh(radius) {
+  const mesh = new THREE.Mesh(
+    new THREE.CircleGeometry(radius, 32),
+    new THREE.MeshBasicMaterial({ color: 0xff8a3d, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  return mesh;
+}

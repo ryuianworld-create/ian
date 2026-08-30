@@ -171,6 +171,75 @@ body {
   display: none;
 }
 
+#wandBadge,
+#hammerBadge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  transition: transform 0.15s ease;
+}
+
+#wandBadge.pop,
+#hammerBadge.pop {
+  transform: scale(1.2);
+}
+
+#wandBadge {
+  background: rgba(255, 207, 94, 0.22);
+  border: 1px solid rgba(255, 207, 94, 0.8);
+  color: #ffefc6;
+}
+
+#hammerBadge {
+  background: rgba(255, 138, 61, 0.22);
+  border: 1px solid rgba(255, 138, 61, 0.8);
+  color: #ffdcc2;
+}
+
+#wandBadge.hidden,
+#hammerBadge.hidden {
+  display: none;
+}
+
+#floorBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  background: var(--panel-bg);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#elevatorPrompt {
+  position: absolute;
+  bottom: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(79, 176, 255, 0.18);
+  border: 1px solid rgba(159, 224, 255, 0.75);
+  border-radius: 10px;
+  color: #dff4ff;
+  white-space: nowrap;
+}
+
+#elevatorPrompt.hidden {
+  display: none;
+}
+
+#elevatorDigits {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
 #hint {
   position: absolute;
   bottom: 16px;
