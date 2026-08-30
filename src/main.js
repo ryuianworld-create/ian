@@ -14,6 +14,18 @@ const endMessage = document.getElementById("endMessage");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
 const deathFlash = document.getElementById("deathFlash");
+const pickupFlash = document.getElementById("pickupFlash");
+const pickupToast = document.getElementById("pickupToast");
+
+const COLOR_NAMES_KO = {
+  red: "빨강",
+  orange: "주황",
+  yellow: "노랑",
+  green: "초록",
+  blue: "파랑",
+  indigo: "남색",
+  violet: "보라",
+};
 
 function formatTime(t) {
   const s = Math.max(0, Math.ceil(t));
@@ -54,6 +66,16 @@ const hud = {
       freezeBadge.className = "freeze-used";
     }
   },
+  onPickup(color) {
+    flashPickup(color);
+    tankSwatch.classList.add("pop");
+    setTimeout(() => tankSwatch.classList.remove("pop"), 160);
+    pickupToast.textContent = `${COLOR_NAMES_KO[color.name] || color.name} 색 획득! (Enter로 몸에 채우기)`;
+    pickupToast.classList.remove("hidden");
+    pickupToast.classList.add("show");
+    clearTimeout(pickupToast._hideTimer);
+    pickupToast._hideTimer = setTimeout(() => pickupToast.classList.remove("show"), 1400);
+  },
   onEnd(won, message) {
     endScreen.classList.remove("hidden");
     endTitle.textContent = won ? "탈출 성공!" : "탈출 실패...";
@@ -66,6 +88,17 @@ const hud = {
 function flashDeath() {
   deathFlash.classList.add("hit");
   setTimeout(() => deathFlash.classList.remove("hit"), 450);
+}
+
+function flashPickup(color) {
+  const css = hexToCss(color.hex);
+  pickupFlash.classList.add("hit");
+  pickupFlash.style.transition = "none";
+  pickupFlash.style.boxShadow = `inset 0 0 140px 20px ${css}`;
+  // 강제 리플로우 후 서서히 사라지도록 트랜지션을 다시 건다.
+  void pickupFlash.offsetWidth;
+  pickupFlash.style.transition = "box-shadow 0.6s ease";
+  pickupFlash.style.boxShadow = "inset 0 0 0 0 transparent";
 }
 
 const game = new Game({ canvas, hud });

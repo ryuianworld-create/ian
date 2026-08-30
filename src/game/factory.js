@@ -307,7 +307,7 @@ export function buildFactory(rng = Math.random) {
     light.position.set(mid.x, 2.2, mid.z);
     group.add(light);
 
-    colorRooms.push({ x: mid.x, z: mid.z, color, light });
+    colorRooms.push({ x: mid.x, z: mid.z, color, light, doorMat });
   });
 
   // ---------- 출구 게이트 ----------

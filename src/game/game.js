@@ -94,6 +94,7 @@ export class Game {
     // 물들며 졸라맨들의 움직임과 공격이 멈춘다.
     this.hasFreezeItem = true;
     this.freezeTimer = 0;
+    this._elapsed = 0;
     this._freezeWallOrigColor = factory.wallMat.color.getHex();
     this._freezeFloorOrigColor = factory.floorMat.color.getHex();
 
@@ -209,13 +210,22 @@ export class Game {
       }
     }
 
+    this._elapsed += dt;
     for (const room of this.world.colorRooms) {
+      // 위장 벽이 아주 많아진 뒤로도 "여기가 진짜 픽업 문이다"가 한눈에
+      // 보이도록 문을 은은하게 맥동시킨다(정적인 위장 벽과 대비됨).
+      if (room.doorMat) {
+        room.doorMat.opacity = 0.46 + Math.sin(this._elapsed * 2.4 + room.x) * 0.2;
+      }
       const d = Math.hypot(this.player.position.x - room.x, this.player.position.z - room.z);
-      const inside = d < 1.6;
+      const inside = d < 2.0;
       // 문에 "닿는 순간"에만 채워지도록 rising-edge로 처리한다.
       // (계속 머물러도 매 프레임 다시 채워 넣지 않음 - Enter로 비운 직후
       //  같은 문 앞에 서 있다고 즉시 재충전되는 것을 방지)
-      if (inside && !room._playerWasInside) this.player.fillTank(room.color);
+      if (inside && !room._playerWasInside) {
+        this.player.fillTank(room.color);
+        if (this.hud.onPickup) this.hud.onPickup(room.color);
+      }
       room._playerWasInside = inside;
     }
 
