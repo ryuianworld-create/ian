@@ -19,9 +19,8 @@ const PATROL_HOME_RADIUS = 5; // 자기 출발 지점 근처(셀 단위)를 벗�
 // 가장 가까운 쪽으로 목표를 바꿔가며 추격하고, 닿으면 즉사시킨다.
 export class ChaserEnemy {
   constructor(position, homeCell = null) {
-    // 완전한 검정은 어두운 공장에서 아예 안 보일 수 있어 살짝 밝은 회색으로,
-    // 눈은 붉게 발광시켜 어둠 속에서도 다가오는 게 보이게 한다.
-    this.mesh = buildStickFigure({ color: 0x2b2b30, height: 1.95, eyeColor: 0xff2a2a });
+    // 완전한 검정은 어두운 공장에서 아예 안 보일 수 있어 살짝 밝은 회색으로 한다.
+    this.mesh = buildStickFigure({ color: 0x2b2b30, height: 2.9 });
     this.mesh.position.copy(position);
     this.position = this.mesh.position;
     this.facing = Math.random() * Math.PI * 2;

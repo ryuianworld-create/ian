@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
-// 졸라맨(스틱맨) 모양의 THREE.Group을 만든다. 얇은 원기둥 팔다리 + 구 머리로 구성.
+// 졸라맨(스틱맨) 모양의 THREE.Group을 만든다. 얇은 원기둥 팔다리 + 구 머리로
+// 구성되며, 얼굴 없이 키가 큰 키다리 실루엣이다.
 // group.userData.limbs 에 애니메이션용 팔다리 참조를 담아 둔다.
-// eyeColor를 지정하면 어두운 곳에서도 눈에 띄도록 머리에 작은 발광 점(눈)을 붙인다.
-export function buildStickFigure({ color = 0x111111, height = 1.9, eyeColor = null } = {}) {
+export function buildStickFigure({ color = 0x111111, height = 1.9 } = {}) {
   const group = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({
     color,
@@ -14,8 +14,9 @@ export function buildStickFigure({ color = 0x111111, height = 1.9, eyeColor = nu
   const limbRadius = 0.055;
   const headRadius = 0.22;
 
-  const hipY = height * 0.5;
-  const shoulderY = height * 0.82;
+  // 다리가 키의 절반을 넘게 차지하도록 해서 키다리(장신) 실루엣을 만든다.
+  const hipY = height * 0.56;
+  const shoulderY = height * 0.86;
 
   // 몸통
   const torso = new THREE.Mesh(
@@ -25,20 +26,10 @@ export function buildStickFigure({ color = 0x111111, height = 1.9, eyeColor = nu
   torso.position.y = (hipY + shoulderY) / 2;
   group.add(torso);
 
-  // 머리
+  // 머리 - 얼굴 없이 매끈한 구 하나로만 표현한다.
   const head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 10, 8), material);
   head.position.y = shoulderY + headRadius + 0.05;
   group.add(head);
-
-  if (eyeColor !== null) {
-    const eyeMat = new THREE.MeshBasicMaterial({ color: eyeColor });
-    const eyeGeo = new THREE.SphereGeometry(0.035, 6, 6);
-    const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeL.position.set(-0.08, head.position.y, headRadius * 0.85);
-    const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeR.position.set(0.08, head.position.y, headRadius * 0.85);
-    group.add(eyeL, eyeR);
-  }
 
   function makeLimb(length) {
     const pivot = new THREE.Group();
