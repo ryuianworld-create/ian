@@ -6,6 +6,7 @@ const timerEl = document.getElementById("timer");
 const tankSwatch = document.getElementById("tankSwatch");
 const bodySwatch = document.getElementById("bodySwatch");
 const camoBadge = document.getElementById("camoBadge");
+const freezeBadge = document.getElementById("freezeBadge");
 const startScreen = document.getElementById("startScreen");
 const endScreen = document.getElementById("endScreen");
 const endTitle = document.getElementById("endTitle");
@@ -42,6 +43,16 @@ const hud = {
     setSwatch(tankSwatch, data.tank);
     setSwatch(bodySwatch, data.bodyColor);
     camoBadge.classList.toggle("hidden", !data.camouflaged);
+
+    if (data.freezeTimer > 0) {
+      freezeBadge.className = "freeze-active";
+      freezeBadge.textContent = `정지 중: ${Math.ceil(data.freezeTimer)}초`;
+    } else if (data.hasFreezeItem) {
+      freezeBadge.className = "freeze-ready";
+      freezeBadge.textContent = "ㅎ: 긴급 정지(1회)";
+    } else {
+      freezeBadge.className = "freeze-used";
+    }
   },
   onEnd(won, message) {
     endScreen.classList.remove("hidden");

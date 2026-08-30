@@ -22,6 +22,8 @@ export const COMPANION_COUNT = 1;
 
 export const CAMO_TOUCH_DISTANCE = 1.9;
 
+export const FREEZE_DURATION_SECONDS = 20;
+
 export function randomColor() {
   return RAINBOW_PALETTE[Math.floor(Math.random() * RAINBOW_PALETTE.length)];
 }

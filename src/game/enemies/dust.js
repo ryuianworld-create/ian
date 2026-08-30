@@ -11,20 +11,22 @@ function buildDustMesh() {
   const group = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({
     color: 0x9c9468,
+    emissive: 0x6b5a2a,
+    emissiveIntensity: 0.35,
     roughness: 1,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0.88,
   });
-  const count = 7;
+  const count = 9;
   for (let i = 0; i < count; i++) {
-    const r = 0.12 + Math.random() * 0.14;
+    const r = 0.16 + Math.random() * 0.18;
     const s = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat);
     const ang = Math.random() * Math.PI * 2;
-    const rad = Math.random() * 0.32;
-    s.position.set(Math.cos(ang) * rad, 0.5 + (Math.random() - 0.5) * 0.35, Math.sin(ang) * rad);
+    const rad = Math.random() * 0.4;
+    s.position.set(Math.cos(ang) * rad, 0.5 + (Math.random() - 0.5) * 0.4, Math.sin(ang) * rad);
     group.add(s);
   }
-  const light = new THREE.PointLight(0xd6a860, 0.5, 4);
+  const light = new THREE.PointLight(0xe8b96a, 1.4, 6, 1.6);
   light.position.y = 0.5;
   group.add(light);
   return group;

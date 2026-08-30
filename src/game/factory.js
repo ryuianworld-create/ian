@@ -197,14 +197,15 @@ export function buildFactory(rng = Math.random) {
       }
     }
   }
-  const roomTargets = spreadSelect(deadEnds, Math.min(deadEnds.length, 14), rng);
+  const roomTargets = spreadSelect(deadEnds, deadEnds.length, rng);
   const roomColors = assignColorsRoundRobin(roomTargets.length, rng);
 
-  // 위장용 색깔 벽 후보: 경계가 아닌 내부 벽
+  // 위장용 색깔 벽 후보: 경계가 아닌 내부 벽. 숨을 곳이 아주 많아야 하므로
+  // 내부 벽의 상당수(절반 이상)를 색깔 벽으로 바꾼다.
   const interiorEntries = wallEntries.filter((w) => !w.boundary);
   const camoTargets = spreadSelect(
     interiorEntries.map((w) => ({ ...w, cellX: w.cellX, cellY: w.cellY })),
-    Math.min(interiorEntries.length, 16),
+    Math.ceil(interiorEntries.length * 0.55),
     rng
   );
   const camoColors = assignColorsRoundRobin(camoTargets.length, rng);
@@ -421,6 +422,8 @@ export function buildFactory(rng = Math.random) {
     startCell,
     exitCell,
     openCells,
+    wallMat,
+    floorMat,
     bounds: { minX: -spanX / 2, maxX: spanX / 2, minZ: -spanZ / 2, maxZ: spanZ / 2 },
   };
 }

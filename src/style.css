@@ -110,6 +110,31 @@ body {
   display: none;
 }
 
+#freezeBadge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+#freezeBadge.freeze-ready {
+  background: rgba(143, 224, 255, 0.2);
+  border: 1px solid rgba(143, 224, 255, 0.75);
+  color: #cdf2ff;
+}
+
+#freezeBadge.freeze-active {
+  background: rgba(143, 224, 255, 0.4);
+  border: 1px solid #cdf2ff;
+  color: #ffffff;
+  animation: pulse 1s infinite;
+}
+
+#freezeBadge.freeze-used {
+  display: none;
+}
+
 #hint {
   position: absolute;
   bottom: 16px;

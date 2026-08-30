@@ -7,11 +7,13 @@ import { ThirdPersonCamera } from "./camera.js";
 import { ChaserEnemy } from "./enemies/chaser.js";
 import { FisherEnemy } from "./enemies/fisher.js";
 import { DustEnemy } from "./enemies/dust.js";
-import { GAME_DURATION_SECONDS } from "./constants.js";
+import { GAME_DURATION_SECONDS, FREEZE_DURATION_SECONDS } from "./constants.js";
 
 const CHASER_COUNT = 6;
 const FISHER_COUNT = 3;
-const DUST_COUNT = 5;
+const DUST_COUNT = 9;
+const FREEZE_TINT = 0x8fe0ff;
+const FREEZE_TINT_EMISSIVE = 0x2a8fc7;
 const MIN_SPAWN_DIST_FROM_START = 4; // 셀 단위(체비셰프 거리)
 const COMPANION_OFFSETS = [
   { x: 1.7, z: 1.1 },
@@ -88,6 +90,13 @@ export class Game {
     this.factory = factory;
     this.scene.add(factory.group);
 
+    // 긴급 정지 아이템: 게임당 1회, 사용하면 20초간 벽/바닥이 하늘색으로
+    // 물들며 졸라맨들의 움직임과 공격이 멈춘다.
+    this.hasFreezeItem = true;
+    this.freezeTimer = 0;
+    this._freezeWallOrigColor = factory.wallMat.color.getHex();
+    this._freezeFloorOrigColor = factory.floorMat.color.getHex();
+
     this.world = {
       cells: factory.cells,
       mazeW: MAZE_W,
@@ -139,6 +148,27 @@ export class Game {
     }
   }
 
+  activateFreeze() {
+    if (!this.hasFreezeItem || this.freezeTimer > 0) return;
+    this.hasFreezeItem = false;
+    this.freezeTimer = FREEZE_DURATION_SECONDS;
+    this.factory.wallMat.color.setHex(FREEZE_TINT);
+    this.factory.wallMat.emissive.setHex(FREEZE_TINT_EMISSIVE);
+    this.factory.wallMat.emissiveIntensity = 0.55;
+    this.factory.floorMat.color.setHex(FREEZE_TINT);
+    this.factory.floorMat.emissive.setHex(FREEZE_TINT_EMISSIVE);
+    this.factory.floorMat.emissiveIntensity = 0.35;
+  }
+
+  deactivateFreeze() {
+    this.factory.wallMat.color.setHex(this._freezeWallOrigColor);
+    this.factory.wallMat.emissive.setHex(0x000000);
+    this.factory.wallMat.emissiveIntensity = 1;
+    this.factory.floorMat.color.setHex(this._freezeFloorOrigColor);
+    this.factory.floorMat.emissive.setHex(0x000000);
+    this.factory.floorMat.emissiveIntensity = 1;
+  }
+
   start() {
     this.buildWorld();
     this.state = "playing";
@@ -170,6 +200,15 @@ export class Game {
 
     this.player.update(dt, this.input, this.world);
 
+    if (this.input.consumeFreezePressed()) this.activateFreeze();
+    if (this.freezeTimer > 0) {
+      this.freezeTimer -= dt;
+      if (this.freezeTimer <= 0) {
+        this.freezeTimer = 0;
+        this.deactivateFreeze();
+      }
+    }
+
     for (const room of this.world.colorRooms) {
       const d = Math.hypot(this.player.position.x - room.x, this.player.position.z - room.z);
       const inside = d < 1.6;
@@ -198,8 +237,12 @@ export class Game {
       }
     };
 
-    for (const chaser of this.chasers) chaser.update(dt, this.world, candidates, onKill);
-    for (const fisher of this.fishers) fisher.update(dt, this.world, candidates, onKill);
+    // 긴급 정지 중에는 졸라맨/낚시꾼이 그대로 멈춰서 아예 움직이지도, 공격하지도
+    // 않는다(날아가던 낚싯줄도 그 자리에 멈춤). 먼지는 영향받지 않는다.
+    if (this.freezeTimer <= 0) {
+      for (const chaser of this.chasers) chaser.update(dt, this.world, candidates, onKill);
+      for (const fisher of this.fishers) fisher.update(dt, this.world, candidates, onKill);
+    }
     for (const dust of this.dusts) dust.update(dt, this.world, candidates);
 
     if (this.state !== "playing") {
@@ -233,6 +276,8 @@ export class Game {
       tank: this.player.tank,
       bodyColor: this.player.bodyColor,
       camouflaged: this.player.isCamouflaged(this.world.camoWallSegments),
+      hasFreezeItem: this.hasFreezeItem,
+      freezeTimer: this.freezeTimer,
     });
   }
 
