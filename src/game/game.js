@@ -7,11 +7,29 @@ import { ThirdPersonCamera } from "./camera.js";
 import { ChaserEnemy } from "./enemies/chaser.js";
 import { FisherEnemy } from "./enemies/fisher.js";
 import { DustEnemy } from "./enemies/dust.js";
-import { GAME_DURATION_SECONDS, FREEZE_DURATION_SECONDS } from "./constants.js";
+import { collideAndSlide, hasLineOfSight } from "./collision.js";
+import { buildItemPickupMesh, buildArrowProjectileMesh, buildSwordEffectMesh } from "./weapons.js";
+import {
+  GAME_DURATION_SECONDS,
+  FREEZE_DURATION_SECONDS,
+  forwardVector,
+  facingFromDelta,
+  ARROW_SPEED,
+  ARROW_MAX_RANGE,
+  ARROW_HIT_RADIUS,
+  ARROW_COOLDOWN,
+  ARROW_AI_RANGE,
+  SWORD_RADIUS,
+  SWORD_COOLDOWN,
+  SWORD_EFFECT_DURATION,
+} from "./constants.js";
 
-const CHASER_COUNT = 6;
-const FISHER_COUNT = 3;
+const CHASER_COUNT = 10;
+const FISHER_COUNT = 5;
 const DUST_COUNT = 9;
+const ARROW_ITEM_COUNT = 10;
+const SWORD_ITEM_COUNT = 10;
+const ITEM_PICKUP_RADIUS = 1.4;
 const FREEZE_TINT = 0x8fe0ff;
 const FREEZE_TINT_EMISSIVE = 0x2a8fc7;
 const MIN_SPAWN_DIST_FROM_START = 4; // 셀 단위(체비셰프 거리)
@@ -84,6 +102,9 @@ export class Game {
       for (const e of this.chasers) this.scene.remove(e.mesh);
       for (const e of this.fishers) this.scene.remove(e.mesh);
       for (const e of this.dusts) this.scene.remove(e.mesh);
+      for (const item of this.itemPickups) this.scene.remove(item.mesh);
+      for (const arrow of this.arrows) this.scene.remove(arrow.mesh);
+      for (const eff of this.swordEffects) this.scene.remove(eff.mesh);
     }
 
     const factory = buildFactory(Math.random);
@@ -147,6 +168,32 @@ export class Game {
       this.dusts.push(enemy);
       this.scene.add(enemy.mesh);
     }
+
+    // 화살/검 아이템을 바닥 곳곳에 뿌려둔다.
+    const itemCells = pickSpawnCells(
+      factory.openCells,
+      { x: factory.startCell.x, y: factory.startCell.y },
+      ARROW_ITEM_COUNT + SWORD_ITEM_COUNT
+    );
+    this.itemPickups = [];
+    let itemIdx = 0;
+    for (let i = 0; i < ARROW_ITEM_COUNT; i++) {
+      const c = itemCells[itemIdx++ % itemCells.length];
+      const mesh = buildItemPickupMesh("arrow");
+      mesh.position.set(c.x, 0.6, c.z);
+      this.scene.add(mesh);
+      this.itemPickups.push({ kind: "arrow", x: c.x, z: c.z, mesh, spinPhase: Math.random() * Math.PI * 2 });
+    }
+    for (let i = 0; i < SWORD_ITEM_COUNT; i++) {
+      const c = itemCells[itemIdx++ % itemCells.length];
+      const mesh = buildItemPickupMesh("sword");
+      mesh.position.set(c.x, 0.6, c.z);
+      this.scene.add(mesh);
+      this.itemPickups.push({ kind: "sword", x: c.x, z: c.z, mesh, spinPhase: Math.random() * Math.PI * 2 });
+    }
+
+    this.arrows = [];
+    this.swordEffects = [];
   }
 
   activateFreeze() {
@@ -168,6 +215,56 @@ export class Game {
     this.factory.floorMat.color.setHex(this._freezeFloorOrigColor);
     this.factory.floorMat.emissive.setHex(0x000000);
     this.factory.floorMat.emissiveIntensity = 1;
+  }
+
+  removeChaser(enemy) {
+    const idx = this.chasers.indexOf(enemy);
+    if (idx === -1) return;
+    this.scene.remove(enemy.mesh);
+    this.chasers.splice(idx, 1);
+  }
+
+  removeFisher(enemy) {
+    const idx = this.fishers.indexOf(enemy);
+    if (idx === -1) return;
+    this.scene.remove(enemy.mesh);
+    this.scene.remove(enemy.line);
+    this.scene.remove(enemy.hook);
+    this.fishers.splice(idx, 1);
+  }
+
+  removeDust(enemy) {
+    const idx = this.dusts.indexOf(enemy);
+    if (idx === -1) return;
+    this.scene.remove(enemy.mesh);
+    this.dusts.splice(idx, 1);
+  }
+
+  // 화살처럼 곧게 날아가 맞은 졸라맨/낚시꾼을 제거하는 투사체를 만든다.
+  spawnArrow(origin, facing) {
+    const mesh = buildArrowProjectileMesh();
+    mesh.position.set(origin.x, 1.3, origin.z);
+    mesh.rotation.y = facing;
+    this.scene.add(mesh);
+    this.arrows.push({ x: origin.x, z: origin.z, facing, traveled: 0, mesh });
+  }
+
+  // 발 밑에 반경 SWORD_RADIUS짜리 보라색 원을 만들고, 그 안의 졸라맨/낚시꾼/
+  // 먼지를 모두 제거한다.
+  triggerSword(origin) {
+    for (const e of [...this.chasers]) {
+      if (Math.hypot(e.position.x - origin.x, e.position.z - origin.z) <= SWORD_RADIUS) this.removeChaser(e);
+    }
+    for (const e of [...this.fishers]) {
+      if (Math.hypot(e.position.x - origin.x, e.position.z - origin.z) <= SWORD_RADIUS) this.removeFisher(e);
+    }
+    for (const e of [...this.dusts]) {
+      if (Math.hypot(e.position.x - origin.x, e.position.z - origin.z) <= SWORD_RADIUS) this.removeDust(e);
+    }
+    const mesh = buildSwordEffectMesh(SWORD_RADIUS);
+    mesh.position.set(origin.x, 0.05, origin.z);
+    this.scene.add(mesh);
+    this.swordEffects.push({ mesh, timer: SWORD_EFFECT_DURATION });
   }
 
   start() {
@@ -201,6 +298,15 @@ export class Game {
 
     this.player.update(dt, this.input, this.world);
 
+    if (this.input.consumeArrowPressed() && this.player.hasArrow && this.player.arrowCooldown <= 0) {
+      this.spawnArrow({ x: this.player.position.x, z: this.player.position.z }, this.player.facing);
+      this.player.arrowCooldown = ARROW_COOLDOWN;
+    }
+    if (this.input.consumeSwordPressed() && this.player.hasSword && this.player.swordCooldown <= 0) {
+      this.triggerSword({ x: this.player.position.x, z: this.player.position.z });
+      this.player.swordCooldown = SWORD_COOLDOWN;
+    }
+
     if (this.input.consumeFreezePressed()) this.activateFreeze();
     if (this.freezeTimer > 0) {
       this.freezeTimer -= dt;
@@ -229,6 +335,36 @@ export class Game {
       room._playerWasInside = inside;
     }
 
+    // 화살/검 아이템: 플레이어든 AI 친구든 가까이 가면 주워서(품에 안겨)
+    // 그때부터 무제한으로 쓸 수 있다.
+    for (let i = this.itemPickups.length - 1; i >= 0; i--) {
+      const item = this.itemPickups[i];
+      item.spinPhase += dt * 1.4;
+      item.mesh.rotation.y = item.spinPhase;
+      item.mesh.position.y = 0.6 + Math.sin(item.spinPhase * 1.3) * 0.08;
+
+      let collector = null;
+      if (this.player.alive && Math.hypot(this.player.position.x - item.x, this.player.position.z - item.z) < ITEM_PICKUP_RADIUS) {
+        collector = this.player;
+      }
+      if (!collector) {
+        for (const c of this.companions) {
+          if (!c.alive) continue;
+          if (Math.hypot(c.position.x - item.x, c.position.z - item.z) < ITEM_PICKUP_RADIUS) {
+            collector = c;
+            break;
+          }
+        }
+      }
+      if (collector) {
+        if (item.kind === "arrow") collector.hasArrow = true;
+        else collector.hasSword = true;
+        this.scene.remove(item.mesh);
+        this.itemPickups.splice(i, 1);
+        if (collector === this.player && this.hud.onItemPickup) this.hud.onItemPickup(item.kind);
+      }
+    }
+
     const dangerPositions = this.chasers.map((c) => ({ x: c.position.x, z: c.position.z }));
     for (const c of this.companions) c.update(dt, this.world, this.player, dangerPositions);
 
@@ -254,6 +390,84 @@ export class Game {
       for (const fisher of this.fishers) fisher.update(dt, this.world, candidates, onKill);
     }
     for (const dust of this.dusts) dust.update(dt, this.world, candidates);
+
+    // AI 친구도 무기가 있으면 스스로 위협에 대응한다.
+    for (const c of this.companions) {
+      if (!c.alive) continue;
+      if (c.arrowCooldown > 0) c.arrowCooldown -= dt;
+      if (c.swordCooldown > 0) c.swordCooldown -= dt;
+
+      if (c.hasSword && c.swordCooldown <= 0) {
+        const threatened = [...this.chasers, ...this.dusts].some(
+          (e) => Math.hypot(e.position.x - c.position.x, e.position.z - c.position.z) <= SWORD_RADIUS
+        );
+        if (threatened) {
+          this.triggerSword({ x: c.position.x, z: c.position.z });
+          c.swordCooldown = SWORD_COOLDOWN;
+        }
+      }
+      if (c.hasArrow && c.arrowCooldown <= 0) {
+        let target = null;
+        let bestDist = Infinity;
+        for (const e of [...this.chasers, ...this.fishers]) {
+          const d = Math.hypot(e.position.x - c.position.x, e.position.z - c.position.z);
+          if (
+            d < ARROW_AI_RANGE &&
+            d < bestDist &&
+            hasLineOfSight(c.position.x, c.position.z, e.position.x, e.position.z, this.world.wallSegments, this.world.crateObstacles)
+          ) {
+            bestDist = d;
+            target = e;
+          }
+        }
+        if (target) {
+          const facing = facingFromDelta(target.position.x - c.position.x, target.position.z - c.position.z);
+          this.spawnArrow({ x: c.position.x, z: c.position.z }, facing);
+          c.arrowCooldown = ARROW_COOLDOWN;
+        }
+      }
+    }
+
+    // 날아가는 화살: 벽/졸라맨/낚시꾼과 부딪히면 사라진다.
+    for (let i = this.arrows.length - 1; i >= 0; i--) {
+      const arrow = this.arrows[i];
+      const fwd = forwardVector(arrow.facing);
+      const moveDist = ARROW_SPEED * dt;
+      const rawX = arrow.x + fwd.x * moveDist;
+      const rawZ = arrow.z + fwd.z * moveDist;
+      const resolved = collideAndSlide(rawX, rawZ, 0.05, this.world.wallSegments, this.world.crateObstacles);
+      const hitWall = Math.hypot(resolved.x - rawX, resolved.z - rawZ) > 0.01;
+      arrow.x = rawX;
+      arrow.z = rawZ;
+      arrow.traveled += moveDist;
+      arrow.mesh.position.set(rawX, 1.3, rawZ);
+
+      let hitChaser = this.chasers.find((e) => Math.hypot(rawX - e.position.x, rawZ - e.position.z) < ARROW_HIT_RADIUS);
+      let hitFisher = !hitChaser
+        ? this.fishers.find((e) => Math.hypot(rawX - e.position.x, rawZ - e.position.z) < ARROW_HIT_RADIUS)
+        : null;
+
+      if (hitChaser || hitFisher) {
+        if (hitChaser) this.removeChaser(hitChaser);
+        else this.removeFisher(hitFisher);
+        this.scene.remove(arrow.mesh);
+        this.arrows.splice(i, 1);
+      } else if (hitWall || arrow.traveled > ARROW_MAX_RANGE) {
+        this.scene.remove(arrow.mesh);
+        this.arrows.splice(i, 1);
+      }
+    }
+
+    // 검 범위 표시(보라색 원)는 잠깐 나타났다 서서히 사라진다.
+    for (let i = this.swordEffects.length - 1; i >= 0; i--) {
+      const eff = this.swordEffects[i];
+      eff.timer -= dt;
+      eff.mesh.material.opacity = Math.max(0, (eff.timer / SWORD_EFFECT_DURATION) * 0.55);
+      if (eff.timer <= 0) {
+        this.scene.remove(eff.mesh);
+        this.swordEffects.splice(i, 1);
+      }
+    }
 
     if (this.state !== "playing") {
       this.updateHud();
@@ -288,6 +502,8 @@ export class Game {
       camouflaged: this.player.isCamouflaged(this.world.camoWallSegments),
       hasFreezeItem: this.hasFreezeItem,
       freezeTimer: this.freezeTimer,
+      hasArrow: this.player.hasArrow,
+      hasSword: this.player.hasSword,
     });
   }
 

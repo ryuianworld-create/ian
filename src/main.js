@@ -7,6 +7,8 @@ const tankSwatch = document.getElementById("tankSwatch");
 const bodySwatch = document.getElementById("bodySwatch");
 const camoBadge = document.getElementById("camoBadge");
 const freezeBadge = document.getElementById("freezeBadge");
+const arrowBadge = document.getElementById("arrowBadge");
+const swordBadge = document.getElementById("swordBadge");
 const startScreen = document.getElementById("startScreen");
 const endScreen = document.getElementById("endScreen");
 const endTitle = document.getElementById("endTitle");
@@ -65,6 +67,18 @@ const hud = {
     } else {
       freezeBadge.className = "freeze-used";
     }
+    arrowBadge.classList.toggle("hidden", !data.hasArrow);
+    swordBadge.classList.toggle("hidden", !data.hasSword);
+  },
+  onItemPickup(kind) {
+    pickupToast.textContent = kind === "arrow" ? "화살 획득! (Space로 쏘기)" : "검 획득! (F로 사용)";
+    pickupToast.classList.remove("hidden");
+    pickupToast.classList.add("show");
+    clearTimeout(pickupToast._hideTimer);
+    pickupToast._hideTimer = setTimeout(() => pickupToast.classList.remove("show"), 1400);
+    const badge = kind === "arrow" ? arrowBadge : swordBadge;
+    badge.classList.add("pop");
+    setTimeout(() => badge.classList.remove("pop"), 160);
   },
   onPickup(color) {
     flashPickup(color);

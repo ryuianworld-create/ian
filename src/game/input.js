@@ -1,6 +1,6 @@
-// 방향키 이동/회전 + Enter(색 채우기) + G(ㅎ, 긴급 정지 아이템) + 마우스 시점
-// 회전을 담당하는 입력 매니저.
-const TRACKED_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "KeyG"];
+// 방향키 이동/회전 + Enter(색 채우기) + G(ㅎ, 긴급 정지 아이템) + Space(화살) +
+// F(검) + 마우스 시점 회전을 담당하는 입력 매니저.
+const TRACKED_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "KeyG", "Space", "KeyF"];
 
 // 한글 2벌식에서 ㅎ은 물리적으로 G 키 위치이므로, 키보드 배열이 한글이든
 // 영문이든 상관없이 code(물리적 위치) 기준인 KeyG로 판정한다. 혹시 code가
@@ -8,6 +8,8 @@ const TRACKED_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"
 function normalizeKey(e) {
   if (e.code === "Enter" || e.key === "Enter") return "Enter";
   if (e.code === "KeyG" || e.key === "ㅎ" || e.key === "g" || e.key === "G") return "KeyG";
+  if (e.code === "Space" || e.key === " ") return "Space";
+  if (e.code === "KeyF" || e.key === "ㄹ" || e.key === "f" || e.key === "F") return "KeyF";
   return e.code;
 }
 
@@ -16,6 +18,8 @@ export class InputManager {
     this.down = new Set();
     this._enterPressedThisFrame = false;
     this._freezePressedThisFrame = false;
+    this._arrowPressedThisFrame = false;
+    this._swordPressedThisFrame = false;
     this._mouseDeltaX = 0;
     this.canvas = canvas;
 
@@ -26,6 +30,8 @@ export class InputManager {
       if (!this.down.has(key)) {
         if (key === "Enter") this._enterPressedThisFrame = true;
         if (key === "KeyG") this._freezePressedThisFrame = true;
+        if (key === "Space") this._arrowPressedThisFrame = true;
+        if (key === "KeyF") this._swordPressedThisFrame = true;
       }
       this.down.add(key);
     };
@@ -75,6 +81,20 @@ export class InputManager {
   consumeFreezePressed() {
     const v = this._freezePressedThisFrame;
     this._freezePressedThisFrame = false;
+    return v;
+  }
+
+  // 이번 프레임에 Space(화살)가 새로 눌렸는지 확인 (호출 시 소비됨).
+  consumeArrowPressed() {
+    const v = this._arrowPressedThisFrame;
+    this._arrowPressedThisFrame = false;
+    return v;
+  }
+
+  // 이번 프레임에 F(검)가 새로 눌렸는지 확인 (호출 시 소비됨).
+  consumeSwordPressed() {
+    const v = this._swordPressedThisFrame;
+    this._swordPressedThisFrame = false;
     return v;
   }
 

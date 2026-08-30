@@ -27,6 +27,11 @@ export class Companion {
     this.mover = new PathMover();
     this.speed01 = 0;
 
+    this.hasArrow = false;
+    this.hasSword = false;
+    this.arrowCooldown = 0;
+    this.swordCooldown = 0;
+
     // 어두운 곳에서도 적(검은 졸라맨)과 헷갈리지 않도록 은은한 파란빛을 낸다.
     this.friendGlow = new THREE.PointLight(0x8fd6ff, 5, 6, 1.6);
     this.friendGlow.position.set(0, 1.6, 0);
@@ -58,6 +63,8 @@ export class Companion {
         this.alive = true;
         this.mesh.visible = true;
         this.stripColor();
+        this.hasArrow = false;
+        this.hasSword = false;
         const anchor = this._respawnAnchor || playerEntity.position;
         this.position.set(anchor.x + (Math.random() - 0.5) * 3, 0, anchor.z + (Math.random() - 0.5) * 3);
         this.mover.reset();

@@ -21,6 +21,11 @@ export class Player {
     this.alive = true;
     this.speed01 = 0;
 
+    this.hasArrow = false;
+    this.hasSword = false;
+    this.arrowCooldown = 0;
+    this.swordCooldown = 0;
+
     // 손전등(헤드램프) - 아주 어두운 공장에서 시야를 확보해준다.
     // 몸 바깥쪽에 살짝 띄워 배치해 자기 몸이 과다 노출(하얗게 뜨는 현상)되지 않도록 한다.
     this.headlamp = new THREE.SpotLight(0xfff2d0, 110, 26, Math.PI / 4.6, 0.4, 1.05);
@@ -55,6 +60,9 @@ export class Player {
 
   update(dt, input, world) {
     if (!this.alive) return;
+
+    if (this.arrowCooldown > 0) this.arrowCooldown -= dt;
+    if (this.swordCooldown > 0) this.swordCooldown -= dt;
 
     if (input.turnLeft) this.facing += PLAYER_TURN_SPEED * dt;
     if (input.turnRight) this.facing -= PLAYER_TURN_SPEED * dt;

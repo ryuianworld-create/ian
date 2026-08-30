@@ -25,11 +25,13 @@
           </div>
           <div id="camoBadge" class="hidden">위장중</div>
           <div id="freezeBadge" class="freeze-ready">ㅎ: 긴급 정지(1회)</div>
+          <div id="arrowBadge" class="hidden">Space: 화살</div>
+          <div id="swordBadge" class="hidden">F: 검</div>
         </div>
 
         <div id="pickupToast" class="hidden"></div>
 
-        <div id="hint">방향키: 이동/회전 · 화면 클릭 후 마우스로 시점 회전 · Enter: 약통 색 몸에 채우기 · ㅎ: 긴급 정지</div>
+        <div id="hint">방향키: 이동/회전 · 클릭 후 마우스 회전 · Enter: 색 채우기 · Space: 화살 · F: 검 · ㅎ: 긴급 정지</div>
 
         <div id="deathFlash"></div>
         <div id="pickupFlash"></div>
@@ -42,13 +44,16 @@
           졸라맨의 낚싯대에 걸리면 죽는다. 작은 방의 투명한 색문에 닿으면
           약통에 색이 채워진다. <b>Enter</b>를 누르면 몸 전체가 그 색이
           되고, 같은 색 벽에 붙어 있으면 졸라맨들은 당신을 알아채지 못한다.
-          단, 먼지에 닿으면 색이 지워진다. AI 친구와 함께 5분 안에 출구를
-          찾아 탈출하라.
+          단, 먼지에 닿으면 색이 지워진다. 바닥에 떨어진 화살과 검을 주우면
+          무제한으로 쓸 수 있다. AI 친구와 함께 5분 안에 출구를 찾아
+          탈출하라.
         </p>
         <ul>
           <li>방향키 ↑↓ : 전진 / 후진</li>
           <li>방향키 ←→ 또는 화면 클릭 후 마우스 좌우 이동 : 시점 회전</li>
           <li>Enter : 약통의 색을 몸에 채우기 (약통은 비워짐)</li>
+          <li>Space : 화살 쏘기 (주운 뒤 무제한)</li>
+          <li>F : 검 사용 - 발밑 반경 3 범위의 적 제거 (주운 뒤 무제한)</li>
           <li>ㅎ(G) : 긴급 정지 아이템 (게임당 1회, 20초간 졸라맨들이 멈춤)</li>
         </ul>
         <button id="startBtn">게임 시작</button>

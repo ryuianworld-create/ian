@@ -24,6 +24,18 @@ export const CAMO_TOUCH_DISTANCE = 1.9;
 
 export const FREEZE_DURATION_SECONDS = 20;
 
+// 화살(원거리 무기) - 한번 주우면 무제한으로 쓸 수 있다.
+export const ARROW_SPEED = 24;
+export const ARROW_MAX_RANGE = 30;
+export const ARROW_HIT_RADIUS = 0.6;
+export const ARROW_COOLDOWN = 0.4;
+export const ARROW_AI_RANGE = 14;
+
+// 검(범위 무기) - 발밑에 반경 3짜리 보라색 원이 생기며 그 안의 적을 제거한다.
+export const SWORD_RADIUS = 3;
+export const SWORD_COOLDOWN = 1.2;
+export const SWORD_EFFECT_DURATION = 0.5;
+
 export function randomColor() {
   return RAINBOW_PALETTE[Math.floor(Math.random() * RAINBOW_PALETTE.length)];
 }
