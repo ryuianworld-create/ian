@@ -13,6 +13,10 @@ const CHASER_COUNT = 6;
 const FISHER_COUNT = 3;
 const DUST_COUNT = 5;
 const MIN_SPAWN_DIST_FROM_START = 4; // 셀 단위(체비셰프 거리)
+const COMPANION_OFFSETS = [
+  { x: 1.7, z: 1.1 },
+  { x: -1.6, z: 1.4 },
+];
 
 function chebyshev(a, b) {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
@@ -48,7 +52,7 @@ export class Game {
 
     this.camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 220);
     this.thirdPerson = new ThirdPersonCamera(this.camera);
-    this.input = new InputManager();
+    this.input = new InputManager(canvas);
 
     this.state = "menu"; // menu | playing | win | lose
     this.timeLeft = GAME_DURATION_SECONDS;
@@ -74,7 +78,7 @@ export class Game {
     if (this.factory) {
       this.scene.remove(this.factory.group);
       this.scene.remove(this.player.mesh);
-      this.scene.remove(this.companion.mesh);
+      for (const c of this.companions) this.scene.remove(c.mesh);
       for (const e of this.chasers) this.scene.remove(e.mesh);
       for (const e of this.fishers) this.scene.remove(e.mesh);
       for (const e of this.dusts) this.scene.remove(e.mesh);
@@ -98,8 +102,11 @@ export class Game {
     this.player = new Player(factory.startPosition);
     this.scene.add(this.player.mesh);
 
-    this.companion = new Companion(factory.startPosition, { x: 1.7, z: 1.1 });
-    this.scene.add(this.companion.mesh);
+    this.companions = COMPANION_OFFSETS.map((offset) => {
+      const c = new Companion(factory.startPosition, offset);
+      this.scene.add(c.mesh);
+      return c;
+    });
 
     const spawnCells = pickSpawnCells(
       factory.openCells,
@@ -114,7 +121,7 @@ export class Game {
 
     for (let i = 0; i < CHASER_COUNT; i++) {
       const c = spawnCells[idx++ % spawnCells.length];
-      const enemy = new ChaserEnemy(new THREE.Vector3(c.x, 0, c.z));
+      const enemy = new ChaserEnemy(new THREE.Vector3(c.x, 0, c.z), { cellX: c.cellX, cellY: c.cellY });
       this.chasers.push(enemy);
       this.scene.add(enemy.mesh);
     }
@@ -126,7 +133,7 @@ export class Game {
     }
     for (let i = 0; i < DUST_COUNT; i++) {
       const c = spawnCells[idx++ % spawnCells.length];
-      const enemy = new DustEnemy(new THREE.Vector3(c.x, 0.5, c.z));
+      const enemy = new DustEnemy(new THREE.Vector3(c.x, 0.5, c.z), { cellX: c.cellX, cellY: c.cellY });
       this.dusts.push(enemy);
       this.scene.add(enemy.mesh);
     }
@@ -171,23 +178,23 @@ export class Game {
       //  같은 문 앞에 서 있다고 즉시 재충전되는 것을 방지)
       if (inside && !room._playerWasInside) this.player.fillTank(room.color);
       room._playerWasInside = inside;
-      // 실시간 조명 예산 절약: 가까이 갔을 때만 방 조명을 켠다.
-      if (room.light) room.light.visible = d < 16;
     }
 
     const dangerPositions = this.chasers.map((c) => ({ x: c.position.x, z: c.position.z }));
-    this.companion.update(dt, this.world, this.player, dangerPositions);
+    for (const c of this.companions) c.update(dt, this.world, this.player, dangerPositions);
 
     const candidates = [];
     if (this.player.alive) candidates.push({ entity: this.player, kind: "player" });
-    if (this.companion.alive) candidates.push({ entity: this.companion, kind: "companion" });
+    for (const c of this.companions) {
+      if (c.alive) candidates.push({ entity: c, kind: "companion" });
+    }
 
     const onKill = (entity) => {
       if (entity === this.player) {
         this.player.kill();
         this.endGame(false, "졸라맨에게 붙잡히고 말았다...");
-      } else if (entity === this.companion) {
-        this.companion.kill(this.player.position);
+      } else if (this.companions.includes(entity)) {
+        entity.kill(this.player.position);
       }
     };
 

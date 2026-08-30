@@ -6,6 +6,7 @@ import { animateStickFigure, setStickFigureColor } from "./stickFigure.js";
 import { PLAYER_RADIUS, PLAYER_SPEED, PLAYER_TURN_SPEED, forwardVector } from "./constants.js";
 
 export const NEUTRAL_BODY_COLOR = 0xb7bcc4;
+const MOUSE_SENSITIVITY = 0.0026;
 
 export class Player {
   constructor(startPosition) {
@@ -57,6 +58,10 @@ export class Player {
 
     if (input.turnLeft) this.facing += PLAYER_TURN_SPEED * dt;
     if (input.turnRight) this.facing -= PLAYER_TURN_SPEED * dt;
+    if (input.consumeMouseDeltaX) {
+      const mouseDeltaX = input.consumeMouseDeltaX();
+      if (mouseDeltaX) this.facing -= mouseDeltaX * MOUSE_SENSITIVITY;
+    }
     this.mesh.rotation.y = this.facing;
 
     let move = 0;

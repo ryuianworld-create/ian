@@ -5,11 +5,12 @@ const WANDER_SPEED = 2.6;
 const SEEK_SPEED = 4.3;
 const DETECT_RADIUS = 12;
 const STRIP_RADIUS = 0.85;
+const WANDER_HOME_RADIUS = 5; // 출발 지점 근처(셀 단위)를 벗어나지 않고 배회
 
 function buildDustMesh() {
   const group = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({
-    color: 0x9a9488,
+    color: 0x9c9468,
     roughness: 1,
     transparent: true,
     opacity: 0.82,
@@ -23,7 +24,7 @@ function buildDustMesh() {
     s.position.set(Math.cos(ang) * rad, 0.5 + (Math.random() - 0.5) * 0.35, Math.sin(ang) * rad);
     group.add(s);
   }
-  const light = new THREE.PointLight(0xbdb8a8, 0.5, 4);
+  const light = new THREE.PointLight(0xd6a860, 0.5, 4);
   light.position.y = 0.5;
   group.add(light);
   return group;
@@ -32,7 +33,7 @@ function buildDustMesh() {
 // 색깔을 먹는 먼지. 평소엔 미로를 배회하다가, 색이 채워진 대상(위장 여부와
 // 무관하게)을 감지하면 다가가 닿아서 색을 지워버린다.
 export class DustEnemy {
-  constructor(position) {
+  constructor(position, homeCell = null) {
     this.mesh = buildDustMesh();
     this.mesh.position.copy(position);
     this.mesh.position.y = 0.5;
@@ -42,10 +43,20 @@ export class DustEnemy {
     this.mover = new PathMover();
     this.wanderTarget = null;
     this.spinPhase = Math.random() * 10;
+    this.homeCell = homeCell;
   }
 
   pickWanderTarget(world) {
-    const cell = world.openCells[Math.floor(Math.random() * world.openCells.length)];
+    let pool = world.openCells;
+    if (this.homeCell) {
+      const nearby = world.openCells.filter(
+        (c) =>
+          Math.max(Math.abs(c.cellX - this.homeCell.cellX), Math.abs(c.cellY - this.homeCell.cellY)) <=
+          WANDER_HOME_RADIUS
+      );
+      if (nearby.length > 0) pool = nearby;
+    }
+    const cell = pool[Math.floor(Math.random() * pool.length)];
     this.wanderTarget = { x: cell.x, z: cell.z };
   }
 

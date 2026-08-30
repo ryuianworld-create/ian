@@ -288,9 +288,9 @@ export function buildFactory(rng = Math.random) {
     const doorMat = new THREE.MeshStandardMaterial({
       color: color.hex,
       emissive: color.hex,
-      emissiveIntensity: 0.9,
+      emissiveIntensity: 1.3,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.58,
       roughness: 0.15,
       metalness: 0,
       side: THREE.DoubleSide,
@@ -300,11 +300,10 @@ export function buildFactory(rng = Math.random) {
     if (!vertical) door.rotation.y = Math.PI / 2;
     group.add(door);
 
-    // 실시간 조명 예산을 아끼기 위해 처음엔 꺼두고, 플레이어가 가까이
-    // 왔을 때만(게임 루프에서) 켠다.
-    const light = new THREE.PointLight(color.hex, 20, 10, 1.6);
+    // 색깔 방은 멀리서도 눈에 띄어야 플레이어가 찾아갈 수 있으므로 항상 켜둔다
+    // (개수가 많지 않아 실시간 조명 예산에 큰 부담이 없다).
+    const light = new THREE.PointLight(color.hex, 26, 14, 1.5);
     light.position.set(mid.x, 2.2, mid.z);
-    light.visible = false;
     group.add(light);
 
     colorRooms.push({ x: mid.x, z: mid.z, color, light });

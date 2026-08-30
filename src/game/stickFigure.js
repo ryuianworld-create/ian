@@ -2,7 +2,8 @@ import * as THREE from "three";
 
 // 졸라맨(스틱맨) 모양의 THREE.Group을 만든다. 얇은 원기둥 팔다리 + 구 머리로 구성.
 // group.userData.limbs 에 애니메이션용 팔다리 참조를 담아 둔다.
-export function buildStickFigure({ color = 0x111111, height = 1.9 } = {}) {
+// eyeColor를 지정하면 어두운 곳에서도 눈에 띄도록 머리에 작은 발광 점(눈)을 붙인다.
+export function buildStickFigure({ color = 0x111111, height = 1.9, eyeColor = null } = {}) {
   const group = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({
     color,
@@ -28,6 +29,16 @@ export function buildStickFigure({ color = 0x111111, height = 1.9 } = {}) {
   const head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 10, 8), material);
   head.position.y = shoulderY + headRadius + 0.05;
   group.add(head);
+
+  if (eyeColor !== null) {
+    const eyeMat = new THREE.MeshBasicMaterial({ color: eyeColor });
+    const eyeGeo = new THREE.SphereGeometry(0.035, 6, 6);
+    const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeL.position.set(-0.08, head.position.y, headRadius * 0.85);
+    const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeR.position.set(0.08, head.position.y, headRadius * 0.85);
+    group.add(eyeL, eyeR);
+  }
 
   function makeLimb(length) {
     const pivot = new THREE.Group();

@@ -19,10 +19,16 @@ export class PathMover {
     this.repathTimer -= dt;
     const fromCell = worldToCell(entity.position.x, entity.position.z);
     const toCell = worldToCell(targetWorld.x, targetWorld.z);
+    // 목표가 다른 셀로 넘어갔다면 타이머와 무관하게 즉시 다시 길을 찾는다.
+    // (그렇지 않으면 목표가 막 움직였는데도 "이미 도착함" 상태의 낡은 경로를
+    //  최대 repathInterval초 동안 그대로 써서 엉뚱한 곳으로 향할 수 있다.)
+    const toCellChanged =
+      !this._lastToCell || this._lastToCell.cellX !== toCell.cellX || this._lastToCell.cellY !== toCell.cellY;
 
-    if (this.repathTimer <= 0 || this.path.length === 0) {
+    if (this.repathTimer <= 0 || this.path.length === 0 || toCellChanged) {
       this.path = bfsPath(world.cells, world.mazeW, world.mazeH, fromCell, toCell);
       this.repathTimer = repathInterval;
+      this._lastToCell = toCell;
     }
 
     while (this.path.length > 1) {

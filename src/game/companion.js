@@ -26,6 +26,11 @@ export class Companion {
     this.deadTimer = 0;
     this.mover = new PathMover();
     this.speed01 = 0;
+
+    // 어두운 곳에서도 적(검은 졸라맨)과 헷갈리지 않도록 은은한 파란빛을 낸다.
+    this.friendGlow = new THREE.PointLight(0x8fd6ff, 5, 6, 1.6);
+    this.friendGlow.position.set(0, 1.6, 0);
+    this.mesh.add(this.friendGlow);
   }
 
   stripColor() {
@@ -102,8 +107,12 @@ export class Companion {
     if (this.state === "follow") {
       const target = { x: playerEntity.position.x, z: playerEntity.position.z };
       const d = Math.hypot(target.x - this.position.x, target.z - this.position.z);
-      this.speed01 = d > 2.2 ? 1 : Math.max(0, (d - 0.6) / 1.6);
-      if (d > 2.2) this.mover.moveToward(this, dt, world, target, FOLLOW_SPEED);
+      if (d > 1.8) {
+        this.speed01 = 1;
+        this.mover.moveToward(this, dt, world, target, FOLLOW_SPEED);
+      } else {
+        this.speed01 = 0;
+      }
     } else if (this.state === "hide") {
       speed = HIDE_SPEED;
       let best = null;

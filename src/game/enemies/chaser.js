@@ -13,11 +13,15 @@ function distTo(a, b) {
   return Math.hypot(a.position.x - b.position.x, a.position.z - b.position.z);
 }
 
+const PATROL_HOME_RADIUS = 5; // 자기 출발 지점 근처(셀 단위)를 벗어나지 않고 순찰
+
 // 우리를 쫓아다니는 졸라맨. 시야에 들어온(그리고 위장하지 않은) 대상 중
 // 가장 가까운 쪽으로 목표를 바꿔가며 추격하고, 닿으면 즉사시킨다.
 export class ChaserEnemy {
-  constructor(position) {
-    this.mesh = buildStickFigure({ color: 0x131313, height: 1.95 });
+  constructor(position, homeCell = null) {
+    // 완전한 검정은 어두운 공장에서 아예 안 보일 수 있어 살짝 밝은 회색으로,
+    // 눈은 붉게 발광시켜 어둠 속에서도 다가오는 게 보이게 한다.
+    this.mesh = buildStickFigure({ color: 0x2b2b30, height: 1.95, eyeColor: 0xff2a2a });
     this.mesh.position.copy(position);
     this.position = this.mesh.position;
     this.facing = Math.random() * Math.PI * 2;
@@ -28,10 +32,20 @@ export class ChaserEnemy {
     this.target = null;
     this.loseSightTimer = 0;
     this.speed01 = 0;
+    this.homeCell = homeCell;
   }
 
   pickPatrolTarget(world) {
-    const cell = world.openCells[Math.floor(Math.random() * world.openCells.length)];
+    let pool = world.openCells;
+    if (this.homeCell) {
+      const nearby = world.openCells.filter(
+        (c) =>
+          Math.max(Math.abs(c.cellX - this.homeCell.cellX), Math.abs(c.cellY - this.homeCell.cellY)) <=
+          PATROL_HOME_RADIUS
+      );
+      if (nearby.length > 0) pool = nearby;
+    }
+    const cell = pool[Math.floor(Math.random() * pool.length)];
     this.patrolTarget = { x: cell.x, z: cell.z };
   }
 

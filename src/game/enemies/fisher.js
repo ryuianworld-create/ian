@@ -16,7 +16,7 @@ const UP = new THREE.Vector3(0, 1, 0);
 // 대상에 닿으면 즉사시킨다. 위장한 대상은 애초에 발견하지 못한다.
 export class FisherEnemy {
   constructor(position, sceneGroup) {
-    this.mesh = buildStickFigure({ color: 0x2c2013, height: 1.85 });
+    this.mesh = buildStickFigure({ color: 0x3a2c1c, height: 1.85, eyeColor: 0xff9a2a });
     this.mesh.position.copy(position);
     this.position = this.mesh.position;
     this.facing = Math.random() * Math.PI * 2;
