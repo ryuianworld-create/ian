@@ -67,7 +67,20 @@
           <li>엘리베이터 근처에서 숫자키 1~21 입력 : 그 층으로 이동 (두 자리는 십의자리·일의자리를 짧게 같이 누르기, 예: '1'+'2' → 12층)</li>
           <li>ㅎ(G) : 긴급 정지 아이템 (게임당 1회, 20초간 졸라맨들이 멈춤)</li>
         </ul>
-        <button id="startBtn">게임 시작</button>
+        <div id="levelSelect">
+          <button class="levelBtn" data-level="1">
+            <strong>레벨 1</strong>
+            <span>AI 친구 5명이 원형으로 딱 붙어다님. 색·무기를 나와 그대로 공유하며 함께 공격</span>
+          </button>
+          <button class="levelBtn" data-level="2">
+            <strong>레벨 2</strong>
+            <span>AI 친구 2명이 독립적으로 따라다니며 스스로 판단해 숨거나 싸움</span>
+          </button>
+          <button class="levelBtn" data-level="3">
+            <strong>레벨 3</strong>
+            <span>혼자서 탈출</span>
+          </button>
+        </div>
       </div>
 
       <div id="endScreen" class="overlay hidden">

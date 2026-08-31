@@ -37,16 +37,32 @@ const FISHER_COUNT = 5;
 const DUST_COUNT = 9;
 const ARROW_ITEM_COUNT = 10;
 const SWORD_ITEM_COUNT = 10;
-const WAND_ITEM_COUNT = 5;
-const HAMMER_ITEM_COUNT = 5;
+const WAND_ITEM_COUNT = 10;
+const HAMMER_ITEM_COUNT = 10;
 const ITEM_PICKUP_RADIUS = 1.4;
 const FREEZE_TINT = 0x8fe0ff;
 const FREEZE_TINT_EMISSIVE = 0x2a8fc7;
 const MIN_SPAWN_DIST_FROM_START = 4; // 셀 단위(체비셰프 거리)
-const COMPANION_OFFSETS = [
-  { x: 1.7, z: 1.1 },
-  { x: -1.6, z: 1.4 },
-];
+
+// 레벨별 AI 친구 구성.
+// 레벨1: 5명이 플레이어를 둘러싼 원형 대형으로 딱 붙어서, 색/무기를
+//        플레이어와 그대로 공유하며 함께 공격한다("동기화" 모드).
+// 레벨2: 지금까지 만든 것과 동일 - 2명이 독립적으로 따라다니며 스스로
+//        판단해 숨거나 도망치고 무기를 쓴다.
+// 레벨3: 혼자.
+const LEVEL_FORMATIONS = {
+  1: Array.from({ length: 5 }, (_, i) => ({ syncMode: true, formationAngle: (Math.PI * 2 * i) / 5, formationRadius: 2.4 })),
+  2: [
+    { syncMode: false, offset: { x: 1.7, z: 1.1 } },
+    { syncMode: false, offset: { x: -1.6, z: 1.4 } },
+  ],
+  3: [],
+};
+
+function formationOffset(cfg) {
+  if (cfg.offset) return cfg.offset;
+  return { x: Math.sin(cfg.formationAngle) * cfg.formationRadius, z: Math.cos(cfg.formationAngle) * cfg.formationRadius };
+}
 
 function chebyshev(a, b) {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
@@ -85,6 +101,7 @@ export class Game {
     this.input = new InputManager(canvas);
     this.elevatorSystem = new ElevatorSystem();
     this.currentFloor = 1;
+    this.level = 2;
 
     this.state = "menu"; // menu | playing | win | lose
     this.timeLeft = GAME_DURATION_SECONDS;
@@ -136,13 +153,18 @@ export class Game {
     this.player = new Player(factory.startPosition);
     this.scene.add(this.player.mesh);
 
-    this.companions = COMPANION_OFFSETS.map((offset) => {
-      const c = new Companion(factory.startPosition, offset);
+    this.companions = this.createCompanions(factory.startPosition);
+
+    this._spawnFloorContents(factory);
+  }
+
+  createCompanions(startPosition) {
+    const formation = LEVEL_FORMATIONS[this.level] || LEVEL_FORMATIONS[2];
+    return formation.map((cfg) => {
+      const c = new Companion(startPosition, formationOffset(cfg), cfg);
       this.scene.add(c.mesh);
       return c;
     });
-
-    this._spawnFloorContents(factory);
   }
 
   // 엘리베이터로 층을 옮길 때도 재사용하는 공통 스폰 로직: 현재 층의 적/
@@ -248,8 +270,8 @@ export class Game {
     this.player.position.copy(factory.startPosition);
     this.player.facing = Math.PI;
 
-    this.companions.forEach((c, i) => {
-      const offset = COMPANION_OFFSETS[i] || { x: 0, z: 0 };
+    this.companions.forEach((c) => {
+      const offset = c.syncMode ? formationOffset(c) : { x: 0, z: 0 };
       c.alive = true;
       c.mesh.visible = true;
       c.position.set(factory.startPosition.x + offset.x, 0, factory.startPosition.z + offset.z);
@@ -348,6 +370,30 @@ export class Game {
     this.swordEffects.push({ mesh, timer: SWORD_EFFECT_DURATION });
   }
 
+  // 레벨1 전용: 플레이어 기준으로 가장 가까이 보이는 적을 "목표물"로 정해,
+  // 살아있는 동료 전원이 각자 위치에서 그 목표물을 향해 동시에 화살을 쏜다.
+  _syncedVolley() {
+    let target = null;
+    let bestDist = Infinity;
+    for (const e of [...this.chasers, ...this.fishers]) {
+      const d = Math.hypot(e.position.x - this.player.position.x, e.position.z - this.player.position.z);
+      if (
+        d < ARROW_AI_RANGE &&
+        d < bestDist &&
+        hasLineOfSight(this.player.position.x, this.player.position.z, e.position.x, e.position.z, this.world.wallSegments, this.world.crateObstacles)
+      ) {
+        bestDist = d;
+        target = e;
+      }
+    }
+    if (!target) return;
+    for (const c of this.companions) {
+      if (!c.alive) continue;
+      const facing = facingFromDelta(target.position.x - c.position.x, target.position.z - c.position.z);
+      this.spawnArrow({ x: c.position.x, z: c.position.z }, facing);
+    }
+  }
+
   // 마법봉: 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)을
   // origin 주변으로 끌어와 곧장 위협해오게 만든다.
   spawnWandEffect(origin) {
@@ -407,7 +453,8 @@ export class Game {
     this.hammerEffects.push({ mesh, timer: HAMMER_EFFECT_DURATION });
   }
 
-  start() {
+  start(level = 2) {
+    this.level = level;
     this.buildWorld();
     this.state = "playing";
     this.timeLeft = GAME_DURATION_SECONDS;
@@ -441,10 +488,17 @@ export class Game {
     if (this.input.consumeArrowPressed() && this.player.hasArrow && this.player.arrowCooldown <= 0) {
       this.spawnArrow({ x: this.player.position.x, z: this.player.position.z }, this.player.facing);
       this.player.arrowCooldown = ARROW_COOLDOWN;
+      // 레벨1: 동료들도 같은 목표물(가장 가까운 적)을 향해 함께 화살을 쏜다.
+      if (this.level === 1) this._syncedVolley();
     }
     if (this.input.consumeSwordPressed() && this.player.hasSword && this.player.swordCooldown <= 0) {
       this.triggerSword({ x: this.player.position.x, z: this.player.position.z });
       this.player.swordCooldown = SWORD_COOLDOWN;
+      if (this.level === 1) {
+        for (const c of this.companions) {
+          if (c.alive) this.triggerSword({ x: c.position.x, z: c.position.z });
+        }
+      }
     }
     if (this.input.consumeWandPressed() && this.player.hasWand && this.player.wandCooldown <= 0) {
       this.spawnWandEffect({ x: this.player.position.x, z: this.player.position.z });
@@ -453,6 +507,11 @@ export class Game {
     if (this.input.consumeHammerPressed() && this.player.hasHammer && this.player.hammerCooldown <= 0) {
       this.triggerHammer({ x: this.player.position.x, z: this.player.position.z });
       this.player.hammerCooldown = HAMMER_COOLDOWN;
+      if (this.level === 1) {
+        for (const c of this.companions) {
+          if (c.alive) this.triggerHammer({ x: c.position.x, z: c.position.z });
+        }
+      }
     }
 
     if (this.input.consumeFreezePressed()) this.activateFreeze();
@@ -511,10 +570,13 @@ export class Game {
         }
       }
       if (collector) {
-        collector[ITEM_FLAG[item.kind]] = true;
+        // 레벨1은 동료들이 플레이어의 무기를 그대로 공유하므로, 누가
+        // 주웠든 플레이어에게 표시가 붙어야 동기화 공격이 동작한다.
+        const flagTarget = this.level === 1 ? this.player : collector;
+        flagTarget[ITEM_FLAG[item.kind]] = true;
         this.scene.remove(item.mesh);
         this.itemPickups.splice(i, 1);
-        if (collector === this.player && this.hud.onItemPickup) this.hud.onItemPickup(item.kind);
+        if ((collector === this.player || this.level === 1) && this.hud.onItemPickup) this.hud.onItemPickup(item.kind);
       }
     }
 
@@ -544,14 +606,18 @@ export class Game {
     }
     for (const dust of this.dusts) dust.update(dt, this.world, candidates);
 
-    // AI 친구도 무기가 있으면 스스로 위협에 대응한다.
+    // AI 친구도 무기가 있으면 스스로 위협에 대응한다 (레벨1의 동기화 동료는
+    // 독립적으로 판단하지 않고 플레이어가 공격할 때만 함께 움직인다).
     for (const c of this.companions) {
-      if (!c.alive) continue;
+      if (!c.alive || c.syncMode) continue;
       if (c.arrowCooldown > 0) c.arrowCooldown -= dt;
       if (c.swordCooldown > 0) c.swordCooldown -= dt;
 
       if (c.hasSword && c.swordCooldown <= 0) {
-        const threatened = [...this.chasers, ...this.dusts].some(
+        // 먼지는 색만 지울 뿐 목숨을 위협하지 않으므로, 진짜 위협인
+        // 졸라맨이 가까이 있을 때만 검을 자동으로 휘두른다. (그렇지 않으면
+        // 흔한 먼지 때문에 검 이펙트가 거의 항상 떠 있는 것처럼 보인다.)
+        const threatened = this.chasers.some(
           (e) => Math.hypot(e.position.x - c.position.x, e.position.z - c.position.z) <= SWORD_RADIUS
         );
         if (threatened) {

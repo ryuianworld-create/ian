@@ -357,6 +357,47 @@ body {
   filter: brightness(1.08);
 }
 
+#levelSelect {
+  pointer-events: all;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 720px;
+}
+
+.levelBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 200px;
+  padding: 16px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eee;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.levelBtn:hover {
+  background: rgba(255, 138, 61, 0.18);
+  border-color: rgba(255, 138, 61, 0.6);
+  transform: translateY(-2px);
+}
+
+.levelBtn strong {
+  font-size: 17px;
+}
+
+.levelBtn span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cfcfcf;
+}
+
 #endTitle.win {
   color: #7dffb0;
 }

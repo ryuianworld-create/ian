@@ -18,7 +18,7 @@ const startScreen = document.getElementById("startScreen");
 const endScreen = document.getElementById("endScreen");
 const endTitle = document.getElementById("endTitle");
 const endMessage = document.getElementById("endMessage");
-const startBtn = document.getElementById("startBtn");
+const levelBtns = document.querySelectorAll(".levelBtn");
 const restartBtn = document.getElementById("restartBtn");
 const deathFlash = document.getElementById("deathFlash");
 const pickupFlash = document.getElementById("pickupFlash");
@@ -144,14 +144,16 @@ function flashPickup(color) {
 
 const game = new Game({ canvas, hud });
 
-startBtn.addEventListener("click", () => {
-  startScreen.classList.add("hidden");
-  game.start();
+levelBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    startScreen.classList.add("hidden");
+    game.start(Number(btn.dataset.level));
+  });
 });
 
 restartBtn.addEventListener("click", () => {
   endScreen.classList.add("hidden");
-  game.start();
+  startScreen.classList.remove("hidden");
 });
 
 if (import.meta.env.DEV) {
