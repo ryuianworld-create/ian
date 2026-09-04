@@ -143,3 +143,33 @@ export function buildHammerEffectMesh(radius) {
   mesh.rotation.x = -Math.PI / 2;
   return mesh;
 }
+
+// 마법봉에 갇힌 졸라맨을 둘러싸는 형광 보라색 감옥. 먼지가 닿기 전까지는
+// 계속 보인다. 기본적으로 숨겨진 채로 만들어지고, 갇혔을 때만 켠다.
+export function buildCageMesh() {
+  const group = new THREE.Group();
+  const barCount = 8;
+  const radius = 0.55;
+  const height = 3.3;
+  const mat = new THREE.MeshBasicMaterial({ color: 0xc060ff, transparent: true, opacity: 0.8 });
+  for (let i = 0; i < barCount; i++) {
+    const angle = (i / barCount) * Math.PI * 2;
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, height, 6), mat);
+    bar.position.set(Math.cos(angle) * radius, height / 2, Math.sin(angle) * radius);
+    group.add(bar);
+  }
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xc060ff, transparent: true, opacity: 0.65, side: THREE.DoubleSide });
+  const topRing = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.028, 6, 16), ringMat);
+  topRing.rotation.x = Math.PI / 2;
+  topRing.position.y = height;
+  group.add(topRing);
+  const bottomRing = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.028, 6, 16), ringMat);
+  bottomRing.rotation.x = Math.PI / 2;
+  bottomRing.position.y = 0.05;
+  group.add(bottomRing);
+  const light = new THREE.PointLight(0xc060ff, 4, 5, 1.8);
+  light.position.y = height / 2;
+  group.add(light);
+  group.visible = false;
+  return group;
+}

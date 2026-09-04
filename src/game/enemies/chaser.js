@@ -1,6 +1,7 @@
 import { buildStickFigure, animateStickFigure } from "../stickFigure.js";
 import { PathMover } from "../pathMover.js";
 import { canSeeTarget } from "../visibility.js";
+import { buildCageMesh } from "../weapons.js";
 
 const VISION_RANGE = 17;
 const VISION_HALF_ANGLE = Math.PI * 0.32; // 약 58도
@@ -32,6 +33,11 @@ export class ChaserEnemy {
     this.loseSightTimer = 0;
     this.speed01 = 0;
     this.homeCell = homeCell;
+
+    // 마법봉에 갇히면 완전히 멈춘다. 먼지가 닿아야 풀려난다.
+    this.caged = false;
+    this.cageMesh = buildCageMesh();
+    this.mesh.add(this.cageMesh);
   }
 
   pickPatrolTarget(world) {
@@ -49,6 +55,8 @@ export class ChaserEnemy {
   }
 
   update(dt, world, candidates, onKill) {
+    if (this.caged) return;
+
     let nearestVisible = null;
     let nearestDist = Infinity;
     for (const c of candidates) {

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { buildStickFigure, animateStickFigure } from "../stickFigure.js";
 import { canSeeTarget } from "../visibility.js";
 import { forwardVector, facingFromDelta } from "../constants.js";
+import { buildCageMesh } from "../weapons.js";
 
 const VISION_RANGE = 15;
 const VISION_HALF_ANGLE = Math.PI * 0.55; // 넓게 훑어봄 (~100도)
@@ -45,6 +46,11 @@ export class FisherEnemy {
     );
     this.hook.visible = false;
     sceneGroup.add(this.line, this.hook);
+
+    // 마법봉에 갇히면 완전히 멈춘다. 먼지가 닿아야 풀려난다.
+    this.caged = false;
+    this.cageMesh = buildCageMesh();
+    this.mesh.add(this.cageMesh);
   }
 
   getCastOrigin() {
@@ -65,6 +71,8 @@ export class FisherEnemy {
   }
 
   update(dt, world, candidates, onKill) {
+    if (this.caged) return;
+
     if (this.state === "idle") {
       let found = null;
       for (const c of candidates) {

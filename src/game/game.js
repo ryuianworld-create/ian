@@ -24,9 +24,9 @@ import {
   SWORD_COOLDOWN,
   SWORD_EFFECT_DURATION,
   WAND_COOLDOWN,
-  WAND_LURE_DURATION,
-  WAND_TELEPORT_RADIUS,
+  WAND_BURST_RADIUS,
   WAND_EFFECT_DURATION,
+  WAND_RESCUE_RADIUS,
   HAMMER_RADIUS,
   HAMMER_COOLDOWN,
   HAMMER_EFFECT_DURATION,
@@ -37,7 +37,7 @@ const FISHER_COUNT = 5;
 const DUST_COUNT = 9;
 const ARROW_ITEM_COUNT = 10;
 const SWORD_ITEM_COUNT = 10;
-const WAND_ITEM_COUNT = 10;
+const WAND_ITEM_COUNT = 30; // 마법봉은 "아주 많이" 흩뿌려 놓는다.
 const HAMMER_ITEM_COUNT = 10;
 const ITEM_PICKUP_RADIUS = 1.4;
 const FREEZE_TINT = 0x8fe0ff;
@@ -394,35 +394,25 @@ export class Game {
     }
   }
 
-  // 마법봉: 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)을
-  // origin 주변으로 끌어와 곧장 위협해오게 만든다.
-  spawnWandEffect(origin) {
-    const mesh = buildWandEffectMesh(WAND_TELEPORT_RADIUS);
+  // 마법봉: 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)을 그
+  // 자리에서 형광 보라색 감옥에 가둔다. 먼지가 닿아야만 풀려난다.
+  triggerWandPrison(origin) {
+    const mesh = buildWandEffectMesh(WAND_BURST_RADIUS);
     mesh.position.set(origin.x, 0.05, origin.z);
     this.scene.add(mesh);
     this.wandEffects.push({ mesh, timer: WAND_EFFECT_DURATION });
 
     for (const chaser of this.chasers) {
-      const angle = Math.random() * Math.PI * 2;
-      const px = origin.x + Math.cos(angle) * WAND_TELEPORT_RADIUS;
-      const pz = origin.z + Math.sin(angle) * WAND_TELEPORT_RADIUS;
-      const resolved = collideAndSlide(px, pz, chaser.radius, this.world.wallSegments, this.world.crateObstacles);
-      chaser.position.set(resolved.x, 0, resolved.z);
-      chaser.target = this.player;
-      chaser.state = "chase";
-      chaser.loseSightTimer = WAND_LURE_DURATION;
-      chaser.mover.reset();
+      if (chaser.caged) continue;
+      chaser.caged = true;
+      chaser.cageMesh.visible = true;
     }
     for (const fisher of this.fishers) {
-      const angle = Math.random() * Math.PI * 2;
-      const px = origin.x + Math.cos(angle) * WAND_TELEPORT_RADIUS;
-      const pz = origin.z + Math.sin(angle) * WAND_TELEPORT_RADIUS;
-      const resolved = collideAndSlide(px, pz, fisher.radius, this.world.wallSegments, this.world.crateObstacles);
-      fisher.position.set(resolved.x, 0, resolved.z);
-      fisher.facing = facingFromDelta(this.player.position.x - fisher.position.x, this.player.position.z - fisher.position.z);
-      fisher.aimTarget = this.player;
-      fisher.state = "telegraph";
-      fisher.timer = TELEGRAPH_TIME;
+      if (fisher.caged) continue;
+      fisher.caged = true;
+      fisher.cageMesh.visible = true;
+      fisher.line.visible = false;
+      fisher.hook.visible = false;
     }
   }
 
@@ -501,7 +491,7 @@ export class Game {
       }
     }
     if (this.input.consumeWandPressed() && this.player.hasWand && this.player.wandCooldown <= 0) {
-      this.spawnWandEffect({ x: this.player.position.x, z: this.player.position.z });
+      this.triggerWandPrison({ x: this.player.position.x, z: this.player.position.z });
       this.player.wandCooldown = WAND_COOLDOWN;
     }
     if (this.input.consumeHammerPressed() && this.player.hasHammer && this.player.hammerCooldown <= 0) {
@@ -605,6 +595,22 @@ export class Game {
       for (const fisher of this.fishers) fisher.update(dt, this.world, candidates, onKill);
     }
     for (const dust of this.dusts) dust.update(dt, this.world, candidates);
+
+    // 마법봉 감옥에 갇힌 졸라맨은 먼지가 닿아야만 풀려난다.
+    for (const dust of this.dusts) {
+      for (const chaser of this.chasers) {
+        if (chaser.caged && Math.hypot(dust.position.x - chaser.position.x, dust.position.z - chaser.position.z) < WAND_RESCUE_RADIUS) {
+          chaser.caged = false;
+          chaser.cageMesh.visible = false;
+        }
+      }
+      for (const fisher of this.fishers) {
+        if (fisher.caged && Math.hypot(dust.position.x - fisher.position.x, dust.position.z - fisher.position.z) < WAND_RESCUE_RADIUS) {
+          fisher.caged = false;
+          fisher.cageMesh.visible = false;
+        }
+      }
+    }
 
     // AI 친구도 무기가 있으면 스스로 위협에 대응한다 (레벨1의 동기화 동료는
     // 독립적으로 판단하지 않고 플레이어가 공격할 때만 함께 움직인다).

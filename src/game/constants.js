@@ -36,12 +36,13 @@ export const SWORD_RADIUS = 3;
 export const SWORD_COOLDOWN = 1.2;
 export const SWORD_EFFECT_DURATION = 0.5;
 
-// 마법봉 - 쓰면 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)이
-// 플레이어 주변으로 끌려와서 곧장 위협해온다. 강력한 만큼 재사용 대기시간이 길다.
+// 마법봉 - 쓰면 살아있는 모든 졸라맨(쫓아오는 졸라맨 + 낚시하는 졸라맨)이 그
+// 자리에서 형광 보라색 감옥에 갇혀 꼼짝 못한다. 감옥은 먼지가 닿아야만
+// 풀린다. 강력한 만큼 재사용 대기시간이 길다.
 export const WAND_COOLDOWN = 10;
-export const WAND_LURE_DURATION = 14;
-export const WAND_TELEPORT_RADIUS = 5;
+export const WAND_BURST_RADIUS = 3;
 export const WAND_EFFECT_DURATION = 0.6;
+export const WAND_RESCUE_RADIUS = 1.0;
 
 // 망치 - 가까운 먼지를 부수고, 가까운 벽(테두리 제외) 하나를 부숴 새 길을 낸다.
 export const HAMMER_RADIUS = 2.4;
