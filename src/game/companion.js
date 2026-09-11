@@ -9,8 +9,8 @@ import { PLAYER_RADIUS, CAMO_TOUCH_DISTANCE, forwardVector } from "./constants.j
 const SYNC_FORMATION_SPEED = 9;
 
 const FRIEND_NEUTRAL_COLOR = 0x8fc9ff;
-const FOLLOW_SPEED = 5.6;
-const HIDE_SPEED = 6.6;
+const FOLLOW_SPEED = 6.5;
+const HIDE_SPEED = 7.7;
 const DANGER_RADIUS = 15;
 const SAFE_RADIUS = 20;
 const RESPAWN_DELAY = 7;

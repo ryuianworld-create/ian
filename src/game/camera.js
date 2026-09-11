@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { forwardVector } from "./constants.js";
 import { raycastNearestWallT as raycastWalls } from "./collision.js";
 
+const POS_SMOOTH_TIME = 0.05;
+const LOOK_SMOOTH_TIME = 0.035;
+
 // 플레이어를 뒤에서 따라가는 3인칭 추적 카메라. 부드러운 보간(damping)으로
 // 회전/이동 시 카메라가 자연스럽게 따라오도록 하고, 벽 뒤로 카메라가 뚫고
 // 들어가지 않도록 벽에 부딪히면 앞으로 당겨준다.
@@ -46,8 +49,11 @@ export class ThirdPersonCamera {
       this.currentLook.copy(desiredLook);
       this.initialized = true;
     } else {
-      const posT = 1 - Math.pow(0.00002, dt);
-      const lookT = 1 - Math.pow(0.00001, dt);
+      // 시간상수(초) 방식의 감쇠: 값이 작을수록 카메라가 더 즉각적으로 따라간다.
+      // 이전 값(사실상 ~0.09초)이 너무 느려서 회전/이동 시 화면이 "뻑뻑하게"
+      // 뒤늦게 따라오는 느낌을 줬다.
+      const posT = 1 - Math.exp(-dt / POS_SMOOTH_TIME);
+      const lookT = 1 - Math.exp(-dt / LOOK_SMOOTH_TIME);
       this.currentPos.lerp(desiredPos, Math.min(1, posT));
       this.currentLook.lerp(desiredLook, Math.min(1, lookT));
     }

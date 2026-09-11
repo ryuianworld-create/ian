@@ -6,7 +6,7 @@ import { buildCageMesh } from "../weapons.js";
 const VISION_RANGE = 17;
 const VISION_HALF_ANGLE = Math.PI * 0.32; // 약 58도
 const PATROL_SPEED = 3.1;
-const CHASE_SPEED = 6.7; // 플레이어(6.2)보다 살짝 빠름 - 긴장감
+const CHASE_SPEED = 7.8; // 플레이어(7.2)보다 살짝 빠름 - 긴장감
 const KILL_DISTANCE = 0.75;
 const LOSE_SIGHT_TIME = 2.4;
 

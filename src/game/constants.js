@@ -15,8 +15,8 @@ export const WALL_HEIGHT = 5.2;
 export const GAME_DURATION_SECONDS = 5 * 60;
 
 export const PLAYER_RADIUS = 0.45;
-export const PLAYER_SPEED = 6.2;
-export const PLAYER_TURN_SPEED = 2.6;
+export const PLAYER_SPEED = 7.2;
+export const PLAYER_TURN_SPEED = 3.6;
 
 export const COMPANION_COUNT = 1;
 

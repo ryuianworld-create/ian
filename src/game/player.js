@@ -6,7 +6,7 @@ import { animateStickFigure, setStickFigureColor } from "./stickFigure.js";
 import { PLAYER_RADIUS, PLAYER_SPEED, PLAYER_TURN_SPEED, forwardVector } from "./constants.js";
 
 export const NEUTRAL_BODY_COLOR = 0xb7bcc4;
-const MOUSE_SENSITIVITY = 0.0026;
+const MOUSE_SENSITIVITY = 0.0034;
 
 export class Player {
   constructor(startPosition) {
