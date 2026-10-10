@@ -21,7 +21,7 @@ canvas{display:block}
 #mini{bottom:12px;right:12px;background:rgba(0,0,0,.55);border-radius:8px}
 #help{bottom:12px;left:12px;font-size:12px;opacity:.8;background:rgba(0,0,0,.45);padding:6px 10px;border-radius:6px;line-height:1.6}
 .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);z-index:10}
-.box{background:#1e2230;padding:26px 34px;border-radius:16px;max-width:600px;line-height:1.75;box-shadow:0 10px 40px #000;font-size:15px}
+.box{background:#1e2230;padding:26px 34px;border-radius:16px;max-width:600px;max-height:88vh;overflow-y:auto;box-sizing:border-box;line-height:1.75;box-shadow:0 10px 40px #000;font-size:15px}
 .box h1{margin:0 0 8px;font-size:30px}
 .box kbd{background:#3a4058;border-radius:4px;padding:1px 7px;font-size:13px}
 button{font-size:18px;padding:10px 28px;border:0;border-radius:10px;background:#f5c542;color:#222;cursor:pointer;font-weight:bold;margin-top:14px}
@@ -39,34 +39,30 @@ button{font-size:18px;padding:10px 28px;border:0;border-radius:10px;background:#
 <canvas id="mini" class="hud hidden" width="200" height="175"></canvas>
 <div id="help" class="hud hidden">이동: <b>WASD / 화살표</b> (←→ 회전) · 줍기/사물함: <b>Space</b> · 힌트 공유: <b>Shift</b> · 등 치기(술래): <b>Enter</b> ×5 · 능력: <b>Q</b><br>유령: Space 위로 · Shift 아래로</div>
 
-<div id="menu" class="overlay"><div class="box">
-<h1>🏫 학교 탈출 <span style="font-size:15px;color:#f5c542">업데이트</span></h1>
-<div style="background:#2c3348;border-radius:8px;padding:6px 12px;margin-bottom:8px;font-size:14px">🆕 이제 이름표는 한 번에 안 떨어져요! 술래가 등을 <b>5번</b> 쳐야 완전히 떼어지고, 칠 때마다 점점 벗겨집니다.</div>
-<div>플레이어 6명: <b>일반 4명 + 술래 1명 + 👮 경찰 1명</b>. 아침, 학교에 갇혔다! 술래 1명이 몰래 섞여 있습니다. 역할은 랜덤이고, 술래는 겉으로 티가 나지 않아요.</div>
+<div id="menu" class="overlay"><div class="box" style="text-align:center">
+<h1>🏫 학교 탈출</h1>
+<div>학교에 갇혔다! 열쇠를 찾아 정문으로 탈출하자. 숨어 있는 술래를 조심해!</div>
+<div style="margin-top:12px">
+<select id="myRole" style="font-size:16px;padding:4px 8px;border-radius:6px;margin-right:10px"><option value="random" selected>내 역할: 🎲 랜덤</option><option value="runner">일반 플레이어</option><option value="tagger">😈 술래</option><option value="police">👮 경찰</option><option value="sky">🕊️ 하늘의 수호자</option><option value="earth">⛏️ 땅의 수호자</option><option value="life">💚 생명의 수호자</option><option value="baker">🍞 빵집 사장님</option><option value="store">🏪 편의점 사장님</option></select>
+<select id="diff" style="font-size:16px;padding:4px 8px;border-radius:6px">
+<option value="0">난이도: 쉬움</option><option value="1">난이도: 보통 (7분)</option><option value="2" selected>난이도: 어려움 (5분)</option></select></div>
+<button id="startBtn">게임 시작 (Enter)</button>
+<details style="margin-top:14px;text-align:left"><summary style="cursor:pointer;text-align:center">📖 규칙 보기</summary>
 <ul style="padding-left:20px;margin:8px 0">
-<li><b>일반 플레이어</b>: 학교 어딘가에 숨겨진 <b>열쇠</b>를 찾아 <b>정문(대문)</b>으로 가면 탈출 성공!</li>
-<li><b>술래</b>: 플레이어 <b>등 뒤</b>로 다가가 <kbd>Enter</kbd> 로 등을 칩니다. <b>5번</b> 치면 이름표가 떨어지고 그 사람은 유령이 됩니다. 모두 떼면 술래 승리.</li>
-<li>노란 <b>쪽지</b>에는 술래와 열쇠 위치에 대한 힌트가 있어요. <kbd>Space</kbd> 로 줍기.</li>
-<li>다른 플레이어 옆에서 <kbd>Shift</kbd> 를 누르면 서로의 쪽지를 전부 공유합니다. (상대가 술래일 수도…)</li>
-<li>이름표가 뜯기면 모은 쪽지가 전부 바닥에 떨어집니다.</li>
-<li>👮 <b>경찰</b>: 정문에서 30m 떨어진 도시의 경찰서에서 출발해 <b>버스</b>를 타고 학교로 와요. 술래에게 당하지 않고, <kbd>Enter</kbd> 한 번으로 <b>누구의 이름표든</b> 뗄 수 있어요. 술래를 떼면 일반 플레이어+경찰 승리! 하지만 잘못 떼서 일반 플레이어가 모두 유령이 되면 술래 승리.</li>
-<li>🚌 <b>버스</b>에 타면 직접 <b>운전</b>할 수 있어요 (W/S 가속·후진, A/D 핸들). 버스가 부딪치는 벽, 울타리, 건물, 나무, 책상은 <b>전부 부서져요!</b></li>
-<li>교실 뒤 사물함은 열린 것도, 닫힌 것도 있어요. 닫힌 사물함은 <kbd>Space</kbd> 로 열기.</li>
+<li><b>일반 플레이어</b>: 노란 쪽지(<kbd>Space</kbd>)로 힌트를 모아 열쇠를 찾고 정문으로 탈출!</li>
+<li><b>😈 술래</b>: 등 뒤에서 <kbd>Enter</kbd> 5번 → 이름표가 떨어지면 유령이 돼요.</li>
+<li><b>👮 경찰</b>: 도시에서 버스를 타고 출동해 <kbd>Enter</kbd>로 술래의 이름표를 떼요.</li>
+<li><b>🍞🏪 사장님</b>: 음식을 팔아 200원을 모아 집을 사요.</li>
+<li>🤫 어딘가에 무언가가 숨어 있다는 소문이…</li>
 </ul>
-<div style="opacity:.8">🤫 학교와 도시 어딘가에 무언가가 숨어 있다는 소문이 있어요…</div>
-<div>이동 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / 화살표 (←→ 는 회전)</div>
-<div style="margin-top:6px"><b>일반 플레이어 특수 역할</b> (4명이 하나씩 랜덤으로 받아요, <kbd>Q</kbd> 로 능력 사용)<br>
-🔍 <b>탐정</b> 바라보는 사람의 정체 조사 (2번) · 📋 <b>반장</b> 열쇠가 있는 층을 처음부터 앎<br>
-👟 <b>육상부</b> 3초 전력질주 (쿨타임 15초) · 🩹 <b>보건부</b> 유령에게 새 이름표를 붙여 되살림 (1번)<br>
-😈 <b>술래</b>도 <kbd>Q</kbd> 로 3초간 몰래 빠르게 이동 (쿨타임 20초)</div>
-<div style="margin-top:10px">
-<select id="myRole" style="font-size:16px;padding:4px 8px;border-radius:6px;margin-right:10px"><option value="random" selected>내 역할: 🎲 랜덤</option><option value="runner">일반 플레이어</option><option value="tagger">😈 술래</option><option value="police">👮 경찰</option><option value="sky">🕊️ 하늘의 수호자</option><option value="earth">⛏️ 땅의 수호자</option><option value="life">💚 생명의 수호자</option></select>
-난이도: <select id="diff" style="font-size:16px;padding:4px 8px;border-radius:6px">
-<option value="0">쉬움</option><option value="1">보통 (제한시간 7분)</option><option value="2" selected>어려움 (제한시간 5분)</option></select></div>
-<button id="startBtn">게임 시작</button>
+<div>이동 <kbd>WASD</kbd>/화살표 · 줍기 <kbd>Space</kbd> · 힌트 공유 <kbd>Shift</kbd> · 능력 <kbd>Q</kbd> · 멈춤 <kbd>Esc</kbd></div>
+</details>
 </div></div>
 
 <div id="roleBox" class="overlay hidden"><div class="box" style="text-align:center" id="roleInner"></div></div>
+<div id="pauseBox" class="overlay hidden"><div class="box" style="text-align:center"><h1>⏸ 잠깐 멈춤</h1><div style="opacity:.8">Esc 키로도 멈추고 다시 할 수 있어요.</div>
+<button onclick="resume()">▶ 계속하기</button> <button onclick="replay()">🔁 다시 하기</button> <button onclick="toMenu()" style="background:#8fa3c8">🏠 처음 화면</button></div></div>
+<button id="pauseBtn" class="hidden" onclick="pause()" style="position:fixed;bottom:195px;right:12px;font-size:14px;padding:6px 12px;margin:0;z-index:3">⏸ 멈춤 (Esc)</button>
 <div id="endBox" class="overlay hidden"><div class="box" style="text-align:center" id="endInner"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -139,6 +135,7 @@ function pickH(x,z,y,tol){
 function collides(x,y,z,r,police){
   for(const c of colliders){
     if(police&&c.police) continue;
+    if(c.houseDoor&&HOUSE.doorOpen) continue;
     if(c.y1<y+1.6&&c.y2>y+0.25&&x+r>c.x1&&x-r<c.x2&&z+r>c.z1&&z-r<c.z2) return true;
   }
   return false;
@@ -192,8 +189,75 @@ function plant(x,y,z){
     s.position.set(x+(rand()-0.5)*0.14,y+0.3+rand()*0.16,z+(rand()-0.5)*0.1); s.scale.y=1.3; scene.add(s);
   }
 }
+// ================== 도시 생활: 가게, 어른, 집 ==================
+const SHOPS={
+  baker:{ox:-2,oz:51.3,cx:-2,cz:49.4,queue:[],street:'bakC',food:0xc68642,items:[['🍞 빵',20],['🥐 크루아상',25],['🍩 도넛',15]]},
+  store:{ox:46,oz:51.3,cx:46,cz:49.4,queue:[],street:'stoC',food:0xd9e6ff,items:[['🍜 라면',15],['🥛 우유',10],['🍪 과자',12],['🍱 도시락',30]]}};
+const HOUSE={price:200,owner:null,doorOpen:false,door:null,sign:null,dx:15.4,dz:56.8};
+const CW={}; // 어른들이 걸어 다니는 길
+function cwAdd(id,x,z){CW[id]={id,x,z,adj:[]};}
+function cwLink(a,b){CW[a].adj.push(b);CW[b].adj.push(a);}
+function cwNearest(x,z){let b=null,bd=1e9;for(const k in CW){if(k==='houseIn')continue;const p=CW[k],d=Math.hypot(p.x-x,p.z-z);if(d<bd){bd=d;b=k;}}return b;}
+function cwPath(from,to){
+  const prev={[from]:null},q=[from];
+  while(q.length){const u=q.shift(); if(u===to)break; for(const v of CW[u].adj) if(!(v in prev)){prev[v]=u;q.push(v);}}
+  const p=[]; for(let u=to;u!=null;u=prev[u]) p.unshift(u); return p[0]===from?p:[to];
+}
+const cwPts=ids=>ids.map(id=>({x:CW[id].x,z:CW[id].z}));
+function cwGo(a,to){a.wp=cwPts(cwPath(cwNearest(a.x,a.z),to));}
+function followWp(a,dt,spd){
+  if(!a.wp.length){a.moving=false;return true;}
+  const p=a.wp[0]; if(Math.hypot(p.x-a.x,p.z-a.z)<0.15){a.wp.shift(); return !a.wp.length;}
+  moveDirect(a,p.x,p.z,dt,spd); return false;
+}
+function buildCityWays(){
+  [['a1',16.3,24],['a2',16.3,46],['a3',16.3,56.8],['a4',16.3,66],['a5',16.3,74],['b1',25.5,24],['b2',25.5,46],['b3',25.5,66],['b4',25.5,74],
+   ['w1',6,46],['w2',-2,46],['w3',-10,46],['e1',36,46],['e2',46,46],['e3',53,46],['bakC',-2,49.4],['stoC',46,49.4],
+   ['hosp',36.5,26.2],['pol',32,54.6],['apt',-1,26.5],['lib',2,65],['cafe',46,67],['houseIn',12.5,56.8]].forEach(([i,x,z])=>cwAdd(i,x,z));
+  [['a1','a2'],['a2','a3'],['a3','a4'],['a4','a5'],['b1','b2'],['b2','b3'],['b3','b4'],['a1','b1'],['a2','b2'],['a4','b3'],['a5','b4'],
+   ['a2','w1'],['w1','w2'],['w2','w3'],['b2','e1'],['e1','e2'],['e2','e3'],['w2','bakC'],['e2','stoC'],['b1','hosp'],['b2','pol'],
+   ['a1','apt'],['a4','lib'],['b3','cafe'],['a3','houseIn']].forEach(([a,b])=>cwLink(a,b));
+}
+function setHouseSign(text){
+  if(HOUSE.sign) scene.remove(HOUSE.sign);
+  HOUSE.sign=textPlane(text,3,0.55,'#7a3b1d','#ffffff'); HOUSE.sign.position.set(15.14,2.95,56.8); HOUSE.sign.rotation.y=Math.PI/2; scene.add(HOUSE.sign);
+}
+function buildHouse(){
+  // 도시 한가운데 집 (원룸이 아니라 거실, 침실, 부엌이 따로 있다)
+  const C=0xf3e2c0,IN=0xfbf6ec;
+  wall(4.4,4.6,51.5,63,0,3.4,C); wall(4.5,15,51.4,51.6,0,3.4,C); wall(4.5,15,62.9,63.1,0,3.4,C);
+  wall(14.9,15.1,51.5,56,0,3.4,C); wall(14.9,15.1,57.6,63,0,3.4,C); wall(14.9,15.1,56,57.6,2.4,3.4,C);
+  wall(9.9,10.1,51.5,53.4,0,3.4,IN); wall(9.9,10.1,54.6,59,0,3.4,IN); wall(9.9,10.1,60.2,63,0,3.4,IN);
+  wall(9.9,10.1,53.4,54.6,2.4,3.4,IN); wall(9.9,10.1,59,60.2,2.4,3.4,IN); wall(4.5,9.9,57.15,57.35,0,3.4,IN);
+  box(10,15,0.005,0.03,51.5,63,0xb98a5a); box(4.5,10,0.005,0.03,51.5,57.25,0x8fa8d8); box(4.5,10,0.005,0.03,57.25,63,0xdcdcdc);
+  for(const [x1,x2,z1,z2] of [[6,8.5,51.38,51.42],[11.5,13.5,51.38,51.42],[6,8.5,63.08,63.12],[11.5,13.5,63.08,63.12]]) box(x1,x2,1.2,2.4,z1,z2,0x8fc3e8);
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(8.4,3,4),mat(0xb5462d)); roof.rotation.y=Math.PI/4; roof.scale.z=1.1; roof.position.set(9.75,4.9,57.25); scene.add(roof);
+  // 거실: 소파, 탁자, TV
+  box(10.6,11.5,0,0.8,53,56,0x4f7a5a,{collide:true}); box(12,13.2,0,0.45,53.6,55.4,0x8a5a3a,{collide:true}); box(14.3,14.8,0.6,1.5,53.2,55.8,0x222222);
+  box(11,14,0.03,0.05,58.5,61.5,0xd98c5f);
+  // 침실: 침대, 옷장
+  box(5,7.2,0,0.5,52,54.4,0x7a5a3a,{collide:true}); box(5.1,7.1,0.5,0.62,52.1,54.3,0xf0f0ff); box(5.3,6.9,0.62,0.72,52.15,52.7,0xffffff);
+  box(8.4,9.8,0,2,51.6,52.4,0x9b7653,{collide:true});
+  // 부엌: 냉장고, 싱크대, 식탁
+  box(4.6,5.4,0,1.9,61.8,62.9,0xf8f8f8,{collide:true}); box(5.5,9.8,0,0.9,62.3,62.9,0xc9c9c9,{collide:true}); box(6.5,7.2,0.9,0.92,62.4,62.8,0x7fa6c9);
+  box(6.5,8.5,0.7,0.76,58.8,60.4,0xc89a62,{collide:true});
+  for(const [t,x,z,ry] of [['거실',12.5,51.62,0],['침실',7.2,51.62,0],['부엌',7.2,62.88,Math.PI]]){const l=textPlane(t,1,0.35,'#ffffff','#7a3b1d'); l.position.set(x,2.7,z); l.rotation.y=ry; scene.add(l);}
+  // 현관문 (가격만큼 돈을 가진 사람이 오면 열린다)
+  HOUSE.door=new THREE.Group(); HOUSE.door.position.set(15,0,56); scene.add(HOUSE.door);
+  box(-0.05,0.05,0,2.4,0,1.6,0x7a3b1d,{parent:HOUSE.door}); box(-0.12,-0.05,1.1,1.2,1.3,1.4,0xffd54a,{parent:HOUSE.door});
+  colliders.push({x1:14.85,x2:15.15,y1:0,y2:2.4,z1:56,z2:57.6,houseDoor:true});
+  setHouseSign('🏠 집 팝니다 · 200원');
+}
+function buildShops(){
+  for(const k of ['baker','store']){
+    const S=SHOPS[k], col=k==='baker'?0xd9774a:0x2f8f5a;
+    box(S.cx-1.5,S.cx+1.5,0,1,50.2,50.8,0xe8d8c0,{collide:true});
+    box(S.cx-1.8,S.cx+1.8,2.6,2.75,49.8,52,col);
+    for(let i=0;i<5;i++) box(S.cx-1.2+i*0.55,S.cx-0.9+i*0.55,1,1.15,50.35,50.65,k==='baker'?0xc68642:[0xe84a4a,0x4a8ae8,0xf5c542,0x6fd36f,0xffffff][i]);
+  }
+}
 const BUS={x:21.2,zSchool:26,zCity:50,z:50,heading:0,state:'waitCity',t:6,speed:7,vel:0,auto:true,driver:null,mesh:null};
-const debris=[]; let shake=0;
+const debris=[], dyn=[]; let shake=0;
 let sideDoor=null;
 function busDoor(){const h=BUS.heading;return {x:BUS.x-1.7*Math.cos(h),z:BUS.z+1.7*Math.sin(h)};}
 function buildCity(){
@@ -201,7 +265,7 @@ function buildCity(){
   colliders.push({x1:18.5,x2:19.5,y1:0,y2:2,z1:19.9,z2:20.1,police:true});
   sideDoor=new THREE.Group(); sideDoor.position.set(18.5,0,20); scene.add(sideDoor);
   box(0,1,0,2,-0.04,0.04,0x2b5fa8,{parent:sideDoor});
-  const sd=textPlane('경찰 전용',0.9,0.25,'#2b5fa8','#ffffff'); sd.position.set(19,2.25,20.12); scene.add(sd);
+  const sd=textPlane('관계자 전용',0.9,0.25,'#2b5fa8','#ffffff'); sd.position.set(19,2.25,20.12); scene.add(sd);
   const sd2=sd.clone(); sd2.position.z=19.88; sd2.rotation.y=Math.PI; scene.add(sd2);
   // 도시 땅 / 도로
   box(-12,55,-0.02,0.004,20.2,76,0xb8b4a8);
@@ -226,7 +290,7 @@ function buildCity(){
     for(let y=1.5;y<h-1;y+=2.2) for(let x=x1+1;x<x2-1;x+=2.2) box(x,x+1.2,y,y+1.1,z1-0.03,z1,0x6f9fc8);
     const sg=textPlane(name,3,0.7,'#ffffff','#333333'); sg.position.set((x1+x2)/2,Math.min(h-0.6,3.2),z1-0.05); sg.rotation.y=Math.PI; scene.add(sg);
   }
-  for(const [tx,tz] of [[12,30],[12,40],[27,30],[12,60],[27,66],[-10,48],[50,46]]){
+  for(const [tx,tz] of [[12,30],[12,40],[27,30],[-10,60],[27,66],[-10,48],[50,42]]){
     box(tx-0.15,tx+0.15,0,1.6,tz-0.15,tz+0.15,0x6b4a2b,{collide:true}); const tc=colliders[colliders.length-1];
     const lf=new THREE.Mesh(new THREE.SphereGeometry(1.1,10,8),mat(0x3f8a45)); lf.position.set(tx,2.3,tz); scene.add(lf); tc.extra=[lf];
   }
@@ -234,6 +298,7 @@ function buildCity(){
   box(HOSP.x1,HOSP.x2,0.005,0.03,HOSP.z1,HOSP.z2,0x9fe8b8);
   box(35.6,37.4,0.031,0.04,26.4,27,0xffffff); box(36.2,36.8,0.031,0.04,25.8,27.6,0xffffff);
   const er=textPlane('🏥 응급실 · 유령 환영',3.2,0.55,'#ffffff','#d33333'); er.position.set(36.5,2.1,27.93); er.rotation.y=Math.PI; scene.add(er);
+  buildCityWays(); buildShops(); buildHouse();
   // 버스 정류장
   for(const [z,name] of [[BUS.zSchool,'버스 정류장 (학교 앞)'],[BUS.zCity,'버스 정류장 (도시)']]){
     box(16.6,16.8,0,2.6,z-0.1,z+0.1,0x555555);
@@ -324,7 +389,7 @@ function updateBus(dt){
     d.life-=dt; if(d.life<=0){scene.remove(d.m);debris.splice(i,1);}
   }
   // 쪽문: 경찰이 가까이 오면 열림
-  const near=agents.some(a=>(a.role==='police'||(a.role==='guardian'&&a.isHuman))&&Math.hypot(a.x-19,a.z-20)<2.2);
+  const near=agents.some(a=>(a.role==='police'||a.role==='owner'||(a.role==='guardian'&&a.isHuman))&&Math.hypot(a.x-19,a.z-20)<2.2);
   sideDoor.rotation.y+=((near?-1.5:0)-sideDoor.rotation.y)*Math.min(1,dt*6);
 }
 const busWaiting=()=>BUS.auto?(BUS.state==='waitCity'||BUS.state==='waitSchool'):Math.abs(BUS.vel)<1;
@@ -543,6 +608,14 @@ function makeChar(a){
     wingR=new THREE.Group(); wingR.position.set(0.12,1.25,-0.17); g.add(wingR); mk(new THREE.BoxGeometry(0.75,0.5,0.04),wm,0.38,0.05,0,wingR);
     const halo=new THREE.Mesh(new THREE.TorusGeometry(0.17,0.025,8,20),new THREE.MeshBasicMaterial({color:0xffe066})); halo.rotation.x=Math.PI/2; halo.position.y=1.92; g.add(halo);
   }
+  if(a.kind==='baker'){ // 하얀 요리사 모자와 앞치마
+    mk(new THREE.CylinderGeometry(0.19,0.17,0.32,14),mat(0xffffff),0,1.86,0); mk(new THREE.SphereGeometry(0.23,12,8),mat(0xffffff),0,2.04,0);
+    mk(new THREE.BoxGeometry(0.42,0.5,0.02),mat(0xfff4e0),0,0.98,0.16);
+  }
+  if(a.kind==='store'){ // 편의점 모자와 조끼
+    mk(new THREE.CylinderGeometry(0.21,0.22,0.12,16),mat(0x1f5f3a),0,1.73,0); mk(new THREE.BoxGeometry(0.3,0.03,0.2),mat(0x1f5f3a),0,1.67,0.21);
+    mk(new THREE.BoxGeometry(0.14,0.08,0.02),mat(0xffffff),-0.12,1.2,0.16);
+  }
   if(a.kind==='earth'){ // 광부 헬멧과 램프
     mk(new THREE.SphereGeometry(0.235,14,10,0,Math.PI*2,0,Math.PI*0.5),mat(0xf2c230),0,1.6,0);
     mk(new THREE.BoxGeometry(0.1,0.08,0.06),new THREE.MeshBasicMaterial({color:0xfff6b0}),0,1.7,0.22);
@@ -555,13 +628,16 @@ function makeChar(a){
   }
   const tag=textPlane(a.name,0.34,0.2,'#ffffff','#111111',0.6,'#cc2222');
   tag.position.set(0,1.1,-0.156); tag.rotation.y=Math.PI; g.add(tag);
+  if(a.role==='adult') g.scale.setScalar(1.12); // 어른은 키가 크다
   scene.add(g);
   return {g,legL,legR,armL,armR,tag,wingL,wingR};
 }
 
 // ================== 게임 상태 ==================
 let agents=[], items=[], noteDefs=[], human=null, fx=[];
-const game={state:'menu',time:0,keySpot:null};
+const game={state:'menu',time:0,keySpot:null,round:0};
+// 이전 판의 예약된 결과가 새 판을 끝내지 않도록 판 번호를 확인한다
+function later(f,ms){const r=game.round;setTimeout(()=>{if(game.round===r)f();},ms);}
 const keys={};
 
 const DIFFS=[
@@ -576,6 +652,9 @@ const SUB={
   athlete:{name:'육상부',icon:'👟',desc:'<kbd>Q</kbd> 3초 동안 전력질주! (쿨타임 15초)',uses:0},
   nurse:{name:'보건부',icon:'🩹',desc:'<kbd>Q</kbd> 근처 유령에게 새 이름표를 붙여 되살린다. (1번)',uses:1},
   police:{name:'경찰',icon:'👮',desc:'버스를 타고 학교로 가서 술래를 찾아 <kbd>Enter</kbd> 로 이름표를 떼자. (누구든 뗄 수 있으니 신중하게!)',uses:0},
+  baker:{name:'빵집 사장님',icon:'🍞',desc:'',uses:0},
+  store:{name:'편의점 사장님',icon:'🏪',desc:'',uses:0},
+  adult:{name:'어른',icon:'🧑',desc:'',uses:0},
   sky:{name:'하늘의 수호자',icon:'🕊️',desc:'',uses:0},
   earth:{name:'땅의 수호자',icon:'⛏️',desc:'',uses:0},
   life:{name:'생명의 수호자',icon:'💚',desc:'',uses:0},
@@ -585,8 +664,8 @@ function setupGame(){
   const names=shuffle(NAMES.slice()), cols=shuffle(COLORS.slice());
   // 내 역할: 랜덤이면 9명(일반 4, 술래, 경찰, 수호자 3) 중 하나
   let c=game.roleChoice||'random';
-  if(c==='random'){const r=Math.floor(rand()*9); c=r<6?'player':['sky','earth','life'][r-6];}
-  const humanKind=['sky','earth','life'].includes(c)?c:null, humanIsPlayer=!humanKind;
+  if(c==='random'){const r=Math.floor(rand()*11); c=r<6?'player':['sky','earth','life','baker','store'][r-6];}
+  const humanKind=['sky','earth','life'].includes(c)?c:null, humanOwner=['baker','store'].includes(c)?c:null, humanIsPlayer=!humanKind&&!humanOwner;
   let taggerIdx=Math.floor(rand()*6);
   if(c==='tagger') taggerIdx=0; else if(c==='runner'||c==='police') taggerIdx=1+Math.floor(rand()*5);
   let policeIdx=pick([0,1,2,3,4,5].filter(i=>i!==taggerIdx));
@@ -633,6 +712,7 @@ function setupGame(){
   noteDefs.push({kind:'key',text:`📋 반장 메모: 열쇠는 ${keySpot.floor+1}층에 있다고 들었다.`,pred:noteDefs[0].pred});
   ld.notes.add(noteDefs.length-1);
   addGuardians(humanKind);
+  addCityPeople(humanOwner);
   human=agents.find(a=>a.isHuman);
 }
 
@@ -714,7 +794,7 @@ function shareNotes(a,b){
 
 function deduce(a){
   if((a.role!=='runner'&&a.role!=='police')||a.knownTagger!=null) return;
-  const cands=agents.filter(p=>p!==a&&p.role!=='police'&&p.role!=='guardian'&&!a.cleared.has(p.id)&&p.alive&&!p.ghost&&!p.escaped&&[...a.notes].every(id=>!noteDefs[id].tpred||noteDefs[id].tpred(p)));
+  const cands=agents.filter(p=>p!==a&&p.role!=='police'&&!['guardian','adult','owner'].includes(p.role)&&!a.cleared.has(p.id)&&p.alive&&!p.ghost&&!p.escaped&&[...a.notes].every(id=>!noteDefs[id].tpred||noteDefs[id].tpred(p)));
   if(cands.length===1) a.knownTagger=cands[0].id;
 }
 function allowedSpot(a,s){
@@ -739,6 +819,7 @@ function refreshNotes(){
 }
 function floorOf(a){return Math.max(0,Math.min(2,Math.round(a.y/4)));}
 function abilText(a){
+  if(a.role==='owner') return 'Space 손님에게 팔기';
   if(a.role==='guardian'){ const cd=Math.ceil(a.abilCd-game.time); const e=cd>0?`${cd}초 후`:'사용 가능';
     return a.kind==='sky'?`Enter 붙잡기 · ${e}`:a.kind==='earth'?`Q 땅속${a.underground?'(지금 땅속)':''} · Enter 땅굴 구출 · ${e}`:`Enter 이름표 고치기 · ${e} · 유령 살리기`; }
   if(a.sub==='leader') return '없음 (열쇠 층을 앎)';
@@ -750,10 +831,11 @@ function updateHUD(){
   const a=human;
   const st=a.escaped?'탈출':a.ghost?'👻 유령':'생존';
   const t=Math.floor(game.time);
-  $('tl').innerHTML=`<b style="color:${a.css}">● ${a.name}</b> (나)<br>역할: <b style="color:${a.role==='tagger'?'#ff6b6b':a.role==='police'?'#6f9be8':a.role==='guardian'?a.css:'#8fd3ff'}">${a.role==='tagger'?'술래':a.role==='police'?'👮 경찰':a.role==='guardian'?SUB[a.sub].icon+' 수호자':'일반 플레이어'}</b> ${a.role==='runner'?`· ${SUB[a.sub].icon} ${SUB[a.sub].name}`:''}<br>능력: ${abilText(a)}<br>상태: ${st}<br>위치: ${a.kind==='sky'&&a.y>12.5?'☁️ 하늘':a.underground?'⛏️ 땅속':a.onBus?'🚌 버스 안':a.z>20.2?'도시':a.z>4.05?'운동장':(floorOf(a)+1)+'층'}<br>${(a.role==='runner'||a.role==='guardian')&&!a.ghost?`이름표: <span style="letter-spacing:2px">${'🟩'.repeat(TAG_MAX-(a.tagHits||0))}${'🟥'.repeat(a.tagHits||0)}</span><br>`:''}열쇠: ${a.hasKey?'🔑 있음':'없음'}${a.digs>0?`<br>⛏️ 땅굴: ${a.digs}번`:''}${a.flyT>0?`<br>🕊️ 비행: ${Math.ceil(a.flyT)}초`:''}<br>${D.limit?`남은 시간: <b style="color:${D.limit-t<60?'#ff6b6b':'#fff'}">${Math.floor(Math.max(0,D.limit-t)/60)}:${String(Math.max(0,D.limit-t)%60).padStart(2,'0')}</b>`:`시간: ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`}`;
+  $('tl').innerHTML=`<b style="color:${a.css}">● ${a.name}</b> (나)<br>역할: <b style="color:${a.role==='tagger'?'#ff6b6b':a.role==='police'?'#6f9be8':a.role==='guardian'||a.role==='owner'?a.css:'#8fd3ff'}">${a.role==='tagger'?'술래':a.role==='police'?'👮 경찰':a.role==='guardian'?SUB[a.sub].icon+' 수호자':a.role==='owner'?SUB[a.sub].icon+' 사장님':'일반 플레이어'}</b> ${a.role==='runner'?`· ${SUB[a.sub].icon} ${SUB[a.sub].name}`:''}<br>능력: ${abilText(a)}<br>상태: ${st}<br>위치: ${a.kind==='sky'&&a.y>12.5?'☁️ 하늘':a.underground?'⛏️ 땅속':a.onBus?'🚌 버스 안':a.z>20.2?'도시':a.z>4.05?'운동장':(floorOf(a)+1)+'층'}<br>${(a.role==='runner'||a.role==='guardian')&&!a.ghost?`이름표: <span style="letter-spacing:2px">${'🟩'.repeat(TAG_MAX-(a.tagHits||0))}${'🟥'.repeat(a.tagHits||0)}</span><br>`:''}${a.role==='owner'||(a.money||0)>0?`💰 돈: <b>${a.money||0}원</b> / 🏠 ${HOUSE.owner==null?'집 200원':HOUSE.owner===a.id?'내 집!':agents[HOUSE.owner].name+'의 집'}<br>`:''}열쇠: ${a.hasKey?'🔑 있음':'없음'}${a.digs>0?`<br>⛏️ 땅굴: ${a.digs}번`:''}${a.flyT>0?`<br>🕊️ 비행: ${Math.ceil(a.flyT)}초`:''}<br>${D.limit?`남은 시간: <b style="color:${D.limit-t<60?'#ff6b6b':'#fff'}">${Math.floor(Math.max(0,D.limit-t)/60)}:${String(Math.max(0,D.limit-t)%60).padStart(2,'0')}</b>`:`시간: ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`}`;
   let r='<b>플레이어</b>';
   for(const p of agents){
-    if(p.role==='guardian'&&!p.found) continue; // 숨어 있는 수호자는 비밀
+    if(p.role==='guardian'&&!p.found) continue;
+    if((p.role==='adult'||p.role==='owner')&&!p.isHuman) continue; // 숨어 있는 수호자는 비밀
     const s=p.escaped?'🚪 탈출':p.ghost?'👻 유령':p.role==='police'?'👮 경찰':p.role==='guardian'?'✨ 수호자':'생존';
     r+=`<div><span class="dot" style="background:${p.css}"></span>${p.name}${p.isHuman?' (나)':''} <span style="opacity:.75">· ${s}</span></div>`;
   }
@@ -771,7 +853,7 @@ function nearestClosedLocker(a,maxd){
 }
 function nearestPlayer(a,maxd){
   let best=null,bd=maxd;
-  for(const o of agents){ if(o===a||o.onBus||o.role==='guardian'||!o.alive||o.ghost||o.escaped||Math.abs(o.y-a.y)>1.2) continue; const d=hd(a,o); if(d<bd){bd=d;best=o;} }
+  for(const o of agents){ if(o===a||o.onBus||['guardian','adult','owner'].includes(o.role)||!o.alive||o.ghost||o.escaped||Math.abs(o.y-a.y)>1.2) continue; const d=hd(a,o); if(d<bd){bd=d;best=o;} }
   return best;
 }
 const TAG_MAX=5;
@@ -786,7 +868,7 @@ function flash(){const f=$('flash');f.style.transition='none';f.style.opacity=1;
 function alertMarker(v){
   const tp=textPlane('❗',0.5,0.5,'#d32f2f','#ffffff');
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tp.material.map,depthTest:false})); sp.scale.set(0.9,0.9,1); sp.renderOrder=6;
-  sp.position.set(v.x,v.y+2.8,v.z); scene.add(sp); setTimeout(()=>scene.remove(sp),4500);
+  sp.position.set(v.x,v.y+2.8,v.z); scene.add(sp); dyn.push(sp); setTimeout(()=>scene.remove(sp),4500);
 }
 function hit(t,v){
   v.tagHits=(v.tagHits||0)+1;
@@ -824,6 +906,13 @@ function updatePrompt(){
     const it=nearestItemFor(a,1.6);
     if(it) p.push(it.kind==='key'?(a.role==='tagger'?'(술래는 열쇠를 가질 수 없다)':'Space: 🔑 열쇠 줍기'):'Space: 📜 쪽지 줍기');
     else if(nearestClosedLocker(a,1.6)) p.push('Space: 사물함 열기');
+    if(a.role==='owner'){
+      const S=SHOPS[a.kind], c=agents[S.queue[0]], atC=Math.hypot(a.x-S.ox,a.z-S.oz)<3;
+      if(c&&c.astate==='queue'&&atC&&Math.hypot(c.x-S.cx,c.z-S.cz)<1.5) p.push(`Space: ${c.name}에게 팔기 💰`);
+      else if(atC) p.push(`손님을 기다리는 중… (줄 ${S.queue.length}명)`);
+      else if(S.queue.length) p.push(`🔔 가게에 손님 ${S.queue.length}명이 기다린다!`);
+      if(a.money>=HOUSE.price&&HOUSE.owner==null) p.push('🏠 200원! 집으로 가자 (도시 버스 정류장 옆)');
+    }
     if(a.role==='guardian'){
       const v=facingPlayer(a,2.5)||nearestPlayer(a,2.5), rdy=a.abilCd<=game.time;
       if(a.kind==='sky') p.push(`🕊️ Space 위로 · Shift 아래로${v&&rdy?` · Enter: ${v.name} 붙잡기`:''}`);
@@ -864,6 +953,8 @@ function drawCityMini(){
   x.fillStyle='#f5c542'; x.fillRect(X(13),Z(19.8),4*S,2); x.fillStyle='#6f9be8'; x.fillRect(X(18.5),Z(19.8),S,3);
   x.fillStyle='#55575d'; x.fillRect(X(17.5),Z(20.2),7*S,55*S); x.fillRect(X(-12),Z(44),67*S,4*S);
   x.fillStyle='#2f9e5b'; x.fillRect(X(BUS.x-1.2),Z(BUS.z-4),2.4*S,8*S);
+  x.fillStyle='#e0b07a'; x.fillRect(X(-8),Z(52),12*S,12*S); x.fillStyle='#f0d68a'; x.fillRect(X(40),Z(52),12*S,14*S);
+  x.fillStyle='#b5462d'; x.fillRect(X(4.5),Z(51.5),10.5*S,11.5*S); x.fillStyle='#fff'; x.fillText('🏠집',X(6),Z(58)); x.fillStyle='#333'; x.fillText('빵집',X(-6),Z(58)); x.fillText('편의점',X(41),Z(58));
   x.fillStyle='#d7c3e8'; x.fillRect(X(29),Z(28),15*S,12*S); x.fillStyle='#333'; x.fillText('🏥 병원',X(31),Z(34));
   x.fillStyle='#34507a'; x.fillRect(X(27),Z(56),10*S,7*S); x.fillStyle='#fff'; x.fillText('경찰서',X(27.5),Z(60));
   x.fillStyle='#1e7a3c'; x.fillRect(X(15.5),Z(BUS.zSchool)-2,4,4); x.fillRect(X(15.5),Z(BUS.zCity)-2,4,4);
@@ -899,6 +990,12 @@ const K=c=>keys[c];
 addEventListener('keydown',e=>{
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
   keys[e.code]=true;
+  if((e.code==='Enter'||e.code==='NumpadEnter')&&!e.repeat){
+    if(!$('roleBox').classList.contains('hidden')){ const g=$('goBtn'); if(g) g.click(); return; }
+    if(game.state==='menu'&&!$('menu').classList.contains('hidden')){ startGame(); return; }
+  }
+  if(e.code==='Escape'){ if(game.state==='play') pause(); else if(game.state==='paused') resume(); return; }
+  if(game.state==='over'&&!e.repeat&&(e.code==='Enter'||e.code==='NumpadEnter'||e.code==='KeyR')&&performance.now()-(game.overAt||0)>1200){ replay(); return; }
   if(game.state!=='play'||e.repeat||!human||human.escaped) return;
   if(human.ghost) return;
   if(e.code==='Space') humanInteract();
@@ -914,6 +1011,7 @@ function humanInteract(){
   if(a.flyT>0||a.stunT>0||a.kind==='sky'||a.underground) return;
   if(a.onBus){ if(busWaiting()) leaveBus(a); else msg(BUS.driver===a?'먼저 S로 버스를 멈추자.':'버스가 달리는 중이다. 정류장에 설 때까지 기다리자.'); return; }
   if(busWaiting()&&hd(a,busDoor())<2.8&&a.y<0.5){ boardBus(a); return; }
+  if(a.role==='owner'){ const S=SHOPS[a.kind], c=agents[S.queue[0]]; if(c&&c.astate==='queue'&&!c.ghost&&Math.hypot(a.x-S.ox,a.z-S.oz)<3&&Math.hypot(c.x-S.cx,c.z-S.cz)<1.5){ sell(a,c); return; } }
   const gd=nearGuardian(a,2.2); if(gd){ talkGuardian(a,gd); return; }
   const it=nearestItemFor(a,1.6);
   if(it){
@@ -982,6 +1080,7 @@ function headLabel(o,text,bg,fg){
 }
 function humanAbility(){
   const a=human, sb=a.sub;
+  if(a.role==='owner'){msg('사장님은 Space로 손님에게 음식을 팔아요. 200원을 모으면 집을 살 수 있어요!');return;}
   if(sb==='sky'){msg('🕊️ 하늘의 수호자는 언제나 날 수 있다. Space 위로 · Shift 아래로 · Enter 붙잡기');return;}
   if(sb==='life'){msg('💚 유령이 옆에 3초 있으면 되살아난다. (한 사람당 한 번) · Enter 이름표 고치기');return;}
   if(sb==='earth'){
@@ -1032,7 +1131,7 @@ function humanShare(){
 
 function tryMove(a,nx,nz){
   const h=pickH(nx,nz,a.y,0.6); if(h===null) return false;
-  if(collides(nx,h,nz,0.3,a.role==='police'||a.role==='guardian')) return false;
+  if(collides(nx,h,nz,0.3,['police','guardian','owner'].includes(a.role))) return false;
   a.x=nx; a.z=nz; a.y=h; return true;
 }
 function updateHuman(dt){
@@ -1158,7 +1257,7 @@ function aiAbility(a){
 function aiThink(a){
   for(const it of items) if(itemVisible(it)&&!it.spot&&canTake(a,it)&&hd(a,it.pos)<1.0&&Math.abs(it.pos.y-a.y)<1.5) takeItem(a,it);
   for(const o of agents){
-    if(o===a||o.isHuman||o.role==='guardian'||!o.alive||o.ghost||o.escaped||Math.abs(o.y-a.y)>1.2||hd(a,o)>2) continue;
+    if(o===a||o.isHuman||['guardian','adult','owner'].includes(o.role)||!o.alive||o.ghost||o.escaped||Math.abs(o.y-a.y)>1.2||hd(a,o)>2) continue;
     if(a.role==='runner'&&a.knownTagger===o.id) continue;
     if(o.role==='runner'&&o.knownTagger===a.id) continue;
     if((a.shareCd[o.id]||0)<game.time){ shareNotes(a,o); a.shareCd[o.id]=o.shareCd[a.id]=game.time+20; }
@@ -1403,7 +1502,8 @@ function hospitalRevive(v){
     if(v.kind==='sky'){v.gstate='fly';v.stateT=6;v.tx=null;}
     if(v.kind==='earth'){v.gstate='move';v.tx=null;v.underground=true;}
     if(v.kind==='life'){v.tx=null;}
-  } else if(v.role!=='police'){ v.x=14+rand()*2; v.z=14+rand()*2; v.y=0; } // 생명의 수호자가 학교 운동장까지 데려다준다
+  } else if(v.role==='adult'||v.role==='owner'){ v.y=0; v.wp=[]; v.astate='wander'; v.ostate='back'; if(v.role==='owner') cwGo(v,SHOPS[v.kind].street);
+  } else if(v.role==='runner'){ v.x=14+rand()*2; v.z=14+rand()*2; v.y=0; } // 생명의 수호자가 학교 운동장까지 데려다준다
   msg(v.isHuman?'🏥 병원에서 치료받고 되살아났다! 생명의 수호자가 학교 운동장까지 데려다줬다.':`🏥 ${josa(v.name,'이','가')} 병원에서 되살아났다!`,'#8fffa0');
   if(v.isHuman) refreshNotes();
 }
@@ -1446,7 +1546,7 @@ function nearGuardian(a,maxd){
   for(const g of agents){ if(g.role!=='guardian'||g.ghost||g.underground||Math.abs(g.y-a.y)>1.5) continue; const d=hd(a,g); if(d<bd){bd=d;best=g;} }
   return best;
 }
-function blockedAhead(a){return collides(a.x+Math.sin(a.theta)*0.7,a.y,a.z+Math.cos(a.theta)*0.7,0.3,a.role==='police'||a.role==='guardian');}
+function blockedAhead(a){return collides(a.x+Math.sin(a.theta)*0.7,a.y,a.z+Math.cos(a.theta)*0.7,0.3,['police','guardian','owner'].includes(a.role));}
 function dig(a){
   const fx=Math.sin(a.theta),fz=Math.cos(a.theta);
   for(let d=1;d<=8;d+=0.25){
@@ -1465,6 +1565,113 @@ function landFlight(a){
   const sky=agents.find(g=>g.kind==='sky'); if(sky&&sky.gstate==='escort'){sky.gstate='fly';sky.stateT=15;sky.tx=null;}
   msg('🕊️ 사뿐히 내려앉았다!','#bfe6ff');
 }
+function makeNPC(o){
+  const a=Object.assign({id:agents.length,isHuman:false,alive:true,ghost:false,escaped:false,notes:new Set(),hasKey:false,path:[],goalKind:null,think:0,
+    searched:new Set(),knownTagger:null,shareCd:{},lookT:0,lookCd:99,cleared:new Set(),walk:0,moving:false,theta:Math.PI,speed:1.7,tagHits:0,
+    abilCd:0,boostT:0,ripCd:0,uses:0,money:0,wp:[],hat:false,colorName:''},o);
+  a.model=makeChar(a); agents.push(a); return a;
+}
+function addCityPeople(hk){
+  for(const k of ['baker','store']){
+    const S=SHOPS[k];
+    makeNPC({name:SUB[k].name,role:'owner',kind:k,sub:k,color:k==='baker'?0xffffff:0x2f8f5a,css:k==='baker'?'#ffe0b0':'#7fd6a0',x:S.ox,y:0,z:S.oz,ostate:'work',isHuman:k===hk});
+  }
+  const ids=Object.keys(CW).filter(k=>!['houseIn','bakC','stoC'].includes(k));
+  for(const [name,col] of [['철수 아저씨',0x6d8fb3],['영희 아주머니',0xc96f8a],['민호 아저씨',0x8a7a5a],['순자 할머니',0xa78bd0],['지영 언니',0x5fb3a8],['태호 할아버지',0x9a6b4b]]){
+    const w=CW[pick(ids)];
+    makeNPC({name,role:'adult',kind:'adult',sub:'adult',color:col,css:'#'+col.toString(16).padStart(6,'0'),x:w.x+rand()-0.5,y:0,z:w.z+rand()-0.5,astate:'wander',hunger:2+rand()*15,speed:1.5+rand()*0.4});
+  }
+}
+const shopOwner=k=>agents.find(a=>a.role==='owner'&&a.kind===k);
+function setFood(a,col){
+  if(a.model.food){a.model.armR.remove(a.model.food);a.model.food=null;}
+  if(col==null) return;
+  const f=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.14,0.16),mat(col)); f.position.set(0,-0.6,0.1); a.model.armR.add(f); a.model.food=f;
+}
+function sell(o,c){
+  const S=SHOPS[o.kind], k=S.queue.indexOf(c.id); if(k>=0) S.queue.splice(k,1);
+  const [item,price]=pick(S.items);
+  o.money+=price; setFood(c,S.food); c.eatT=12; c.hunger=10+rand()*12; c.astate='wander'; c.wp=[];
+  if(o.isHuman){
+    msg(`💰 ${c.name}에게 ${item}을(를) 팔았다! +${price}원 (모은 돈 ${o.money}원)`,'#ffd54a');
+    if(o.money>=HOUSE.price&&HOUSE.owner==null&&!o.toldHouse){o.toldHouse=true; msg('🏠 200원을 모았다! 도시 한가운데 집(도시 버스 정류장 옆)으로 가면 문이 열린다!','#ffe066');}
+  }
+}
+function adultAI(a,dt){
+  a.hunger-=dt;
+  if(a.eatT>0){a.eatT-=dt; if(a.eatT<=0) setFood(a,null);}
+  if(a.astate==='queue'){
+    const S=SHOPS[a.shop], i=S.queue.indexOf(a.id);
+    if(i<0){a.astate='wander';a.wp=[];return;}
+    const tx=S.cx,tz=S.cz-i*1.1;
+    if(Math.hypot(a.x-tx,a.z-tz)>0.1) moveDirect(a,tx,tz,dt,a.speed); else {a.moving=false;a.theta=0;}
+    a.waitT+=dt;
+    if(a.waitT>25){ // 너무 오래 기다리면 그냥 간다
+      S.queue.splice(i,1); a.astate='wander'; a.hunger=5; a.wp=[];
+      const ow=shopOwner(a.shop); if(ow&&ow.isHuman) msg(`😤 ${josa(a.name,'이','가')} 기다리다 그냥 갔다…`,'#ffb3b3');
+    }
+    return;
+  }
+  if(a.astate==='toShop'){ if(followWp(a,dt,a.speed)){SHOPS[a.shop].queue.push(a.id); a.astate='queue'; a.waitT=0;} return; }
+  if(!a.wp.length){
+    if(a.hunger<=0&&!(a.eatT>0)){ const open=['baker','store'].filter(k=>{const o=shopOwner(k);return o&&!o.ghost;}); if(!open.length){a.hunger=15;return;} a.shop=pick(open); cwGo(a,SHOPS[a.shop].street); a.astate='toShop'; return; } // 배고프면 빵집이나 편의점으로
+    cwGo(a,pick(Object.keys(CW).filter(k=>!['houseIn','bakC','stoC'].includes(k))));
+  }
+  followWp(a,dt,a.speed);
+}
+function ownerAI(a,dt){
+  const S=SHOPS[a.kind];
+  const side=[{x:S.ox+2,z:S.oz},{x:S.ox+2,z:S.cz}];
+  if(a.ostate==='work'){
+    if(Math.hypot(a.x-S.ox,a.z-S.oz)>0.2){ if(!a.wp.length) a.wp=[{x:S.ox,z:S.oz}]; followWp(a,dt,a.speed); return; }
+    a.wp=[]; a.moving=false; a.theta=Math.PI;
+    const c=agents[S.queue[0]];
+    if(c&&c.ghost) S.queue.shift();
+    else if(c&&c.astate==='queue'&&Math.hypot(c.x-S.cx,c.z-S.cz)<0.4){ a.serveT=(a.serveT||0)+dt; if(a.serveT>1.3){a.serveT=0; sell(a,c);} }
+    else a.serveT=0;
+    a.homeT=(a.homeT||0)+dt;
+    // 200원을 모으면 집으로! (집이 있으면 가끔 집에 들른다)
+    if((a.money>=HOUSE.price&&HOUSE.owner==null)||(HOUSE.owner===a.id&&a.homeT>70)){
+      a.ostate='toHouse'; a.homeT=0; a.wp=[...side,...cwPts(cwPath(S.street,'houseIn'))];
+    }
+    return;
+  }
+  if(a.ostate==='toHouse'){
+    if(HOUSE.owner!=null&&HOUSE.owner!==a.id){ a.ostate='back'; cwGo(a,S.street); a.wp.push(side[1],side[0],{x:S.ox,z:S.oz}); return; }
+    if(a.wp.length===1&&HOUSE.owner!==a.id){ a.moving=false; return; } // 문 앞에서 기다림
+    if(followWp(a,dt,a.speed)){ a.ostate='home'; a.stateT=8+rand()*6; }
+    return;
+  }
+  if(a.ostate==='home'){ a.moving=false; a.stateT-=dt; if(a.stateT<=0){ a.ostate='back'; a.wp=[...cwPts(cwPath('houseIn',S.street)),side[1],side[0],{x:S.ox,z:S.oz}]; } return; }
+  if(a.ostate==='back'){ if(followWp(a,dt,a.speed)) a.ostate='work'; }
+}
+function killOwner(v,winner){
+  if(v.ghost) return;
+  const tag=v.model.tag, wp=new THREE.Vector3(); tag.getWorldPosition(wp);
+  v.model.g.remove(tag); tag.position.copy(wp); tag.rotation.set(0,v.theta+Math.PI,0); scene.add(tag); dyn.push(tag);
+  fx.push({mesh:tag,vy:1.2,floorY:v.y+0.02,spin:(rand()-0.5)*8});
+  const S=SHOPS[v.kind]; for(const id of S.queue){const c=agents[id]; c.astate='wander'; c.wp=[];} S.queue.length=0; // 가게 문을 닫는다
+  v.money=0; v.hospitalUsed=true; // 병원에서도 다시 살아날 수 없다
+  toGhost(v);
+  msg(v.isHuman?`💀 ${josa(winner.name,'이','가')} 집을 먼저 샀다… 당신은 쓰러져 유령이 되었다.`:`💀 집을 못 산 ${josa(v.name,'은','는')} 쓰러져 유령이 되었다… 이제 ${winner.name}만 살아남았다.`,'#ff8a8a');
+}
+function buyHouse(a){
+  a.money-=HOUSE.price; HOUSE.owner=a.id; setHouseSign(`🏠 ${a.name}의 집`);
+  msg(a.isHuman?'🏠 200원을 내자 문이 열렸다! 이제 여기는 내 집이다!':`🏠 ${josa(a.name,'이','가')} 200원을 내고 도시 한가운데 집을 샀다!`,'#ffe066');
+  for(let i=0;i<24;i++){ const d=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.15,0.04),mat([0xff5252,0xffd54a,0x6fd36f,0x4a8ae8,0xd77fe8][i%5]));
+    d.position.set(HOUSE.dx,2.6,HOUSE.dz); scene.add(d); debris.push({m:d,vx:(rand()-0.5)*5,vy:4+rand()*4,vz:(rand()-0.5)*5,life:2.5,rx:rand()*9,ry:rand()*9}); }
+  if(a.role==='owner') for(const o of agents) if(o.role==='owner'&&o!==a) killOwner(o,a); // 집을 못 산 사장님은 쓰러지고, 산 사장님만 살아남는다
+  if(human&&human.role==='owner') later(()=>endGame('house',a),2500);
+}
+function updateHouse(dt){
+  if(HOUSE.owner==null){
+    const b=agents.find(a=>!a.ghost&&a.alive&&(a.money||0)>=HOUSE.price&&a.y<1&&Math.hypot(a.x-HOUSE.dx,a.z-HOUSE.dz)<2.6);
+    if(b) buyHouse(b);
+  }
+  const o=HOUSE.owner!=null?agents[HOUSE.owner]:null;
+  HOUSE.doorOpen=!!(o&&!o.ghost&&Math.hypot(o.x-HOUSE.dx,o.z-HOUSE.dz)<2.8); // 집주인이 오면 문이 열린다
+  HOUSE.door.rotation.y+=((HOUSE.doorOpen?-1.5:0)-HOUSE.door.rotation.y)*Math.min(1,dt*5);
+}
 function aiUpdate(a,dt){
   if(a.ghost){
     if(!a.path.length){
@@ -1474,6 +1681,8 @@ function aiUpdate(a,dt){
     followPath(a,dt,1.4); a.moving=false; return;
   }
   if(a.stunT>0){a.stunT-=dt;a.moving=false;return;}
+  if(a.role==='adult'){adultAI(a,dt);return;}
+  if(a.role==='owner'){ownerAI(a,dt);return;}
   if(a.role==='guardian'){guardianAI(a,dt);return;}
   a.think-=dt;
   if(a.role==='police'&&a.pstate!=='school'){policeAI(a,dt);return;}
@@ -1506,7 +1715,7 @@ function revive(n,v){
 }
 function rip(t,v){
   const tag=v.model.tag, wp=new THREE.Vector3(); tag.getWorldPosition(wp);
-  v.model.g.remove(tag); tag.position.copy(wp); tag.rotation.set(0,v.theta+Math.PI,0); scene.add(tag);
+  v.model.g.remove(tag); tag.position.copy(wp); tag.rotation.set(0,v.theta+Math.PI,0); scene.add(tag); dyn.push(tag);
   fx.push({mesh:tag,vy:1.2,floorY:v.y+0.02,spin:(rand()-0.5)*8});
   const ids=[...v.notes]; v.notes.clear();
   for(const id of ids){const an=rand()*6.28,r=0.4+rand()*0.7; spawnItem('note',id,new THREE.Vector3(v.x+Math.cos(an)*r,v.y+0.03,v.z+Math.sin(an)*r),null);}
@@ -1531,29 +1740,36 @@ function rip(t,v){
       if((fxx*(t.x-h.x)+fzz*(t.z-h.z))/Math.max(d,0.01)>0.3) msg(`👀 방금 ${josa(t.name,'이','가')} 이름표를 뜯는 걸 봤다!`,'#ffd54a');
     }
   }
-  if(v.role==='tagger') setTimeout(()=>endGame('police',t),1200);
-  else if(agents.filter(p=>p.role==='runner').every(p=>p.ghost)) setTimeout(()=>endGame('tagger'),1200);
+  if(v.role==='tagger') later(()=>endGame('police',t),1200);
+  else if(agents.filter(p=>p.role==='runner').every(p=>p.ghost)) later(()=>endGame('tagger'),1200);
 }
 function escape(a){
   if(game.state!=='play') return;
   a.escaped=true; a.model.g.visible=false;
   gateDoors[0].position.x-=1.8; gateDoors[1].position.x+=1.8;
   msg(`🚪 ${josa(a.name,'이','가')} 열쇠로 정문을 열고 탈출했다!`,'#ffd54a');
-  setTimeout(()=>endGame('runners',a),900);
+  later(()=>endGame('runners',a),900);
 }
 function endGame(winner,esc){
   if(game.state!=='play') return;
+  // 사장님은 학교 승부와 상관없이 집을 사는 게 목표
+  if(human&&human.role==='owner'&&winner!=='house'){
+    if(!game.schoolDone){game.schoolDone=true; msg(`🏫 학교 소식: ${winner==='tagger'||winner==='timeout'?'술래가 이겼대!':'일반 플레이어들이 이겼대!'} (사장님은 집 마련에 집중!)`,'#cde');}
+    return;
+  }
   game.state='over';
   const tg=agents.find(p=>p.role==='tagger');
   const goodWin=winner==='runners'||winner==='police';
-  const win=goodWin===(human.role!=='tagger');
-  const roleList=agents.filter(p=>p.role!=='guardian').map(p=>`<span style="color:${p.css}">${p.name}</span> ${SUB[p.sub].icon}${SUB[p.sub].name}`).join(' · ');
+  const win=winner==='house'?esc===human:goodWin===(human.role!=='tagger');
+  const roleList=agents.filter(p=>!['guardian','adult','owner'].includes(p.role)).map(p=>`<span style="color:${p.css}">${p.name}</span> ${SUB[p.sub].icon}${SUB[p.sub].name}`).join(' · ');
   $('endInner').innerHTML=`<h1>${win?'🎉 승리!':'💀 패배…'}</h1>
-    <div style="font-size:18px">${winner==='police'?`👮 경찰 ${josa(esc.name,'이','가')} 술래의 이름표를 뗐다! <b>일반 플레이어 + 경찰 승리</b>`:winner==='runners'?`${josa(esc.name,'이','가')} 열쇠를 들고 탈출했다! <b>일반 플레이어 + 경찰 승리</b>`:winner==='timeout'?'⏰ 시간이 다 되어 학교 문이 완전히 잠겼다! <b>술래 승리</b>':'모든 플레이어의 이름표가 뜯겼다! <b>술래 승리</b>'}</div>
+    <div style="font-size:18px">${winner==='house'?`🏠 ${josa(esc.name,'이','가')} 200원으로 도시 한가운데 집을 샀다! <b>${esc===human?'내 집 마련 성공! 혼자 살아남았다!':'집을 먼저 빼앗기고 쓰러졌다…'}</b>`:winner==='police'?`👮 경찰 ${josa(esc.name,'이','가')} 술래의 이름표를 뗐다! <b>일반 플레이어 + 경찰 승리</b>`:winner==='runners'?`${josa(esc.name,'이','가')} 열쇠를 들고 탈출했다! <b>일반 플레이어 + 경찰 승리</b>`:winner==='timeout'?'⏰ 시간이 다 되어 학교 문이 완전히 잠겼다! <b>술래 승리</b>':'모든 플레이어의 이름표가 뜯겼다! <b>술래 승리</b>'}</div>
     <div style="margin-top:10px">술래는 <b style="color:${tg.css}">${tg.name}</b>${tg.isHuman?' (나)':''}였다.</div>
     <div style="opacity:.75">열쇠 위치: ${game.keySpot.floor+1}층 ${game.keySpot.room+1}반 ${({locker:'사물함',teacher:'교탁',window:'창가',desk:'책상'})[game.keySpot.type]}</div>
     <div style="margin-top:6px;font-size:14px">${roleList}</div>
-    <button onclick="location.reload()">다시 하기</button>`;
+    <button onclick="replay()">🔁 다시 하기</button> <button onclick="toMenu()" style="background:#8fa3c8">🏠 처음 화면</button>
+    <div style="font-size:12px;opacity:.6;margin-top:6px">Enter 키를 눌러도 같은 역할로 다시 해요</div>`;
+  game.overAt=performance.now(); $('pauseBtn').classList.add('hidden');
   $('endBox').classList.remove('hidden');
 }
 
@@ -1628,6 +1844,7 @@ function loop(){
     updateBus(dt);
     updateHuman(dt);
     updateHospital(dt);
+    updateHouse(dt);
     updateDiscovery();
     for(const a of agents) if(!a.isHuman&&!a.escaped) aiUpdate(a,dt);
     hudT-=dt; if(hudT<=0){hudT=0.15; updateHUD(); drawMini();}
@@ -1641,7 +1858,7 @@ function loop(){
 buildSchool();
 loop();
 
-$('startBtn').onclick=()=>{
+function startGame(){
   if(agents.length) return;
   D=DIFFS[+$('diff').value];
   game.roleChoice=$('myRole').value;
@@ -1652,20 +1869,62 @@ $('startBtn').onclick=()=>{
     sky:['#bfe6ff','하늘을 날아 <b>어디든지</b> 갈 수 있어요. 벽도, 층도 상관없어요! (<kbd>Space</kbd> 위로 · <kbd>Shift</kbd> 아래로)<br><kbd>Enter</kbd>: 바로 옆 사람을 3.5초 동안 <b>붙잡기</b> (15초마다). 술래를 찾아 붙잡아 친구들을 지키세요!'],
     earth:['#c8945a','걷다가 <b>막힌 곳</b>에 부딪치면 <b>땅속</b>으로 들어갔다가, 뚫린 곳에서 다시 올라와요. <kbd>Q</kbd>로 땅속에 숨을 수도 있어요 (술래가 칠 수 없음).<br><kbd>Enter</kbd>: 옆 사람을 데리고 땅굴로 술래에게서 멀리 도망치기 (20초마다).'],
     life:['#8fffa0','도시의 <b>🏥 병원</b>에서 일해요. 유령이 당신 곁에 3초 있으면 되살아나요 (한 사람당 한 번). 유령들에게 인기가 많아요!<br><kbd>Enter</kbd>: 벗겨진 이름표를 새것처럼 고쳐 주기 (10초마다). 정문 옆 파란 쪽문으로 학교에 들어갈 수 있어요.']};
-  if(a.role==='guardian'){ const [gc,gd]=GI[a.kind]; $('roleInner').innerHTML=`<h1 style="color:${gc}">당신은 ${SUB[a.kind].icon} ${a.name}입니다</h1><div style="margin-top:8px">숨어서 일반 플레이어들을 지키는 비밀 도우미예요.<br>${gd}<br>❗ 누군가 술래에게 맞으면 알림과 빨간 느낌표가 떠요.<br>⚠️ 술래는 당신의 등도 칠 수 있어요. 5번 맞으면 유령이 돼요.<br>일반 플레이어가 탈출하거나 경찰이 술래를 잡으면 함께 승리!</div><button id="goBtn">시작</button>`; }
-  else if(a.role==='police'){ $('roleInner').innerHTML=`<h1 style="color:#6f9be8">당신은 👮 경찰입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div style="margin-top:8px">도시의 <b>경찰서</b>에서 출발합니다. 앞의 정류장에서 <b>🚌 버스</b>를 타고(<kbd>Space</kbd>) 학교 앞에서 내리세요.<br>정문 옆 <b>파란 쪽문</b>은 경찰만 지나갈 수 있어요.<br>술래는 당신을 공격할 수 없습니다. 쪽지, 목격, 친구들의 제보로 술래를 찾아 <kbd>Enter</kbd> 로 이름표를 떼면 승리!<br>⚠️ 경찰은 <b>누구의 이름표든</b> 뗄 수 있어요. 잘못 떼서 일반 플레이어가 모두 유령이 되면 술래 승리!</div><button id="goBtn">시작</button>`; }
+  if(a.role==='owner'){ const it=SHOPS[a.kind].items.map(x=>x[0]+' '+x[1]+'원').join(', ');
+    $('roleInner').innerHTML=`<h1 style="color:${a.css}">당신은 ${SUB[a.kind].icon} ${a.name}입니다</h1><div style="margin-top:8px">도시의 가게 계산대 뒤에서 시작해요.<br>어른 손님이 줄을 서면 <kbd>Space</kbd>로 음식을 팔고 돈을 받아요. (${it})<br>손님은 너무 오래 기다리면 그냥 가 버려요!<br><b>200원</b>을 모아 도시 한가운데 <b>🏠 집</b>(도시 버스 정류장 옆)으로 가면 문이 열리면서 내 집이 돼요.<br>⚠️ ${a.kind==='baker'?'편의점':'빵집'} 사장님이 먼저 집을 사면 당신은 쓰러져 유령이 돼요! 먼저 사야 살아남아요.<br>🏫 정문 옆 파란 쪽문으로 학교에도 들어갈 수 있어요. (학교 승부와는 상관없어요)</div><button id="goBtn">시작 (Enter)</button>`; }
+  else if(a.role==='guardian'){ const [gc,gd]=GI[a.kind]; $('roleInner').innerHTML=`<h1 style="color:${gc}">당신은 ${SUB[a.kind].icon} ${a.name}입니다</h1><div style="margin-top:8px">숨어서 일반 플레이어들을 지키는 비밀 도우미예요.<br>${gd}<br>❗ 누군가 술래에게 맞으면 알림과 빨간 느낌표가 떠요.<br>⚠️ 술래는 당신의 등도 칠 수 있어요. 5번 맞으면 유령이 돼요.<br>일반 플레이어가 탈출하거나 경찰이 술래를 잡으면 함께 승리!</div><button id="goBtn">시작 (Enter)</button>`; }
+  else if(a.role==='police'){ $('roleInner').innerHTML=`<h1 style="color:#6f9be8">당신은 👮 경찰입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div style="margin-top:8px">도시의 <b>경찰서</b>에서 출발합니다. 앞의 정류장에서 <b>🚌 버스</b>를 타고(<kbd>Space</kbd>) 학교 앞에서 내리세요.<br>정문 옆 <b>파란 쪽문</b>은 경찰만 지나갈 수 있어요.<br>술래는 당신을 공격할 수 없습니다. 쪽지, 목격, 친구들의 제보로 술래를 찾아 <kbd>Enter</kbd> 로 이름표를 떼면 승리!<br>⚠️ 경찰은 <b>누구의 이름표든</b> 뗄 수 있어요. 잘못 떼서 일반 플레이어가 모두 유령이 되면 술래 승리!</div><button id="goBtn">시작 (Enter)</button>`; }
   else $('roleInner').innerHTML=a.role==='tagger'
-    ? `<h1 style="color:#ff6b6b">당신은 술래입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div>들키지 않게 플레이어들의 <b>등 뒤</b>로 다가가 <kbd>Enter</kbd> 로 등을 치세요. <b>5번</b> 치면 이름표가 떨어집니다.<br>한 번 맞은 사람은 당신을 알아채고 도망가니 빠르게 몰아붙이세요!<br>누군가 열쇠로 탈출하기 전에 일반 플레이어 4명 모두를 유령으로 만들면 승리!<br>👮 <b>경찰</b>은 칠 수 없고, 경찰에게 이름표를 떼이면 패배! 경찰 앞에서는 조심하세요.<br>${D.limit?'제한 시간이 끝날 때까지 아무도 탈출하지 못해도 승리!<br>':''}⚠️ 일반 플레이어 중 <b>보건부</b>는 유령을 되살릴 수 있고, <b>탐정</b>은 당신의 정체를 밝혀낼 수 있다.<br>😈 ${SUB.tagger.desc}</div><button id="goBtn">시작</button>`
-    : `<h1 style="color:#8fd3ff">당신은 일반 플레이어입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div style="margin:8px 0;font-size:18px">특수 역할: <b>${SUB[a.sub].icon} ${SUB[a.sub].name}</b><br><span style="font-size:15px">${SUB[a.sub].desc}</span></div><div>쪽지를 모아 술래가 누구인지, 열쇠가 어디 있는지 알아내세요.<br>술래에게 등을 <b>5번</b> 맞으면 이름표가 떨어져요. 맞으면 바로 돌아보세요!<br>열쇠를 찾아 <b>1층 정문</b>으로 가면 탈출!</div><button id="goBtn">시작</button>`;
+    ? `<h1 style="color:#ff6b6b">당신은 술래입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div>들키지 않게 플레이어들의 <b>등 뒤</b>로 다가가 <kbd>Enter</kbd> 로 등을 치세요. <b>5번</b> 치면 이름표가 떨어집니다.<br>한 번 맞은 사람은 당신을 알아채고 도망가니 빠르게 몰아붙이세요!<br>누군가 열쇠로 탈출하기 전에 일반 플레이어 4명 모두를 유령으로 만들면 승리!<br>👮 <b>경찰</b>은 칠 수 없고, 경찰에게 이름표를 떼이면 패배! 경찰 앞에서는 조심하세요.<br>${D.limit?'제한 시간이 끝날 때까지 아무도 탈출하지 못해도 승리!<br>':''}⚠️ 일반 플레이어 중 <b>보건부</b>는 유령을 되살릴 수 있고, <b>탐정</b>은 당신의 정체를 밝혀낼 수 있다.<br>😈 ${SUB.tagger.desc}</div><button id="goBtn">시작 (Enter)</button>`
+    : `<h1 style="color:#8fd3ff">당신은 일반 플레이어입니다</h1><div>이름: <b style="color:${a.css}">${a.name}</b></div><div style="margin:8px 0;font-size:18px">특수 역할: <b>${SUB[a.sub].icon} ${SUB[a.sub].name}</b><br><span style="font-size:15px">${SUB[a.sub].desc}</span></div><div>쪽지를 모아 술래가 누구인지, 열쇠가 어디 있는지 알아내세요.<br>술래에게 등을 <b>5번</b> 맞으면 이름표가 떨어져요. 맞으면 바로 돌아보세요!<br>열쇠를 찾아 <b>1층 정문</b>으로 가면 탈출!</div><button id="goBtn">시작 (Enter)</button>`;
   $('roleBox').classList.remove('hidden');
   $('goBtn').onclick=()=>{
     $('roleBox').classList.add('hidden');
-    ['tl','tr','notes','mini','help'].forEach(id=>$(id).classList.remove('hidden'));
+    ['tl','tr','notes','mini','help','pauseBtn'].forEach(id=>$(id).classList.remove('hidden'));
     refreshNotes(); updateHUD(); game.state='play';
     clock.getDelta();
-    msg(a.role==='guardian'?`${SUB[a.kind].icon} ${a.name}, 오늘도 몰래 친구들을 지켜 보자!`:a.role==='police'?`${a.name} 경관, 학교에서 신고가 들어왔다! 버스를 타고 출동하자!`:`${a.name}, 아침에 학교에 갇혔다… 열쇠를 찾아 탈출하자!`);
+    msg(a.role==='owner'?`${SUB[a.kind].icon} ${a.name}, 오늘도 장사를 시작해 볼까요? 목표는 200원과 내 집!`:a.role==='guardian'?`${SUB[a.kind].icon} ${a.name}, 오늘도 몰래 친구들을 지켜 보자!`:a.role==='police'?`${a.name} 경관, 학교에서 신고가 들어왔다! 버스를 타고 출동하자!`:`${a.name}, 아침에 학교에 갇혔다… 열쇠를 찾아 탈출하자!`);
   };
-};
+}
+$('startBtn').onclick=startGame;
+
+// ================== 다시 하기 (새로고침 없이 처음 상태로) ==================
+let WORLD0=null; const gate0=[];
+function snapshotWorld(){ WORLD0={colliders:colliders.slice(),cam:camBlockers.slice()}; for(const g of gateDoors) gate0.push(g.position.x); }
+function resetWorld(){
+  // 버스가 부순 곳을 원래대로
+  for(const c of colliders) if(!WORLD0.colliders.includes(c)&&c.mesh) scene.remove(c.mesh);
+  for(const c of WORLD0.colliders){ if(c.mesh&&!c.mesh.parent) scene.add(c.mesh); for(const e of c.extra||[]) if(!e.parent) scene.add(e); }
+  colliders.length=0; colliders.push(...WORLD0.colliders);
+  camBlockers.length=0; camBlockers.push(...WORLD0.cam);
+  if(sideDoor){sideDoor.visible=true; sideDoor.rotation.y=0;}
+  gateDoors.forEach((g,i)=>g.position.x=gate0[i]);
+  // 사람, 쪽지, 열쇠, 파편 정리
+  for(const a of agents){ scene.remove(a.model.g); if(a.mound) scene.remove(a.mound); }
+  for(const it of items) scene.remove(it.mesh);
+  for(const d of debris) scene.remove(d.m); debris.length=0;
+  for(const m of dyn) scene.remove(m); dyn.length=0;
+  fx.length=0; agents=[]; items=[]; noteDefs=[]; human=null;
+  for(const s of spots) s.item=null;
+  for(const lk of lockers){ lk.open=rand()<0.5; lk.ang=lk.open?-1.6:0; lk.pivot.rotation.y=lk.ang; }
+  Object.assign(BUS,{x:21.2,z:BUS.zCity,heading:0,state:'waitCity',t:6,vel:0,auto:true,driver:null});
+  BUS.mesh.position.set(BUS.x,0,BUS.z); BUS.mesh.rotation.y=0;
+  for(const k in keys) keys[k]=false;
+  for(const k in SHOPS) SHOPS[k].queue.length=0;
+  HOUSE.owner=null; HOUSE.doorOpen=false; HOUSE.door.rotation.y=0; setHouseSign('🏠 집 팝니다 · 200원'); game.schoolDone=false;
+  shake=0; game.time=0; game.state='menu'; game.round++; hudT=0;
+  $('msgs').innerHTML=''; $('prompt').style.display='none';
+  ['tl','tr','notes','mini','help','pauseBtn'].forEach(id=>$(id).classList.add('hidden'));
+  ['endBox','roleBox','pauseBox'].forEach(id=>$(id).classList.add('hidden'));
+}
+function replay(){ resetWorld(); startGame(); }
+function toMenu(){ resetWorld(); $('menu').classList.remove('hidden'); }
+function pause(){ if(game.state!=='play') return; game.state='paused'; for(const k in keys) keys[k]=false; $('pauseBox').classList.remove('hidden'); }
+function resume(){ if(game.state!=='paused') return; $('pauseBox').classList.add('hidden'); game.state='play'; clock.getDelta(); }
+// 고른 역할과 난이도 기억하기
+function saveSettings(){ try{localStorage.setItem('schoolEscape',JSON.stringify({role:$('myRole').value,diff:$('diff').value}));}catch(e){} }
+try{ const st=JSON.parse(localStorage.getItem('schoolEscape')||'null'); if(st){ $('myRole').value=st.role; $('diff').value=st.diff; } }catch(e){}
+$('myRole').onchange=saveSettings; $('diff').onchange=saveSettings;
+snapshotWorld(); // 처음 학교 모습을 기억해 둔다 (다시 하기 때 되돌리기용)
 </script>
 </body>
 </html>
