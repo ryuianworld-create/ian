@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>5분 탈출: 잠실 롯데몰</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23111'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ff8a1e'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <div id="hud">
+        <div id="timer">05:00</div>
+        <div id="floorBadge">1층 · 마켓</div>
+
+        <div id="colorStatus">
+          <div class="colorBox">
+            <span class="label">약통</span>
+            <div id="tankSwatch" class="swatch empty"></div>
+          </div>
+          <div class="colorBox">
+            <span class="label">몸</span>
+            <div id="bodySwatch" class="swatch empty"></div>
+          </div>
+          <div id="camoBadge" class="hidden">위장중</div>
+          <div id="freezeBadge" class="freeze-ready">ㅎ: 긴급 정지(1회)</div>
+          <div id="arrowBadge" class="hidden">Space: 화살</div>
+          <div id="swordBadge" class="hidden">F: 검</div>
+          <div id="wandBadge" class="hidden">Q: 마법봉</div>
+          <div id="hammerBadge" class="hidden">E: 망치</div>
+        </div>
+
+        <div id="pickupToast" class="hidden"></div>
+        <div id="elevatorPrompt" class="hidden">
+          엘리베이터: 층 번호(1~21)를 누르세요<br />
+          <span id="elevatorDigits"></span>
+        </div>
+
+        <div id="hint">방향키: 이동/회전 · 클릭 후 마우스 회전 · Enter: 색 채우기 · Space: 화살 · F: 검 · Q: 마법봉 · E: 망치 · ㅎ: 긴급 정지</div>
+
+        <div id="deathFlash"></div>
+        <div id="pickupFlash"></div>
+      </div>
+
+      <div id="startScreen" class="overlay">
+        <h1>5분 탈출: 잠실 롯데몰</h1>
+        <p>
+          정전된 잠실 롯데몰에 갇혔다. 지하 마켓부터 꼭대기 롯데시네마까지
+          21개 층이 엘리베이터로 이어져 있고, 졸라맨들이 당신을 쫓는다.
+          낚시하는 졸라맨의 낚싯대에 걸리면 죽는다. 작은 매장의 투명한
+          색문에 닿으면 약통에 색이 채워진다. <b>Enter</b>를 누르면 몸
+          전체가 그 색이 되고, 같은 색 벽에 붙어 있으면 졸라맨들은 당신을
+          알아채지 못한다. 단, 먼지에 닿으면 색이 지워진다. 바닥에 떨어진
+          화살·검·마법봉·망치를 주우면 무제한으로 쓸 수 있다. AI 친구와
+          함께 5분 안에 출구를 찾아 탈출하라.
+        </p>
+        <ul>
+          <li>방향키 ↑↓ : 전진 / 후진</li>
+          <li>방향키 ←→ 또는 화면 클릭 후 마우스 좌우 이동 : 시점 회전</li>
+          <li>Enter : 약통의 색을 몸에 채우기 (약통은 비워짐)</li>
+          <li>Space : 화살 쏘기 (주운 뒤 무제한)</li>
+          <li>F : 검 사용 - 발밑 반경 3 범위의 적 제거 (주운 뒤 무제한)</li>
+          <li>Q : 마법봉 사용 - 살아있는 모든 졸라맨을 형광 보라색 감옥에 가둠, 먼지가 닿아야 풀려남 (주운 뒤 무제한)</li>
+          <li>E : 망치 사용 - 가까운 먼지를 부수고, 가까운 벽을 부숴 새 길을 냄 (주운 뒤 무제한)</li>
+          <li>엘리베이터 근처에서 숫자키 1~21 입력 : 그 층으로 이동 (두 자리는 십의자리·일의자리를 짧게 같이 누르기, 예: '1'+'2' → 12층)</li>
+          <li>ㅎ(G) : 긴급 정지 아이템 (게임당 1회, 20초간 졸라맨들이 멈춤)</li>
+        </ul>
+        <div id="levelSelect">
+          <button class="levelBtn" data-level="1">
+            <strong>레벨 1</strong>
+            <span>AI 친구 5명이 원형으로 딱 붙어다님. 색·무기를 나와 그대로 공유하며 함께 공격</span>
+          </button>
+          <button class="levelBtn" data-level="2">
+            <strong>레벨 2</strong>
+            <span>AI 친구 2명이 독립적으로 따라다니며 스스로 판단해 숨거나 싸움</span>
+          </button>
+          <button class="levelBtn" data-level="3">
+            <strong>레벨 3</strong>
+            <span>혼자서 탈출</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="endScreen" class="overlay hidden">
+        <h1 id="endTitle"></h1>
+        <p id="endMessage"></p>
+        <button id="restartBtn">다시 시작</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
