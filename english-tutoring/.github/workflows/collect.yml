@@ -1,0 +1,50 @@
+name: 자료 수집
+
+# 수동 버튼(Run workflow) + 매일 아침 자동 실행
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "실행 모드"
+        type: choice
+        required: true
+        default: probe
+        options:
+          - probe    # 소스가 무엇을 제공하는지 확인만 (저장 없음)
+          - collect  # 실제 수집 후 커밋
+  schedule:
+    - cron: "0 21 * * *"   # UTC 21:00 = KST 06:00
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: 정찰
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'probe' }}
+        run: node scripts/probe.mjs
+
+      - name: 수집
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'collect') }}
+        run: node scripts/collect.mjs
+
+      - name: 변경사항 커밋
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'collect') }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data; then
+            echo "새 글 없음 — 커밋 생략"
+          else
+            git add data
+            git commit -m "자료 수집: $(date -u +%Y-%m-%d)"
+            git push
+          fi

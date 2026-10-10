@@ -1,0 +1,19 @@
+{
+  "userAgent": "hr-paper-daily/0.1 (personal study reader; +https://github.com/rchworld/english-tutoring)",
+  "politeDelayMs": 2000,
+  "maxNewPerRun": 5,
+  "sources": [
+    {
+      "id": "aihr",
+      "name": "AIHR",
+      "home": "https://www.aihr.com/",
+      "feeds": [
+        "https://www.aihr.com/feed/",
+        "https://www.aihr.com/blog/feed/"
+      ],
+      "sitemapIndex": "https://www.aihr.com/sitemap_index.xml",
+      "articlePattern": "^https://www\\.aihr\\.com/blog/[a-z0-9-]+/?$",
+      "enabled": true
+    }
+  ]
+}

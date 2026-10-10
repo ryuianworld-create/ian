@@ -1,0 +1,690 @@
+[
+  {
+    "id": "aihr-culture-and-employee-retention",
+    "source": "aihr",
+    "sourceName": "AIHR",
+    "title": "Culture & Employee Retention: 8 Warning Signs & 5 Fixes",
+    "url": "https://www.aihr.com/blog/culture-and-employee-retention/",
+    "published": "2026-09-16",
+    "category": "Talent Management",
+    "summary": {
+      "ko": "이직률은 문화 문제의 원인이 아니라 결과다. 사람은 '문화가 나빠서' 떠나는 게 아니라, 나쁜 경험이 반복된 끝에 떠난다. 그래서 유지율은 후행지표이고, 그전에 몰입도가 먼저 떨어진다. 갤럽 조사에서 조직 문화에 강하게 연결돼 있다고 느끼는 미국 직원은 20%에 불과했고, 그 20%는 이직을 알아볼 가능성이 47% 낮았다. 이 글은 문화가 무너지고 있다는 8가지 신호, 사람을 붙잡는 5가지 요인(심리적 안전감·성장 경로·관리자 역량·인정·보상 형평성), 그리고 진단→우선순위→시범운영의 3단계 개선 절차를 제시한다. 핵심 주장은 복지가 아니라 관리자의 일상적 습관이 문화를 만든다는 것이다.",
+      "en": "Turnover is the result of a culture problem, not its cause. People rarely leave because of \"culture\" as a single issue — they leave after repeated negative experiences. Retention is therefore a lagging indicator, and engagement falls first. Gallup found that only 20% of US employees feel strongly connected to their organisation's culture, and that those who do are 47% less likely to be looking for another job. The article sets out 8 warning signs that culture is hurting retention, 5 factors that keep people from leaving (psychological safety, growth pathways, manager quality, recognition, fair pay), and a three-step fix: diagnose, prioritise, then pilot and measure. Its central claim is that culture is built by managers' everyday habits, not by perks."
+    },
+    "findings": [
+      {
+        "k": "20%",
+        "ko": "조직 문화에 강한 유대를 느끼는 미국 직원 비율. 전 세계 직원 몰입도도 같은 20% 수준으로 떨어졌다.",
+        "en": "Share of US employees who feel strongly connected to their culture. Global engagement has fallen to the same 20%."
+      },
+      {
+        "k": "−47%",
+        "ko": "문화에 연결됐다고 느끼는 직원이 다른 일자리를 알아볼 가능성. 몰입할 가능성은 4.3배 높다.",
+        "en": "Lower likelihood of job-hunting among culturally connected employees, who are also 4.3× as likely to be engaged."
+      },
+      {
+        "k": "−51%",
+        "ko": "몰입도 높은 팀의 이직률 감소폭(이직률이 낮은 조직 기준). 높은 조직에서도 21% 낮다.",
+        "en": "Turnover reduction in highly engaged teams at low-turnover organisations; 21% at high-turnover ones."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "왜 유지율이 후행지표인가",
+          "en": "Why retention is a lagging indicator"
+        },
+        "body": {
+          "ko": "문화란 구성원이 관찰하는 규범, 행동, 기대치, 그리고 명문화되지 않은 규칙이다. 리더가 무엇에 보상하는지, 관리자가 무엇을 눈감아 주는지, 규정이 답을 주지 않을 때 사람들이 어떻게 결정하는지가 곧 문화다. 문제는 그것이 겉으로 드러날 때쯤이면 이미 사람이 나간 뒤라는 점이다. 이직은 누적된 결과이므로, 그 앞단의 <span class=\"vw\" data-w=\"engagement\">engagement</span> 하락을 조기 경보로 봐야 한다.",
+          "en": "Culture is the set of norms, behaviours, expectations and unwritten rules employees observe at work — what leaders reward, what managers tolerate, and how people decide when policy gives no clear answer. The problem is that by the time it shows up in the numbers, people have already gone. Turnover is cumulative, so the earlier fall in <span class=\"vw\" data-w=\"engagement\">engagement</span> is the signal to watch."
+        }
+      },
+      {
+        "h": {
+          "ko": "8가지 경고 신호",
+          "en": "8 warning signs"
+        },
+        "body": {
+          "ko": "<ul><li>특정 직무나 팀에서 이직 증가</li><li>퇴직 면담에서 관리자·성장·업무량 관련 주제가 반복</li><li>사내 추천 채용 감소</li><li>몰입도 점수 하락</li><li>특정 관리자 아래에서만 몰입도 하락</li><li><span class=\"vw\" data-w=\"internal mobility\">internal mobility</span> 저하</li><li>부서 이동 요청 증가</li><li>경력 경로에 대한 불확실성 표출</li></ul>개별 수치보다 <b>패턴</b>이 중요하다. 전사적 하락은 조직 차원의 문제이고, 특정 관리자 아래의 급등은 국소적 문제다. 먼저 관리자별·<span class=\"vw\" data-w=\"tenure\">tenure</span>별로 이직 데이터를 쪼개 보라.",
+          "en": "<ul><li>Rising turnover in specific roles or teams</li><li>Repeated exit-interview themes about managers, growth or workload</li><li>Falling internal referral rates</li><li>Declining engagement scores</li><li>Engagement falling under specific managers</li><li>Lower <span class=\"vw\" data-w=\"internal mobility\">internal mobility</span></li><li>More transfer requests</li><li>Employees voicing uncertainty about career progression</li></ul>The <b>pattern</b> matters more than any single number. A company-wide decline points to an organisational problem; a spike under one manager is local. Start by cutting turnover data by manager and by <span class=\"vw\" data-w=\"tenure\">tenure</span>."
+        }
+      },
+      {
+        "h": {
+          "ko": "사람을 붙잡는 5가지",
+          "en": "5 factors that keep people"
+        },
+        "body": {
+          "ko": "<ul><li><b><span class=\"vw\" data-w=\"psychological safety\">psychological safety</span></b> — 보복이나 망신 걱정 없이 이견을 말하고 실수를 인정할 수 있는가</li><li><b>성장 경로</b> — 다음 단계에 필요한 역량이 무엇이고 그게 현실적인가</li><li><b>관리자 역량</b> — 기대치를 명확히 하고, 정기적으로 피드백하며, 공정하게 대하는가</li><li><b>인정</b> — 연말 시상이 아니라 즉각적이고 구체적인 인정인가</li><li><b><span class=\"vw\" data-w=\"pay equity\">pay equity</span></b> — 보상 결정 방식을 이해하고 공정하다고 느끼는가</li></ul>글은 복지에 대해 분명히 선을 긋는다. 무료 식사나 게임룸은 문화를 <i>보조</i>할 뿐, 신뢰·자율·성장·인정·공정성을 대체하지 못한다.",
+          "en": "<ul><li><b><span class=\"vw\" data-w=\"psychological safety\">psychological safety</span></b> — can people disagree and admit mistakes without fear of retaliation?</li><li><b>Growth pathways</b> — do they know what skills the next step needs, and is it realistic?</li><li><b>Manager quality</b> — clear expectations, regular feedback, fair treatment</li><li><b>Recognition</b> — prompt and specific, not an annual award</li><li><b><span class=\"vw\" data-w=\"pay equity\">pay equity</span></b> — do people understand how pay decisions are made, and see them as fair?</li></ul>The article is blunt about perks: free food and a game room can <i>support</i> culture, but they do not substitute for trust, autonomy, growth, recognition and fairness."
+        }
+      },
+      {
+        "h": {
+          "ko": "3단계 개선 절차",
+          "en": "The three-step fix"
+        },
+        "body": {
+          "ko": "<b>1. 진단</b> — 몰입도 조사, 팀·관리자별 이직률, <span class=\"vw\" data-w=\"stay interview\">stay interview</span>와 퇴직 면담, 사내 이동 데이터를 본다. 개별 불만이 아니라 패턴을 찾는다.<br><b>2. 우선순위</b> — 격차가 가장 큰 한두 곳만 고른다. 무엇을 바꿔야 할지 모르는 채로 전사 문화 혁신을 시작하지 않는다.<br><b>3. 시범운영과 측정</b> — 한 팀에서 먼저 시험한다. 예를 들어 이직률 높은 팀에 구조화된 잔류 면담을 도입하거나, 관리자 1:1 면담에 우선순위·장애물·성장·인정·고충이라는 틀을 준다. 일상적 습관을 건드리는 변화라 큰 투자 없이 검증할 수 있다.",
+          "en": "<b>1. Diagnose</b> — engagement surveys, turnover by team and manager, <span class=\"vw\" data-w=\"stay interview\">stay interviews</span> and exit interviews, internal mobility. Look for patterns, not isolated complaints.<br><b>2. Prioritise</b> — pick one or two areas with the largest gaps. Don't launch a company-wide culture programme before you know what needs to change.<br><b>3. Pilot and measure</b> — test with one team first: structured stay interviews for a high-turnover team, or a simple structure for manager one-on-ones covering priorities, obstacles, development, recognition and concerns. These touch everyday habits, so they can be validated cheaply."
+        }
+      },
+      {
+        "h": {
+          "ko": "무엇을 측정할 것인가",
+          "en": "What to track"
+        },
+        "body": {
+          "ko": "일화만으로 문화를 관리할 수는 없다. 개입을 시작하기 전에 기준선을 잡고 다음을 추적한다.<ul><li><b>유지율</b> — 팀·관리자·직무·근속연차별로 비교</li><li><b>몰입도 추세</b> — 한 번의 설문이 아니라 시간에 따른 변화</li><li><b>잔류·퇴직 면담 주제</b> — 반복되는 주제를 코딩해 변화를 본다</li><li><b><span class=\"vw\" data-w=\"internal mobility\">internal mobility</span></b> — 승진, 전배, 신규 역할 이동</li><li><b>관리자별 패턴</b> — 전사 평균과 크게 다른 팀을 찾아낸다</li></ul>설문을 계속 돌릴 필요는 없다. 연 1회 몰입도 조사에 분기별 펄스 서베이면 충분하고, 추세를 보려면 문항을 웬만하면 바꾸지 않는 편이 낫다. 결과는 팀·관리자·근속연차로 쪼개서 본다.",
+          "en": "You can't manage culture on anecdotes. Set a baseline before any intervention and track:<ul><li><b>Retention rate</b> — compared across teams, managers, roles and tenure groups</li><li><b>Engagement trends</b> — change over time, not a single survey</li><li><b>Stay and exit interview themes</b> — coded, so you can see concerns shift</li><li><b><span class=\"vw\" data-w=\"internal mobility\">Internal mobility</span></b> — promotions, transfers, moves into new roles</li><li><b>Manager-level patterns</b> — teams that differ sharply from the company average</li></ul>You don't need to survey constantly: an annual engagement survey plus quarterly pulses is enough, and keeping the questions stable is what makes trends readable. Segment the results by team, manager and tenure."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "retention",
+        "pos": "n.",
+        "ko": "인재 유지 — 직원이 회사에 남아 있는 것",
+        "en": "Keeping employees at the organisation rather than losing them to turnover.",
+        "ex": "Turnover is a lagging indicator, so <b>retention</b> problems show up long after the culture caused them."
+      },
+      {
+        "w": "lagging indicator",
+        "pos": "n.",
+        "ko": "후행지표 — 문제가 쌓인 뒤에야 나타나는 지표",
+        "en": "A measure that only reflects a problem after it has already built up.",
+        "ex": "Treat turnover as a <b>lagging indicator</b> and watch engagement instead."
+      },
+      {
+        "w": "engagement",
+        "pos": "n.",
+        "ko": "몰입도 — 일에 쏟는 에너지와 심리적 관여 정도",
+        "en": "How much energy and commitment employees invest in their work.",
+        "ex": "A sharp drop in <b>engagement</b> on one team is worth investigating before anyone resigns."
+      },
+      {
+        "w": "psychological safety",
+        "pos": "n.",
+        "ko": "심리적 안전감 — 불이익 걱정 없이 말할 수 있는 상태",
+        "en": "The belief that one can raise concerns, ask questions and admit mistakes without unfair consequences.",
+        "ex": "Without <b>psychological safety</b>, you hear about problems only in the exit interview."
+      },
+      {
+        "w": "internal mobility",
+        "pos": "n.",
+        "ko": "사내 이동 — 승진·전배 등 조직 내부의 자리 이동",
+        "en": "Movement of employees into new roles inside the same organisation.",
+        "ex": "Falling <b>internal mobility</b> often precedes a rise in resignations."
+      },
+      {
+        "w": "tenure",
+        "pos": "n.",
+        "ko": "근속 기간 — 한 조직에서 일한 햇수",
+        "en": "The length of time an employee has been with an organisation.",
+        "ex": "Cut the turnover data by manager and by <b>tenure</b> before drawing conclusions."
+      },
+      {
+        "w": "stay interview",
+        "pos": "n.",
+        "ko": "잔류 면담 — 남아 있는 직원에게 미리 묻는 면담",
+        "en": "A conversation with a current employee about what keeps them and what might make them leave.",
+        "ex": "A <b>stay interview</b> asks the exit-interview questions while you can still act on the answers."
+      },
+      {
+        "w": "pay equity",
+        "pos": "n.",
+        "ko": "보상 형평성 — 동등한 일에 동등한 보상이 가는가",
+        "en": "Fairness and consistency in how pay is set across comparable roles and people.",
+        "ex": "Review <b>pay equity</b> against market benchmarks before claiming your pay practices are fair."
+      },
+      {
+        "w": "flight risk",
+        "pos": "n.",
+        "ko": "이탈 위험군 — 곧 떠날 가능성이 높은 인력",
+        "en": "An employee judged likely to leave the organisation soon.",
+        "ex": "Identifying <b>flight risk</b> early protects business continuity."
+      }
+    ]
+  },
+  {
+    "id": "aihr-selection-process-practical-guide",
+    "title": "Selection Process: 7 Steps, Criteria & Tools To Hire Top Talent",
+    "url": "https://www.aihr.com/blog/selection-process-practical-guide/",
+    "published": "2026-09-10",
+    "category": "Talent Acquisition",
+    "summary": {
+      "ko": "모집(recruitment)과 선발(selection)은 다른 단계다. 모집은 지원자 풀을 크게 만드는 일이고, 선발은 그 풀을 한 명으로 좁히는 일이다. 이 글은 선발을 지원 → 서류 심사 → 면접 → 평가 → 평판·경력 조회 → 결정 → 오퍼의 7단계 깔때기로 정리한다. 핵심 주장은 '구조화'다. 모든 지원자에게 같은 질문, 같은 기준, 같은 기록 양식을 적용해야 편향이 줄고 비교가 가능해진다. 평가 도구 중에서는 업무 샘플 테스트가 직무 성과를 가장 잘 예측하며, 성격 요인 중에서는 성실성이 비인지 요인 중 최강의 예측변수다. 마지막으로 선발의 품질을 확인할 지표 일곱 가지를 제시하는데, 특히 입사 90일 내 이탈은 선발 과정의 실패 신호로 보고 건건이 분석하라고 권한다.",
+      "en": "Recruitment and selection are different stages. Recruitment builds a large qualified pool; selection narrows that pool to one hire. The article lays selection out as a seven-step funnel: application, screening and pre-selection, interview, assessment, references and background checks, decision, and offer. Its central argument is structure — the same questions, the same criteria and the same documentation for every candidate, which is what makes comparison possible and bias smaller. Among evaluation tools, work sample tests are among the best predictors of job performance, and conscientiousness is the strongest non-cognitive predictor among personality traits. It closes with seven metrics for judging selection quality, singling out 90-day attrition as a failure signal worth investigating case by case."
+    },
+    "findings": [
+      {
+        "k": "69%",
+        "ko": "지난 1년간 정규직 채용에 어려움을 겪은 조직 비율(SHRM). 2016년 이후 최고 수준이다.",
+        "en": "Share of organisations that struggled to fill full-time roles last year (SHRM) — the highest since 2016."
+      },
+      {
+        "k": "66%",
+        "ko": "긍정적인 채용 경험이 오퍼 수락 결정에 영향을 미쳤다고 답한 지원자 비율.",
+        "en": "Candidates who said a positive hiring experience influenced their decision to accept an offer."
+      },
+      {
+        "k": "30%",
+        "ko": "잘못된 채용 한 건의 비용 추정치(첫해 임금 대비, 미 노동부 기준). 직무에 따라 직접비만 $17,000~$240,000.",
+        "en": "Estimated cost of a bad hire as a share of first-year wages (US DoL); direct costs run $17,000–$240,000 by role."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "모집과 선발의 구분",
+          "en": "Recruitment vs. selection"
+        },
+        "body": {
+          "ko": "두 단어를 섞어 쓰는 경우가 많지만 목적이 반대다. 모집은 채용 공고, 게재 채널, 잠재 후보 접촉처럼 <b>풀을 키우는</b> 활동이다. 선발은 그 풀이 생긴 뒤 서류 심사·면접·검사·평판 조회로 <b>풀을 줄이는</b> 활동이다. 이 구분이 중요한 이유는 문제 진단이 달라지기 때문이다. 지원자가 적으면 모집의 문제이고, 지원자는 많은데 뽑을 사람이 없으면 선발의 문제다.",
+          "en": "The words are used interchangeably, but the aims are opposite. Recruitment — the job ad, where it is posted, reaching passive candidates — is about <b>growing</b> the pool. Selection is what happens once that pool exists: screening, interviewing, testing and reference checks that <b>narrow</b> it. The distinction matters diagnostically: too few applicants is a recruitment problem; plenty of applicants and nobody to hire is a selection problem."
+        }
+      },
+      {
+        "h": {
+          "ko": "7단계 깔때기",
+          "en": "The seven-step funnel"
+        },
+        "body": {
+          "ko": "<ul><li><b>1. 지원</b> — 지원서 완료율이 낮으면 양식이 번거롭거나 오류가 있다는 뜻</li><li><b>2. 서류 심사·사전 선발</b> — 3~10명으로 줄이는 단계. 이력서 심사, 전화 스크리닝, <span class=\"vw\" data-w=\"pre-employment assessment\">pre-employment assessment</span>. 이름·나이·성별을 가리는 블라인드 심사로 <span class=\"vw\" data-w=\"implicit bias\">implicit bias</span>를 줄일 수 있다</li><li><b>3. 면접</b> — 지원자에게 가장 잘 보이는 단계</li><li><b>4. 평가</b> — 인지능력검사, 성격검사, <span class=\"vw\" data-w=\"work sample test\">work sample test</span></li><li><b>5. 평판·경력 조회</b></li><li><b>6. 결정</b></li><li><b>7. 오퍼와 계약</b></li></ul>AI 기반 심사 도구는 편향 검토를 정기적으로 받아야 하며, 정확도가 완벽하지 않다는 전제로 벤더를 골라야 한다.",
+          "en": "<ul><li><b>1. Application</b> — a low completion rate means the form is cumbersome or broken</li><li><b>2. Screening &amp; pre-selection</b> — cutting to three to ten people: résumé screening, a phone screen, <span class=\"vw\" data-w=\"pre-employment assessment\">pre-employment assessment</span>. A blind review that strips name, age and gender reduces <span class=\"vw\" data-w=\"implicit bias\">implicit bias</span></li><li><b>3. Interview</b> — the stage candidates see most</li><li><b>4. Assessment</b> — cognitive tests, personality questionnaires, <span class=\"vw\" data-w=\"work sample test\">work sample tests</span></li><li><b>5. References and background checks</b></li><li><b>6. Decision</b></li><li><b>7. Offer and contract</b></li></ul>AI-powered screeners need regular bias review, and vendors should be chosen on the assumption that no tool is fully accurate."
+        }
+      },
+      {
+        "h": {
+          "ko": "구조화 면접과 STAR",
+          "en": "Structured interviews and STAR"
+        },
+        "body": {
+          "ko": "면접은 크게 <span class=\"vw\" data-w=\"structured interview\">structured interview</span>와 비구조화 면접으로 나뉜다. 구조화 면접은 사전에 정해둔 동일한 질문 세트를 모든 지원자에게 던져, 같은 기준으로 기록하고 점수를 매길 수 있게 한다. 비구조화 면접은 대화에 가깝고 면접관이 즉흥적으로 끌고 간다.<br><br>평가 기법으로 널리 쓰이는 것이 <b>STAR</b>다. Situation(상황) → Task(과제) → Action(행동) → Result(결과)를 순서대로 캐묻는다. 예컨대 이해관계자 조율이 중요한 직무라면 \"여러 이해관계자를 조율해야 했던 상황을 설명해 달라\"로 시작한다. 면접 평가표(evaluation form)를 쓰면 이 단계의 일관성이 올라간다.",
+          "en": "Interviews split into the <span class=\"vw\" data-w=\"structured interview\">structured interview</span> and the unstructured one. A structured interview puts the same prepared questions to every candidate, giving a uniform way to record and rate answers. An unstructured interview runs more like a conversation, with the interviewer improvising.<br><br>The common evaluation technique is <b>STAR</b>: Situation, Task, Action, Result, asked in that order. For a role that turns on managing stakeholders, you open with \"Describe a situation in which you had to manage multiple stakeholders.\" An interview evaluation form is what keeps this stage consistent."
+        }
+      },
+      {
+        "h": {
+          "ko": "무엇이 성과를 예측하는가",
+          "en": "What actually predicts performance"
+        },
+        "body": {
+          "ko": "면접에서 드러나지 않는 능력을 보려면 평가 도구가 필요하다. 연구 문헌에서 <b>업무 샘플 테스트가 직무 성과의 최상위 예측변수</b> 중 하나로 꼽힌다. 실제 과제를 풀게 하면 지원자 간 비교가 가능해지고, 지원자도 직무의 실체를 알게 된다. 개발자라면 코딩 과제나 디버깅, 고객 응대 직무라면 상황 시뮬레이션이 여기 해당한다.<br><br>성격 검사에서는 <span class=\"vw\" data-w=\"conscientiousness\">conscientiousness</span>(성실성)가 비인지 요인 중 가장 강한 예측변수다. 높은 점수를 받는 사람은 대개 근면하고, 책임감 있고, 성취 지향적이며, 세부에 꼼꼼하다고 기술된다.",
+          "en": "Assessments exist to see what an interview cannot. In the research literature, <b>work sample tests are among the best predictors of job performance</b>. Giving candidates a real task makes them comparable to each other and to the standard for the role, and shows them what the job actually involves — a coding or debugging task for a developer, a situational simulation for a service role.<br><br>On the personality side, <span class=\"vw\" data-w=\"conscientiousness\">conscientiousness</span> is the strongest non-cognitive predictor. High scorers are typically described as hard-working, dutiful, achievement-oriented and detail-oriented."
+        }
+      },
+      {
+        "h": {
+          "ko": "선발을 측정하는 지표",
+          "en": "Metrics for selection"
+        },
+        "body": {
+          "ko": "<ul><li><b>지원 완료율</b> — 낮으면 지원서 양식의 문제</li><li><b><span class=\"vw\" data-w=\"time to fill\">time to fill</span></b> — 결원 승인부터 오퍼 수락까지. 길면 절차가 비효율적이라는 뜻</li><li><b>90일·1년 <span class=\"vw\" data-w=\"attrition\">attrition</span></b> — 입사 3개월 내 이탈은 선발의 실패 신호. 건건이 중대 사안으로 보고 분석하라는 것이 이 글의 권고다</li><li><b>지원자 경험</b> — 불합격자도 재지원하고 회사를 옹호하게 만드는가</li><li><b><span class=\"vw\" data-w=\"yield ratio\">yield ratio</span></b> — 단계 간 통과 비율. 100명 중 50명이 면접까지 오면 깔때기가 작동하지 않는 것</li><li><b>오퍼 수락률</b> — 오퍼의 매력도와 기대치 정렬 수준</li><li><b><span class=\"vw\" data-w=\"quality of hire\">quality of hire</span></b> — 입사 1년 후 성과. 보통 관리자의 연간 평가로 매긴다</li></ul>",
+          "en": "<ul><li><b>Application completion rate</b> — low means the form is the problem</li><li><b><span class=\"vw\" data-w=\"time to fill\">Time to fill</span></b> — requisition approval to offer acceptance; a long one signals an inefficient process</li><li><b>90-day and 1-year <span class=\"vw\" data-w=\"attrition\">attrition</span></b> — leaving within three months is a selection failure. The article's advice is to treat every case as a critical incident and analyse it</li><li><b>Candidate experience</b> — do rejected candidates still apply again and speak well of you?</li><li><b><span class=\"vw\" data-w=\"yield ratio\">Yield ratio</span></b> — pass-through between stages. If 50 of 100 applicants reach interview, the funnel isn't working</li><li><b>Offer acceptance rate</b> — how attractive offers are and how well expectations were aligned</li><li><b><span class=\"vw\" data-w=\"quality of hire\">Quality of hire</span></b> — performance after a year, usually rated in the manager's annual appraisal</li></ul>"
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "screening",
+        "pos": "n.",
+        "ko": "서류 심사 — 지원자를 면접 대상으로 추리는 단계",
+        "en": "Reviewing applications to narrow a large pool down to a manageable shortlist.",
+        "ex": "The goal of <b>screening</b> is to get from a hundred applicants to somewhere between three and ten."
+      },
+      {
+        "w": "pre-employment assessment",
+        "pos": "n.",
+        "ko": "채용 전 검사 — 입사 전에 치르는 인지·성격·직무 검사",
+        "en": "A test given before hiring to predict how well a candidate will perform.",
+        "ex": "A <b>pre-employment assessment</b> can rule out obvious mismatches before anyone spends time interviewing."
+      },
+      {
+        "w": "structured interview",
+        "pos": "n.",
+        "ko": "구조화 면접 — 모든 지원자에게 동일한 질문을 하는 면접",
+        "en": "An interview using the same predetermined questions for every candidate, scored the same way.",
+        "ex": "A <b>structured interview</b> is what makes two candidates comparable at all."
+      },
+      {
+        "w": "work sample test",
+        "pos": "n.",
+        "ko": "업무 샘플 테스트 — 실제 직무 과제를 시켜보는 평가",
+        "en": "An exercise asking candidates to do a real task from the job.",
+        "ex": "Research puts the <b>work sample test</b> among the strongest predictors of job performance."
+      },
+      {
+        "w": "conscientiousness",
+        "pos": "n.",
+        "ko": "성실성 — 근면하고 책임감 있으며 꼼꼼한 성향",
+        "en": "The personality trait of being hard-working, dutiful and detail-oriented.",
+        "ex": "<b>Conscientiousness</b> is the strongest non-cognitive predictor of how someone will perform."
+      },
+      {
+        "w": "implicit bias",
+        "pos": "n.",
+        "ko": "무의식적 편향 — 본인도 자각하지 못하는 선입견",
+        "en": "An unconscious assumption that influences judgement without the person noticing.",
+        "ex": "A blind résumé review removes name, age and gender to counter <b>implicit bias</b>."
+      },
+      {
+        "w": "time to fill",
+        "pos": "n.",
+        "ko": "충원 소요 기간 — 결원 승인부터 오퍼 수락까지 걸린 시간",
+        "en": "The time from approving a job requisition to the candidate accepting the offer.",
+        "ex": "A long <b>time to fill</b> usually points to a bottleneck you can name."
+      },
+      {
+        "w": "attrition",
+        "pos": "n.",
+        "ko": "이탈 — 직원이 조직을 떠나 인력이 줄어드는 것",
+        "en": "The loss of employees from an organisation over a period.",
+        "ex": "Treat 90-day <b>attrition</b> as a critical incident, not a statistic."
+      },
+      {
+        "w": "yield ratio",
+        "pos": "n.",
+        "ko": "단계 통과율 — 채용 단계 간 지원자가 넘어가는 비율",
+        "en": "The percentage of candidates who move from one hiring stage to the next.",
+        "ex": "Check the <b>yield ratio</b> at each stage before blaming the interviewers."
+      },
+      {
+        "w": "quality of hire",
+        "pos": "n.",
+        "ko": "채용 품질 — 입사자가 실제로 얼마나 잘하는가",
+        "en": "How well a new hire performs, usually measured a year in.",
+        "ex": "Consistently good <b>quality of hire</b> is the only real proof the selection process works."
+      }
+    ],
+    "source": "aihr",
+    "sourceName": "AIHR"
+  },
+  {
+    "id": "aihr-hr-budgeting-best-practices",
+    "title": "HR Budgeting Best Practices: How Modern HR Teams Invest for Impact",
+    "url": "https://www.aihr.com/blog/hr-budgeting-best-practices/",
+    "published": "2026-09-10",
+    "category": "HR Strategy",
+    "summary": {
+      "ko": "전통적인 HR 예산은 작년에 쓴 돈에 물가상승분을 얹는 방식이었다. 예측 가능하다는 장점이 있었지만, 역량 격차나 미래 인력 수요를 반영하지 못한다. 이 글은 예산을 'HR이 하는 활동'이 아니라 '사업 성과·미래 인력 수요·역량 격차'에 배분하자고 주장한다. 근거로 제시된 AIHR 자체 분석이 날카롭다. HR 조직 인건비의 59%가 채용이 쉽고 인력 공급이 넉넉한 직군(직원관계, HR 서비스, 인재관리)에 가고, HR테크·피플애널리틱스·보상처럼 수요는 빠르게 늘지만 인력은 귀한 직군에는 10.5%만 간다. 즉 예산 대부분이 과거의 역할 구조에 묶여 있다. 해법은 전면 개편이 아니라 점진적 재배분이며, 7가지 실행 원칙을 제시한다.",
+      "en": "Traditional HR budgeting meant last year's spend plus a few percent. It was predictable, but it accounted for neither capability gaps nor future workforce needs. The article argues for allocating against business outcomes, future workforce needs and capability gaps rather than HR activities. Its sharpest evidence is AIHR's own analysis of HR payroll: 59% goes to role families that are easiest to hire and where talent is abundant (employee relations, HR service delivery, talent management), while only 10.5% goes to the fastest-growing, tightest-market capabilities such as HR tech, people analytics and total rewards. Most of the budget, in other words, is still tied to an earlier mandate. The remedy is gradual reallocation rather than an overhaul, set out as seven practices."
+    },
+    "findings": [
+      {
+        "k": "59%",
+        "ko": "HR 인건비 중 채용이 쉽고 인력이 넉넉한 직군에 배분되는 비율.",
+        "en": "Share of HR payroll going to role families that are easiest to hire, with abundant talent supply."
+      },
+      {
+        "k": "10.5%",
+        "ko": "HR테크·피플애널리틱스·보상 등 수요는 급증하나 인력이 귀한 직군의 몫.",
+        "en": "The share going to HR tech, people analytics and total rewards — fastest-growing, tightest markets."
+      },
+      {
+        "k": "64% / 19%",
+        "ko": "최근 2년 내 운영모델을 바꾼 HR 조직 비율과, 역할 분담이 명확하다고 답한 비율. 개편 조직의 60%는 새 구조에 대한 공식 교육을 하지 않았다.",
+        "en": "HR functions that changed operating model in two years, versus those reporting a clear division of responsibilities. 60% of reorganised functions gave no formal training on the new structure."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "왜 전통적 방식이 깨졌는가",
+          "en": "Why the traditional approach broke"
+        },
+        "body": {
+          "ko": "기존 예산은 HR이 <i>이미 가진 것</i>에서 출발한다. 기존 인력, 반복 비용, 굳어진 서비스 전달 방식이다. 그래서 배분이 과거 <span class=\"vw\" data-w=\"headcount\">headcount</span>와 오래된 운영모델을 그대로 따라간다.<br><br>문제는 HR에 요구되는 일이 바뀌었다는 것이다. 새 기술 도입, 데이터 기반 의사결정, AI 도입 지원, 인간-AI 협업을 전제한 인력계획, 조직변화 주도, 보상 재설계가 새로 얹혔다. 동시에 행정·서비스 업무의 상당 부분은 자동화되거나 셀프서비스로 넘어갔다. 그런데 예산은 옛 구조에 묶여 있으니, 새 역량에 투자할 여력이 나오지 않는다.",
+          "en": "A traditional budget starts from what HR <i>already has</i>: existing teams, recurring costs, established ways of delivering services. Allocation therefore follows historical <span class=\"vw\" data-w=\"headcount\">headcount</span> and old operating-model choices.<br><br>The problem is that the mandate changed. HR is now expected to implement new technology, use workforce data in decisions, support AI adoption, plan for human-AI collaboration, lead organisational change and rethink rewards. At the same time, much administrative and service-delivery work is being automated or moved to self-service. Carry the old allocations forward and there is simply no room to fund the new capabilities."
+        }
+      },
+      {
+        "h": {
+          "ko": "어디에 투자하는가",
+          "en": "Where modern HR invests"
+        },
+        "body": {
+          "ko": "<ul><li><b>HR 역량 구축</b> — AI 활용력, 비즈니스 감각, 컨설팅 역량, 데이터 리터러시, 디지털 민첩성. 일회성 교육이 아니라 시간을 두고 쌓는 구조적 학습</li><li><b>HR테크와 디지털</b> — 이제는 수작업의 전산화가 아니라 AI로 업무 흐름 자체를 재설계하는 일. 도구뿐 아니라 워크플로 재설계, 제품 오너십, AI 거버넌스가 들어간다</li><li><b><span class=\"vw\" data-w=\"people analytics\">people analytics</span></b> — 대시보드와 월간 보고서에서, 데이터 품질 개선과 리포팅 역량 구축으로</li><li><b><span class=\"vw\" data-w=\"total rewards\">total rewards</span></b> — 급여·복리후생을 넘어 <span class=\"vw\" data-w=\"pay transparency\">pay transparency</span>, 스킬 기반 보상, 보상 커뮤니케이션</li><li><b><span class=\"vw\" data-w=\"strategic workforce planning\">strategic workforce planning</span></b> — 결원 예측을 넘어 시나리오 플래닝, 스킬 매핑, build-buy-borrow-bot 결정</li><li><b><span class=\"vw\" data-w=\"manager enablement\">manager enablement</span></b> — 관리자가 사람 문제를 먼저 처리하면 HR의 손이 빈다</li><li><b>운영모델 전환</b> — 구조만 바꾸고 교육을 안 하면 실패한다</li></ul>",
+          "en": "<ul><li><b>HR capability building</b> — AI fluency, business acumen, consulting skills, data literacy, digital agility; structured development over time rather than one-off training</li><li><b>HR technology</b> — no longer digitising manual steps but using AI to redesign workflows, which means budgeting for workflow redesign, product ownership and AI governance, not just tools</li><li><b><span class=\"vw\" data-w=\"people analytics\">People analytics</span></b> — moving from dashboards and monthly reports to data quality and reporting skills</li><li><b><span class=\"vw\" data-w=\"total rewards\">Total rewards</span></b> — beyond pay and benefits to <span class=\"vw\" data-w=\"pay transparency\">pay transparency</span>, skills-based pay and rewards communication</li><li><b><span class=\"vw\" data-w=\"strategic workforce planning\">Strategic workforce planning</span></b> — beyond vacancy forecasting to scenario planning, skills mapping and build-buy-borrow-bot decisions</li><li><b><span class=\"vw\" data-w=\"manager enablement\">Manager enablement</span></b> — managers who handle people issues earlier free HR capacity</li><li><b>Operating model adoption</b> — changing the structure without training on it is how reorganisations fail</li></ul>"
+        }
+      },
+      {
+        "h": {
+          "ko": "7가지 실행 원칙",
+          "en": "Seven practices"
+        },
+        "body": {
+          "ko": "<ul><li><b>1. 예산 항목이 아니라 사업 성과에서 출발</b> — 각 항목을 인력 리스크, 사업 목표, 또는 <span class=\"vw\" data-w=\"capability gap\">capability gap</span>에 연결한다</li><li><b>2. 증액 요청 전에 기존 지출을 먼저 따진다</b> — 안 쓰는 시스템, 중복 벤더, 효과 없는 프로그램. 새 비용을 얹기보다 자리를 만든다</li><li><b>3. 현재 지출을 미래 역량 수요에 대보라</b> — 인력이 귀한 영역과 넉넉한 영역의 배분 불균형을 직시한다</li><li><b>4. 핵심 운영은 지키되 일하는 방식을 재설계</b> — 행정 업무가 자동화된 만큼 단계적으로 재배분한다</li><li><b>5. HR 역량에 별도 예산을 배정</b></li><li><b>6. 결정 근거를 문서로 남긴다</b> — 왜 이렇게 배분했는지 설명할 근거가 된다</li><li><b>7. 최소 분기 1회 재검토</b> — 사업 목표가 바뀌면 예산도 바뀐다</li></ul>",
+          "en": "<ul><li><b>1. Start with business outcomes, not budget categories</b> — tie each item to a workforce risk, a business goal or a <span class=\"vw\" data-w=\"capability gap\">capability gap</span></li><li><b>2. Challenge existing spend before asking for more</b> — underused technology, overlapping vendors, low-impact programmes. Create room rather than layering on cost</li><li><b>3. Map current spend against future capability needs</b> — face the mismatch between abundant and scarce talent areas</li><li><b>4. Protect core operations while redesigning the work</b> — as admin is automated, redirect that spend gradually</li><li><b>5. Fund HR competencies as a line of their own</b></li><li><b>6. Document how decisions were made</b> — it becomes the reference when you have to explain an allocation</li><li><b>7. Review at least quarterly</b> — when business goals move, the budget moves</li></ul>"
+        }
+      },
+      {
+        "h": {
+          "ko": "읽을 때 감안할 점",
+          "en": "A note on the source"
+        },
+        "body": {
+          "ko": "이 글은 AIHR이 자사 교육 프로그램을 판매하는 맥락에서 쓰였다. 'HR 역량 구축에 예산을 배정하라'는 권고는 그 자체로 타당하지만, 사례(글로벌 보험사 4,500명, 약 160만 달러 효율 개선)와 권고 방향이 자사 상품으로 수렴한다는 점은 감안하고 읽는 편이 좋다. 반면 인건비 배분 59% 대 10.5%라는 수치는 출처가 자사 분석이더라도 문제 제기 자체가 유효하다.",
+          "en": "The article is written by a vendor that sells HR training, and its recommendations converge on its own programmes — including the case study (a 4,500-person global insurer, roughly $1.6M in efficiency gains). That is worth holding in mind. The 59%-versus-10.5% payroll split is also AIHR's own analysis, but the question it raises stands on its own."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "capability gap",
+        "pos": "n.",
+        "ko": "역량 격차 — 지금 가진 역량과 앞으로 필요한 역량의 차이",
+        "en": "The distance between the skills an organisation has and the ones it will need.",
+        "ex": "Tie every major budget line to a workforce risk, a business goal or a <b>capability gap</b>."
+      },
+      {
+        "w": "headcount",
+        "pos": "n.",
+        "ko": "인원수 — 조직이 보유한 정원",
+        "en": "The number of employees an organisation has or is approved to have.",
+        "ex": "Budgeting from historical <b>headcount</b> locks you into an old operating model."
+      },
+      {
+        "w": "people analytics",
+        "pos": "n.",
+        "ko": "피플 애널리틱스 — 인사 데이터로 의사결정을 뒷받침하는 일",
+        "en": "Using workforce data to inform decisions about people.",
+        "ex": "<b>People analytics</b> is where demand is growing and the talent is hardest to find."
+      },
+      {
+        "w": "total rewards",
+        "pos": "n.",
+        "ko": "총보상 — 급여·복리후생·성장·인정을 아우르는 보상 전체",
+        "en": "The full package of pay, benefits, development and recognition.",
+        "ex": "<b>Total rewards</b> now includes how pay decisions are communicated, not just what they are."
+      },
+      {
+        "w": "strategic workforce planning",
+        "pos": "n.",
+        "ko": "전략적 인력계획 — 미래 사업에 필요한 인력과 역량을 미리 설계하는 일",
+        "en": "Planning the people, knowledge and skills needed for current and future business goals.",
+        "ex": "<b>Strategic workforce planning</b> asks what you will need, not what you lost last quarter."
+      },
+      {
+        "w": "manager enablement",
+        "pos": "n.",
+        "ko": "관리자 역량 지원 — 관리자가 사람 문제를 스스로 다루도록 돕는 것",
+        "en": "Equipping line managers to handle people issues themselves, with tools and training.",
+        "ex": "<b>Manager enablement</b> pays for itself in the HR hours it stops consuming."
+      },
+      {
+        "w": "pay transparency",
+        "pos": "n.",
+        "ko": "보상 투명성 — 보상 기준과 범위를 공개하는 것",
+        "en": "Making pay ranges and the basis for pay decisions visible to employees or candidates.",
+        "ex": "<b>Pay transparency</b> is now a budget line, not just a policy debate."
+      },
+      {
+        "w": "operating model",
+        "pos": "n.",
+        "ko": "운영모델 — 조직이 일을 나누고 전달하는 구조",
+        "en": "How a function is structured to divide responsibilities and deliver its services.",
+        "ex": "Changing the <b>operating model</b> without training people on it is why most reorganisations stall."
+      },
+      {
+        "w": "business acumen",
+        "pos": "n.",
+        "ko": "비즈니스 감각 — 사업이 어떻게 돈을 버는지 이해하는 능력",
+        "en": "Understanding how the business makes money and what drives its results.",
+        "ex": "<b>Business acumen</b> is what lets HR argue for a budget in the language finance uses."
+      }
+    ],
+    "source": "aihr",
+    "sourceName": "AIHR"
+  },
+  {
+    "id": "aihr-work-goals-examples",
+    "title": "24 Work Goals Examples To Drive Performance and Development",
+    "url": "https://www.aihr.com/blog/work-goals-examples/",
+    "published": "2026-09-14",
+    "category": "Performance Management",
+    "summary": {
+      "ko": "목표(goal)와 직무(duty)는 다르다. '문의 티켓에 응대한다'는 직무이고, '2분기 말까지 최초 응답 시간을 6시간에서 3시간으로 줄인다'는 목표다. 목표는 책임 범위를 바꾸는 게 아니라 수행 방식을 개선한다. 갤럽 조사에서 자신에게 무엇이 기대되는지 명확히 안다고 강하게 동의한 미국 직원은 46%에 그쳤다. 이 글은 SMART 프레임으로 모호한 바람을 실행 가능한 목표로 바꾸는 법과, 성과·개발·소통·리더십·프로세스 개선 다섯 범주의 예시 24개를 제시한다. 그리고 목표 설정 프로세스는 관리자 개개인이 아니라 HR이 소유해야 한다고 못 박는다. HR이 양식·시기·검토 절차를 정해야 회사 전체에서 목표가 일관되고, 그 데이터가 보상·승진·육성 결정으로 이어진다.",
+      "en": "A goal is not a duty. \"Answer support tickets\" is a duty; \"reduce average first-response time from six hours to three by the end of Q2\" is a goal. A goal doesn't change what someone is responsible for — it improves how they carry it out. Gallup found only 46% of US employees strongly agree they know what is expected of them at work. The article shows how the SMART frame turns a vague wish into something actionable, gives 24 examples across performance, development, communication, leadership and process improvement, and insists that HR — not each manager separately — should own the goal-setting process. HR sets the format, timing and review cadence; that consistency is what lets goal data feed pay, promotion and development decisions."
+    },
+    "findings": [
+      {
+        "k": "46%",
+        "ko": "자신에게 기대되는 바를 명확히 안다고 강하게 동의한 미국 직원 비율(갤럽).",
+        "en": "US employees who strongly agree they know what is expected of them at work (Gallup)."
+      },
+      {
+        "k": "4.2배",
+        "ko": "구성원 성과에 집중하는 조직이 동종 기업을 앞설 가능성(맥킨지).",
+        "en": "How much more likely organisations focused on people's performance are to outperform peers (McKinsey)."
+      },
+      {
+        "k": "23%",
+        "ko": "목표 달성이 회사 성공에 어떻게 기여하는지 모르겠다고 답한 직원 비율.",
+        "en": "Employees who say they don't know how hitting their goals affects the organisation's success."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "SMART로 다시 쓰기",
+          "en": "Rewriting with SMART"
+        },
+        "body": {
+          "ko": "<b>이전(모호함):</b> 채용 속도를 높이자.<br><b>이후(SMART):</b> 서류 검토 전에 사전 스크리닝 단계를 추가해, 2분기 말까지 엔지니어링 직군의 <span class=\"vw\" data-w=\"time-to-hire\">time-to-hire</span>를 45일에서 30일로 줄인다.<br><br>두 번째가 작동하는 이유는 무엇을 언제까지 바꿀지가 적혀 있기 때문이다.<ul><li><b>Specific</b> — 지표, 직군, 조치를 지목한다</li><li><b>Measurable</b> — 45일 → 30일은 <span class=\"vw\" data-w=\"applicant tracking system\">applicant tracking system</span>에서 바로 확인된다</li><li><b>Achievable</b> — 병목 하나를 고쳐 15일을 줄이는 건 현실적이다</li><li><b>Relevant</b> — 공석은 그 팀을 갈아 넣게 만든다</li><li><b><span class=\"vw\" data-w=\"time-bound\">Time-bound</span></b> — '2분기 말까지'가 마감이다</li></ul>",
+          "en": "<b>Before (vague):</b> Speed up our hiring.<br><b>After (SMART):</b> Cut <span class=\"vw\" data-w=\"time-to-hire\">time-to-hire</span> for engineering roles from 45 days to 30 by the end of Q2 by adding a pre-screen before hiring-manager review.<br><br>The second works because it names what changes and by when.<ul><li><b>Specific</b> — it names the metric, the role type and the action</li><li><b>Measurable</b> — 45 to 30 days is visible in the <span class=\"vw\" data-w=\"applicant tracking system\">applicant tracking system</span></li><li><b>Achievable</b> — cutting 15 days by fixing one bottleneck is realistic</li><li><b>Relevant</b> — open roles strain the teams they are meant to support</li><li><b><span class=\"vw\" data-w=\"time-bound\">Time-bound</span></b> — \"by the end of Q2\" is the deadline</li></ul>"
+        }
+      },
+      {
+        "h": {
+          "ko": "다섯 범주와 예시",
+          "en": "Five categories"
+        },
+        "body": {
+          "ko": "예시 24개는 다섯 범주로 나뉜다. 한 사람의 목표를 한 범주에만 몰아두지 말라는 것이 요지다.<ul><li><b>성과·생산성</b> — \"월간 보고서 작성 시간을 8시간에서 3시간으로 60일 내 단축한다. 재사용 가능한 템플릿을 만들고 데이터 수집을 자동화해서.\"</li><li><b>전문성 개발</b> — 역량을 키우는 목표</li><li><b>소통·협업</b></li><li><b>리더십·인력관리</b></li><li><b>프로세스 개선</b> — \"분기마다 각 부서의 핵심 업무 흐름 하나를 매핑해 단계 수를 10~20% 줄인다.\"</li></ul>숫자와 기한이 없으면 목표가 아니라 바람이라는 점이 모든 예시에 일관된다.",
+          "en": "The 24 examples fall into five groups; the point is not to load one person's goals into a single category.<ul><li><b>Performance and productivity</b> — \"Cut monthly reporting time from eight hours to three within 60 days by building a reusable template and automating the data pulls.\"</li><li><b>Professional development</b></li><li><b>Communication and collaboration</b></li><li><b>Leadership and people management</b></li><li><b>Process improvement</b> — \"Map and streamline one core workflow per division each quarter, cutting its step count by 10% to 20%.\"</li></ul>What every example shares: without a number and a date it is a wish, not a goal."
+        }
+      },
+      {
+        "h": {
+          "ko": "HR이 프로세스를 소유해야 하는 이유",
+          "en": "Why HR owns the process"
+        },
+        "body": {
+          "ko": "HR이 모든 목표를 대신 써 준다는 뜻이 아니다. <b>양식, 시기, 검토 절차, 기대 수준</b>을 정한다는 뜻이다. 다섯 가지 권고가 붙는다.<ul><li><b>표준 템플릿 배포</b> — 관리자에게 SMART 기준을 직접 가르친다. 올라온 걸 승인만 하는 역할이 아니다</li><li><b>모든 목표를 우선순위에 연결</b> — 사업 우선순위에 닿지 않는 목표는 다시 쓰거나 버린다</li><li><b><span class=\"vw\" data-w=\"goal overload\">goal overload</span>를 조기에 잡는다</b> — 야심찬 목표 다섯 개를 진 사람은 한두 개에 집중한 사람보다 거의 항상 덜 해낸다</li><li><b>평가 사이에 점검 리듬을 둔다</b> — 1월에 세우고 3월에 잊는 목표가 가장 흔한 실패다</li><li><b>피드백 훈련</b> — \"정시 납기 70%에서 90%로 올렸다\"가 \"수고했다\"보다 훨씬 많은 것을 알려준다</li></ul>목표를 추적하면 부수적 이득도 있다. 여러 관리자가 같은 역량을 두고 목표를 세운다면, 그건 교육 예산을 어디 쓸지 알려주는 조기 신호다.",
+          "en": "This doesn't mean HR writes the goals. It means HR sets the <b>format, timing, review process and expectations</b>. Five recommendations follow.<ul><li><b>Roll out one template</b> — walk managers through the SMART criteria rather than having them approve whatever arrives</li><li><b>Connect every goal to a priority</b> — if it doesn't link to one, rework it or drop it</li><li><b>Catch <span class=\"vw\" data-w=\"goal overload\">goal overload</span> early</b> — someone juggling five ambitious goals will almost always achieve less than someone focused on one or two</li><li><b>Set a check-in rhythm between reviews</b> — goals set in January and forgotten by March are the common failure</li><li><b>Train managers to give useful feedback</b> — \"you hit 90% on-time delivery, up from 70%\" tells someone far more than \"great work\"</li></ul>Tracking goals has a side benefit: when many managers set goals around the same skill, that is an early signal of where the training budget should go."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "time-bound",
+        "pos": "adj.",
+        "ko": "기한이 정해진 — 마감일이 명시된",
+        "en": "Having a specific deadline attached.",
+        "ex": "A goal that isn't <b>time-bound</b> quietly becomes a wish."
+      },
+      {
+        "w": "time-to-hire",
+        "pos": "n.",
+        "ko": "채용 소요 기간 — 지원부터 채용 확정까지 걸린 시간",
+        "en": "How long it takes to move a candidate from application to accepted offer.",
+        "ex": "Cutting <b>time-to-hire</b> from 45 days to 30 meant fixing one bottleneck, not the whole process."
+      },
+      {
+        "w": "applicant tracking system",
+        "pos": "n.",
+        "ko": "지원자 관리 시스템(ATS) — 채용 과정을 기록·관리하는 소프트웨어",
+        "en": "Software that records and manages candidates through the hiring process.",
+        "ex": "If the metric isn't visible in the <b>applicant tracking system</b>, nobody will track it."
+      },
+      {
+        "w": "goal overload",
+        "pos": "n.",
+        "ko": "목표 과부하 — 목표가 너무 많아 무엇도 못 해내는 상태",
+        "en": "Having so many goals at once that none of them gets done well.",
+        "ex": "<b>Goal overload</b> is a management failure, not an employee one."
+      },
+      {
+        "w": "duty",
+        "pos": "n.",
+        "ko": "직무 — 맡은 일 그 자체 (목표와 구분됨)",
+        "en": "A standing responsibility of a role, as opposed to a target to reach.",
+        "ex": "\"Answer support tickets\" is a <b>duty</b>; halving response time is a goal."
+      },
+      {
+        "w": "bottleneck",
+        "pos": "n.",
+        "ko": "병목 — 전체 속도를 붙잡는 한 지점",
+        "en": "The single step that limits the speed of a whole process.",
+        "ex": "Name the <b>bottleneck</b> before promising a faster process."
+      },
+      {
+        "w": "development plan",
+        "pos": "n.",
+        "ko": "육성 계획 — 직원의 역량 성장 계획",
+        "en": "An agreed plan for building an employee's skills over a period.",
+        "ex": "Goals belong in the <b>development plan</b>, not only in the annual review."
+      },
+      {
+        "w": "check-in",
+        "pos": "n.",
+        "ko": "중간 점검 — 정식 평가 사이에 진행 상황을 확인하는 대화",
+        "en": "A short conversation between formal reviews to see how work is progressing.",
+        "ex": "A monthly <b>check-in</b> is what keeps a goal from dying in March."
+      }
+    ],
+    "source": "aihr",
+    "sourceName": "AIHR"
+  },
+  {
+    "id": "aihr-how-to-get-hr-certification-without-experience",
+    "title": "How To Get an HR Certification Without Experience (in 2026)",
+    "url": "https://www.aihr.com/blog/how-to-get-hr-certification-without-experience/",
+    "published": "2026-09-14",
+    "category": "HR Careers",
+    "summary": {
+      "ko": "HR 자격증은 두 종류다. 하나는 시험 기반 자격(credential)으로, 이미 아는 것을 검증한다. 다른 하나는 수료 프로그램(certificate program)으로, 실무 역량을 가르친다. 둘은 배타적이지 않고 병행할 수 있다. 경력이 필요한 쪽은 상위 자격이다. HRCI의 PHR은 석사 1년·학사 2년·무학위 4년을, SPHR은 각각 4·5·7년을 요구한다. 반면 무경력으로 가능한 것들이 있다. 미국은 HRCI의 aPHR($400)과 SHRM-CP($399/$499), 미국 밖은 aPHRi($400), 영국은 CIPD Level 3(£1,300~2,300, 8~12개월 과제 기반), 급여 전문은 PayrollOrg FPC($359/$459)다. 대부분 학위가 필요 없고 고졸이면 된다. 글의 가장 정직한 문장은 자격증이 지식은 증명하지만 경험은 증명하지 못한다는 것이다.",
+      "en": "An HR certification means one of two things. One is an exam-based credential that validates what you already know. The other is a certificate program that teaches practical skills. They are not mutually exclusive. Experience requirements bite at the senior end: HRCI's PHR asks for one year with a master's, two with a bachelor's, or four with no degree; SPHR asks for four, five and seven. But several credentials require none at all — in the US, HRCI's aPHR ($400) and SHRM-CP ($399 members / $499 non-members); outside it, aPHRi ($400); in the UK, CIPD's Level 3 Foundation Certificate (£1,300–£2,300, coursework over eight to twelve months); and for payroll, PayrollOrg's FPC ($359/$459). Most need only a high school diploma. The article's most honest line is that certification proves knowledge, not experience."
+    },
+    "findings": [
+      {
+        "k": "82%",
+        "ko": "최근 5년 내 승진했다고 답한 HR 어시스턴트 비율(Payscale). 자격 보유가 승진·연봉 인상 가능성에 긍정적으로 작용했다.",
+        "en": "HR assistants who reported a promotion in the last five years (Payscale), with credentials influencing promotion and pay."
+      },
+      {
+        "k": "$400",
+        "ko": "aPHR 총비용(응시료 $300 + 신청비 $100). 3년 유효, 갱신에 45학점.",
+        "en": "Total cost of the aPHR ($300 exam + $100 application). Valid three years, 45 recertification credits."
+      },
+      {
+        "k": "6~12주",
+        "ko": "aPHR·SHRM-CP·aPHRi·FPC 응시자가 병행 학습에 쓰는 일반적 준비 기간. CIPD Level 3은 8~12개월.",
+        "en": "Typical part-time study before sitting the aPHR, SHRM-CP, aPHRi or FPC. CIPD Level 3 takes eight to twelve months."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "자격(credential)과 수료(certificate)의 차이",
+          "en": "Credential vs. certificate"
+        },
+        "body": {
+          "ko": "<b>시험 기반 자격</b>은 보통 실무 경험을 쌓은 뒤 공인 기관의 시험을 치고, 이미 아는 것을 증명한다. <b>수료 프로그램</b>은 실무 역량을 가르치는 쪽이라 <span class=\"vw\" data-w=\"eligibility requirement\">eligibility requirement</span>가 없는 경우가 많다. 이미 자격을 가진 사람이 수료 프로그램으로 <span class=\"vw\" data-w=\"recertification\">recertification</span> 학점을 채우는 식으로 둘을 엮을 수도 있다.<br><br>고를 때의 기준은 단순하다. <b>지금 당장 실무 역량이 필요하면</b> 수료 프로그램, <b>고용주나 직무가 특정 자격을 요구하면</b> 해당 관할의 시험 기반 자격이다.",
+          "en": "An <b>exam-based credential</b> usually comes after relevant work experience: you sit an exam with a recognised body and it certifies what you already know. A <b>certificate program</b> teaches the domain instead, so it often has no <span class=\"vw\" data-w=\"eligibility requirement\">eligibility requirement</span>. The two combine — people already certified use certificate programmes to earn <span class=\"vw\" data-w=\"recertification\">recertification</span> credits.<br><br>The choice is simple. If you need practical skills now, take the certificate program. If your employer or the role requires a specific credential, check which one applies in your jurisdiction."
+        }
+      },
+      {
+        "h": {
+          "ko": "경력이 필요한 것과 아닌 것",
+          "en": "Which ones require experience"
+        },
+        "body": {
+          "ko": "<b>경력을 요구하는 쪽</b><ul><li>HRCI <b>PHR</b> — 석사 1년 / 학사 2년 / 무학위 4년</li><li>HRCI <b>SPHR</b> — 석사 4년 / 학사 5년 / 무학위 7년</li><li>SHRM <b>SHRM-SCP</b> — 전략적 HR 직무 3년, 또는 SHRM-CP 보유 3년</li></ul><b>경력 없이 가능한 쪽</b><ul><li><b>aPHR</b> (HRCI, 미국) — 고졸이면 충분. $400, 3년 유효</li><li><b>SHRM-CP</b> — 학위·직함·경력 요구 없음. 다만 HR 실무 지식은 권장. $399(회원)/$499</li><li><b>aPHRi</b> (HRCI, 미국 외) — aPHR과 동일 구조. $400, 아랍어 응시 가능</li><li><b>CIPD Level 3</b> (영국) — 공식 입학 요건 없음. 단일 시험이 아니라 과제 4건을 8~12개월에 걸쳐 제출. £1,300~2,300 + 연 £118 학생 회비</li><li><b>FPC</b> (PayrollOrg) — 급여 전문. 3시간 150문항, $359(회원)/$459</li></ul>경력을 요구하는 자격도 대부분 대체 경로를 둔다. 관련 학위, 인턴십, 자원봉사 HR 업무, 학생 단체 리더 경험이 연차를 일부 대신할 수 있다.",
+          "en": "<b>Require experience</b><ul><li>HRCI <b>PHR</b> — 1 year with a master's, 2 with a bachelor's, 4 with no degree</li><li>HRCI <b>SPHR</b> — 4 / 5 / 7 years respectively</li><li>SHRM <b>SHRM-SCP</b> — three years in a strategic HR role, or three holding the SHRM-CP</li></ul><b>Require none</b><ul><li><b>aPHR</b> (HRCI, US) — a high school diploma is enough. $400, valid three years</li><li><b>SHRM-CP</b> — no degree, title or experience required, though working knowledge of HR is expected. $399 members / $499</li><li><b>aPHRi</b> (HRCI, outside the US) — same structure as the aPHR. $400, also offered in Arabic</li><li><b>CIPD Level 3</b> (UK) — no formal entry requirement; four written assignments over eight to twelve months rather than one exam. £1,300–£2,300 plus £118 annual student membership</li><li><b>FPC</b> (PayrollOrg) — payroll specifically. 150 questions in three hours, $359 members / $459</li></ul>Credentials that do require experience usually build in alternatives: a relevant degree, internships, volunteer HR work or leadership in student organisations can substitute for some of the years."
+        }
+      },
+      {
+        "h": {
+          "ko": "자격증이 메우지 못하는 것",
+          "en": "What a credential doesn't cover"
+        },
+        "body": {
+          "ko": "글이 스스로 인정하는 한계가 있다. <b>자격증은 지식을 증명하지만 경험을 증명하지 못한다.</b> 그래서 인턴십, 자원봉사 HR 업무, 또는 실무형 수료 프로그램과 묶으라고 권한다.<br><br>취득 절차는 네 단계로 정리된다. ① 관련 HR 역량을 먼저 쌓고 ② 시험을 준비하고 ③ 응시 신청 절차를 밟고 ④ <span class=\"vw\" data-w=\"continuing education\">continuing education</span>으로 유지한다. 대부분의 자격은 원 시험을 다시 치는 게 아니라 워크숍·웨비나·추가 과정으로 갱신 학점을 채운다. 비용 계산에는 교재비가 빠져 있다는 점도 유념할 것. 보통 $50에서 수백 달러가 더 든다.",
+          "en": "The article concedes its own limit: <b>certification proves knowledge, not experience.</b> Hence the advice to pair it with an internship, volunteer HR work or a practical certificate program.<br><br>The route is four steps: build relevant HR skills, prepare for the exam, complete the application, then keep the credential current through <span class=\"vw\" data-w=\"continuing education\">continuing education</span>. Most bodies let you renew through workshops, webinars and further coursework rather than retaking the original exam. Note also that the quoted prices exclude study materials, which typically add $50 to a few hundred dollars."
+        }
+      },
+      {
+        "h": {
+          "ko": "읽을 때 감안할 점",
+          "en": "A note on the source"
+        },
+        "body": {
+          "ko": "이 글은 AIHR이 자사 수료 프로그램(개별 $1,125, 전체 이용 연 $1,850)을 판매하는 맥락에서 쓰였다. 타 기관 자격증 정보 자체는 구체적이고 확인 가능한 수준이지만, \"먼저 수료 프로그램으로 역량을 쌓고 나중에 자격증을 따라\"는 결론이 자사 상품으로 향한다는 점은 알고 읽는 편이 좋다. 실제 응시를 고려한다면 가격·요건은 각 기관 공식 페이지에서 다시 확인해야 한다.",
+          "en": "The article is written by a vendor selling its own certificate programmes ($1,125 standalone, $1,850 a year for full access). The information on other bodies' credentials is specific and checkable, but the conclusion — build skills with a certificate program first, take the credential later — points back at the seller. If you are actually going to sit one, verify prices and requirements on each body's own page."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "credential",
+        "pos": "n.",
+        "ko": "자격 — 지식이나 자질을 공인하는 증명",
+        "en": "A qualification issued by a recognised body that certifies knowledge or competence.",
+        "ex": "A <b>credential</b> proves what you know; it says nothing about what you have done."
+      },
+      {
+        "w": "eligibility requirement",
+        "pos": "n.",
+        "ko": "응시 자격 요건 — 지원하려면 충족해야 하는 조건",
+        "en": "A condition you must meet before you are allowed to apply or sit an exam.",
+        "ex": "Certificate programmes usually have no <b>eligibility requirement</b> at all."
+      },
+      {
+        "w": "recertification",
+        "pos": "n.",
+        "ko": "자격 갱신 — 자격을 계속 유지하기 위한 재인증",
+        "en": "Renewing a credential, usually by earning credits rather than retaking the exam.",
+        "ex": "The aPHR needs 45 credits for <b>recertification</b> every three years."
+      },
+      {
+        "w": "continuing education",
+        "pos": "n.",
+        "ko": "보수 교육 — 자격 유지를 위한 지속 학습",
+        "en": "Ongoing learning undertaken to keep a professional qualification current.",
+        "ex": "Most bodies accept workshops and webinars as <b>continuing education</b>."
+      },
+      {
+        "w": "proctored exam",
+        "pos": "n.",
+        "ko": "감독 시험 — 감독관이 지켜보는 시험",
+        "en": "An exam supervised by an invigilator, in person or remotely.",
+        "ex": "The aPHR is a <b>proctored exam</b>, available year-round through remote invigilation."
+      },
+      {
+        "w": "self-paced",
+        "pos": "adj.",
+        "ko": "자기주도형의 — 정해진 일정 없이 각자 속도로 진행하는",
+        "en": "Studied at whatever speed the learner chooses, with no fixed schedule.",
+        "ex": "The programmes are online and <b>self-paced</b>, which is the point for people already working."
+      },
+      {
+        "w": "generalist",
+        "pos": "n.",
+        "ko": "제너럴리스트 — HR 전 영역을 두루 다루는 실무자",
+        "en": "A practitioner who covers the breadth of HR rather than one specialism.",
+        "ex": "The FPC skips the <b>generalist</b> path and certifies payroll knowledge specifically."
+      },
+      {
+        "w": "prerequisite",
+        "pos": "n.",
+        "ko": "선행 요건 — 그 전에 반드시 갖춰야 할 것",
+        "en": "Something required before you can take or do something else.",
+        "ex": "The FPC has no experience or education <b>prerequisite</b>."
+      }
+    ],
+    "source": "aihr",
+    "sourceName": "AIHR"
+  }
+]

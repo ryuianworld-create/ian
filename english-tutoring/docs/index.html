@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="매일 HR 아티클 한 편을 한글·영문 요약으로 읽고, 본문에서 나온 단어를 그대로 단어장으로 넘겨 외우는 모바일 웹.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HR 아티클">
+<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131418" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>HR 아티클 한 편</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  html{color-scheme:light dark}
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0;background:#F7F6F2;font:14px/1.5 system-ui,sans-serif}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<style>
+  :root{
+    --paper:#F7F6F2;
+    --surface:#FFFFFF;
+    --surface-2:#EFEDE7;
+    --ink:#17181C;
+    --ink-2:#4A4C54;
+    --muted:#7C7E86;
+    --line:#E0DED6;
+    --line-2:#CFCCC2;
+    --accent:#7A2E3E;
+    --accent-soft:#F0E2E4;
+    --slate:#2F4858;
+    --ok:#3E6B4F;
+    --ok-soft:#E3EDE5;
+    --shadow:0 1px 2px rgba(23,24,28,.05), 0 8px 24px -16px rgba(23,24,28,.28);
+    --font-display:"Newsreader","Noto Sans KR",Georgia,serif;
+    --font-body:"Noto Sans KR","Helvetica Neue",Arial,sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#131418;
+      --surface:#1B1D23;
+      --surface-2:#23262E;
+      --ink:#E9E7E1;
+      --ink-2:#B6B4AE;
+      --muted:#8A8C94;
+      --line:#2C2F38;
+      --line-2:#3A3E49;
+      --accent:#D08C99;
+      --accent-soft:#33232A;
+      --slate:#9DB6C6;
+      --ok:#8FC2A1;
+      --ok-soft:#1F2C24;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#131418;
+    --surface:#1B1D23;
+    --surface-2:#23262E;
+    --ink:#E9E7E1;
+    --ink-2:#B6B4AE;
+    --muted:#8A8C94;
+    --line:#2C2F38;
+    --line-2:#3A3E49;
+    --accent:#D08C99;
+    --accent-soft:#33232A;
+    --slate:#9DB6C6;
+    --ok:#8FC2A1;
+    --ok-soft:#1F2C24;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px 108px}
+
+  /* ---------- header ---------- */
+  .topbar{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:saturate(1.4) blur(12px);
+    -webkit-backdrop-filter:saturate(1.4) blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{
+    max-width:560px;margin:0 auto;padding:12px 18px;
+    display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  }
+  .brand{
+    font-family:var(--font-display);font-weight:600;font-size:19px;letter-spacing:-.01em;
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .brand .no{
+    font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--accent);
+    border:1px solid var(--accent);border-radius:3px;padding:1px 5px;letter-spacing:.04em;
+  }
+  .streak{
+    font-family:var(--font-mono);font-size:11.5px;color:var(--muted);
+    letter-spacing:.02em;white-space:nowrap;
+  }
+  .streak b{color:var(--ink);font-weight:500}
+
+  /* ---------- shared bits ---------- */
+  .eyebrow{
+    font-family:var(--font-mono);font-size:10.5px;font-weight:500;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  .rule{height:1px;background:var(--line);border:0;margin:26px 0}
+  h2.sec{
+    font-family:var(--font-display);font-size:21px;font-weight:600;
+    letter-spacing:-.015em;margin:0;text-wrap:balance;
+  }
+  .sec-head{display:flex;flex-direction:column;gap:3px;margin:22px 0 14px}
+
+  /* ---------- paper card ---------- */
+  .paper{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    box-shadow:var(--shadow);overflow:hidden;margin-top:16px;
+  }
+  .paper-top{padding:20px 20px 0}
+  .venue{
+    display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+    font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.02em;
+  }
+  .venue .tag{
+    background:var(--accent-soft);color:var(--accent);
+    padding:2px 7px;border-radius:3px;font-weight:500;
+  }
+  .paper h1{
+    font-family:var(--font-display);font-weight:600;font-size:25px;line-height:1.22;
+    letter-spacing:-.022em;margin:11px 0 8px;text-wrap:balance;
+  }
+  .authors{font-size:13px;color:var(--ink-2);line-height:1.5}
+  .authors em{font-style:normal;color:var(--muted)}
+
+  /* ---------- lang toggle ---------- */
+  .toggle-row{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;padding:16px 20px 0;
+  }
+  .seg{
+    display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px;
+    position:relative;border:1px solid var(--line);
+  }
+  .seg button{
+    font-family:var(--font-mono);font-size:11.5px;font-weight:500;letter-spacing:.06em;
+    border:0;background:transparent;color:var(--muted);
+    padding:6px 15px;border-radius:6px;cursor:pointer;
+    transition:color .18s ease, background .18s ease;
+  }
+  .seg button[aria-pressed="true"]{
+    background:var(--surface);color:var(--ink);
+    box-shadow:0 1px 2px rgba(23,24,28,.12);
+  }
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  [data-lang="ko"] .l-en{display:none}
+  [data-lang="en"] .l-ko{display:none}
+
+  .summary{padding:12px 20px 4px}
+  .summary p{margin:0 0 12px;color:var(--ink-2);font-size:14.5px}
+  [data-lang="en"] .summary p{font-size:14.5px;line-height:1.72}
+
+  /* key findings */
+  .findings{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .findings li{display:flex;gap:11px;align-items:flex-start;font-size:14px;line-height:1.6}
+  .findings .k{
+    font-family:var(--font-mono);font-size:12.5px;font-weight:500;color:var(--accent);
+    flex:0 0 auto;padding-top:1px;min-width:52px;text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  .findings .v{color:var(--ink-2)}
+
+  .paper-foot{
+    display:flex;gap:10px;padding:16px 20px 20px;border-top:1px solid var(--line);margin-top:16px;
+  }
+  .btn{
+    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    font-family:var(--font-body);font-size:14px;font-weight:500;
+    padding:11px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--line-2);
+    background:var(--surface);color:var(--ink);
+    transition:background .16s ease,border-color .16s ease;
+  }
+  .btn:hover{background:var(--surface-2)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  :root[data-theme="dark"] .btn.primary,
+  :root:not([data-theme="light"]) .btn.primary{color:#1B1013}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn.primary{color:#fff}}
+  .btn.primary:hover{filter:brightness(1.07)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- detail ---------- */
+  .detail{border-top:1px solid var(--line);background:var(--surface-2)}
+  .detail-in{padding:18px 20px 22px}
+  .detail h3{
+    font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:-.01em;
+    margin:20px 0 7px;color:var(--ink);
+  }
+  .detail h3:first-child{margin-top:0}
+  .detail p{margin:0 0 10px;font-size:13.8px;color:var(--ink-2);line-height:1.68}
+  .detail ul{margin:0 0 10px;padding-left:18px;font-size:13.8px;color:var(--ink-2)}
+  .detail li{margin-bottom:5px}
+  .limits{
+    border-left:2px solid var(--line-2);padding:2px 0 2px 13px;
+    font-size:13px;color:var(--muted);line-height:1.6;
+  }
+  /* inline vocab trigger inside detail */
+  .vw{
+    border:0;background:transparent;padding:0;cursor:pointer;font:inherit;color:inherit;
+    border-bottom:1.5px dotted var(--accent);
+  }
+  .vw:hover{background:var(--accent-soft)}
+  .vw:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  /* ---------- vocab ---------- */
+  .vstats{
+    display:flex;gap:10px;margin:14px 0 18px;
+  }
+  .vstat{
+    flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:12px 13px;
+  }
+  .vstat .n{
+    font-family:var(--font-mono);font-size:22px;font-weight:500;color:var(--ink);
+    font-variant-numeric:tabular-nums;line-height:1.1;
+  }
+  .vstat .lbl{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .vstat.done .n{color:var(--ok)}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:11px;
+    margin-bottom:11px;overflow:hidden;transition:border-color .16s ease;
+  }
+  .card.known{border-color:var(--ok);background:var(--ok-soft)}
+  .card-head{
+    width:100%;text-align:left;border:0;background:transparent;cursor:pointer;
+    padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .card-head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .term{
+    font-family:var(--font-display);font-size:19px;font-weight:600;letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .pos{
+    font-family:var(--font-mono);font-size:10.5px;color:var(--muted);
+    letter-spacing:.06em;margin-left:8px;text-transform:uppercase;
+  }
+  .chev{color:var(--muted);font-size:13px;flex:0 0 auto;transition:transform .2s ease}
+  .card.open .chev{transform:rotate(90deg)}
+  .card.known .chev{color:var(--ok)}
+  .card-body{padding:0 16px 15px;border-top:1px solid var(--line)}
+  .card.known .card-body{border-top-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+  .def-ko{font-size:14.5px;color:var(--ink);margin:12px 0 4px;font-weight:500}
+  .def-en{font-size:13.5px;color:var(--ink-2);margin:0 0 12px;line-height:1.6}
+  .ex{
+    background:var(--surface-2);border-radius:7px;padding:11px 13px;
+    font-size:13.2px;color:var(--ink-2);line-height:1.6;font-style:italic;
+  }
+  .ex b{color:var(--accent);font-style:normal;font-weight:600}
+  .ex .src{
+    display:block;font-style:normal;font-family:var(--font-mono);
+    font-size:10.5px;color:var(--muted);margin-top:7px;letter-spacing:.02em;
+  }
+  .card-actions{display:flex;gap:8px;margin-top:12px}
+  .mini{
+    flex:1;font-family:var(--font-body);font-size:13px;font-weight:500;
+    padding:9px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  }
+  .mini:hover{background:var(--surface-2)}
+  .mini.yes{border-color:var(--ok);color:var(--ok)}
+  .mini:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- library ---------- */
+  .lib{list-style:none;margin:14px 0 0;padding:0}
+  .lib li{
+    display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);
+    align-items:flex-start;
+  }
+  .lib .date{
+    font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    flex:0 0 46px;padding-top:3px;line-height:1.35;font-variant-numeric:tabular-nums;
+  }
+  .lib .t{
+    font-family:var(--font-display);font-size:16px;font-weight:500;line-height:1.3;
+    letter-spacing:-.012em;margin-bottom:3px;text-wrap:balance;
+  }
+  .lib .m{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);letter-spacing:.02em}
+  .lib .m .dot{margin:0 6px;opacity:.5}
+  .lib .m .w{color:var(--accent)}
+
+  /* ---------- tabbar ---------- */
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:color-mix(in srgb,var(--surface) 92%,transparent);
+    backdrop-filter:saturate(1.4) blur(14px);
+    -webkit-backdrop-filter:saturate(1.4) blur(14px);
+    border-top:1px solid var(--line);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px);
+    padding-top:6px;
+  }
+  .tabbar-in{max-width:560px;margin:0 auto;display:flex}
+  .tab{
+    flex:1;border:0;background:transparent;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;
+    color:var(--muted);font-family:var(--font-body);font-size:10.5px;font-weight:500;
+  }
+  .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;
+    stroke-linecap:round;stroke-linejoin:round}
+  .tab[aria-selected="true"]{color:var(--accent)}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:6px}
+  .tab .badge{
+    position:absolute;transform:translate(13px,-4px);
+    background:var(--accent);color:var(--surface);
+    font-family:var(--font-mono);font-size:9px;font-weight:500;
+    border-radius:8px;padding:0 4px;line-height:14px;min-width:14px;text-align:center;
+  }
+
+  .note{
+    margin-top:26px;padding:13px 15px;border:1px dashed var(--line-2);border-radius:9px;
+    font-size:12.2px;color:var(--muted);line-height:1.6;
+  }
+  .note b{color:var(--ink-2);font-weight:500}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+<style>
+  .lib a.t:hover{color:var(--accent)}
+  .note a{color:var(--accent)}
+  .detail ul{margin-top:2px}
+  .detail .l-ko,.detail .l-en{font-size:13.8px;color:var(--ink-2);line-height:1.68}
+  .detail .l-ko b,.detail .l-en b{color:var(--ink)}
+
+  /* ---------- 읽어주기 ---------- */
+  .readbar{
+    position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:10;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:9px 11px;margin:0 0 16px;
+  }
+  .readbar .play{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:var(--font-body);font-size:13.5px;font-weight:500;
+    border:1px solid var(--accent);background:var(--accent);color:#fff;
+    padding:8px 14px;border-radius:8px;cursor:pointer;flex:0 0 auto;
+  }
+  :root[data-theme="dark"] .readbar .play{color:#1B1013}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .readbar .play{color:#1B1013}
+  }
+  .readbar .play:hover{filter:brightness(1.07)}
+  .readbar .ghost{
+    font-family:var(--font-body);font-size:13px;
+    border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+    padding:8px 11px;border-radius:8px;cursor:pointer;flex:0 0 auto;
+  }
+  .readbar .ghost:hover{background:var(--surface-2)}
+  .readbar select{
+    font-family:var(--font-mono);font-size:11.5px;color:var(--ink-2);
+    border:1px solid var(--line-2);background:var(--surface);
+    border-radius:7px;padding:7px 8px;cursor:pointer;max-width:148px;
+  }
+  .readbar .prog{
+    font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    margin-left:auto;font-variant-numeric:tabular-nums;flex:0 0 auto;
+  }
+  .readbar button:focus-visible,.readbar select:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px
+  }
+  .readbar .hint{
+    flex:1 0 100%;font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:1px;
+  }
+
+  .rd{display:block;padding:3px 6px;margin:0 -6px;border-radius:5px;cursor:pointer}
+  li.rd{display:list-item;margin-left:0}
+  .rd:hover{background:var(--surface)}
+  .rd.active{
+    background:var(--accent-soft);
+    box-shadow:inset 2.5px 0 0 var(--accent);
+  }
+  .speaking .rd:not(.active){opacity:.55}
+
+  .mini.say{flex:0 0 auto;padding:9px 12px}
+
+  /* ---------- 단어 툴팁 ---------- */
+  .vw.on{background:var(--accent-soft);border-bottom-style:solid}
+  .wpop{
+    position:fixed;z-index:60;
+    width:max-content;max-width:min(330px,calc(100vw - 28px));
+    background:var(--surface);border:1px solid var(--line-2);border-radius:11px;
+    box-shadow:0 2px 6px rgba(23,24,28,.10), 0 16px 40px -18px rgba(23,24,28,.45);
+    padding:13px 15px 12px;
+  }
+  :root[data-theme="dark"] .wpop,
+  :root:not([data-theme="light"]) .wpop{box-shadow:0 2px 6px rgba(0,0,0,.5), 0 16px 40px -18px rgba(0,0,0,.9)}
+  .wpop .w{
+    font-family:var(--font-display);font-size:17.5px;font-weight:600;
+    letter-spacing:-.01em;color:var(--ink);
+  }
+  .wpop .p{
+    font-family:var(--font-mono);font-size:10px;color:var(--muted);
+    letter-spacing:.06em;text-transform:uppercase;margin-left:7px;
+  }
+  .wpop .ko{font-size:14px;color:var(--ink);margin:7px 0 5px;line-height:1.55}
+  .wpop .en{font-size:12.8px;color:var(--ink-2);line-height:1.55;margin:0}
+  .wpop .acts{display:flex;gap:7px;margin-top:11px}
+  .wpop .acts button{
+    font-family:var(--font-body);font-size:12.5px;font-weight:500;
+    border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);
+    padding:7px 11px;border-radius:7px;cursor:pointer;
+  }
+  .wpop .acts button:hover{background:var(--surface);color:var(--ink)}
+  .wpop .acts button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .wpop .acts .go{margin-left:auto}
+
+  .no-tts{
+    font-size:12.2px;color:var(--muted);border:1px dashed var(--line-2);
+    border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.55;
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">HR 아티클 한 편 <span class="no" id="dayNo">—</span></div>
+    <div class="streak" id="streak">불러오는 중…</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section id="view-today">
+    <div class="sec-head" style="margin-top:20px">
+      <span class="eyebrow" id="todayDate">&nbsp;</span>
+      <h2 class="sec">오늘의 아티클</h2>
+    </div>
+    <div id="todayBody">
+      <div class="note">데이터를 불러오는 중입니다…</div>
+    </div>
+  </section>
+
+  <section id="view-vocab" hidden>
+    <div class="sec-head" style="margin-top:20px">
+      <span class="eyebrow" id="vocabFrom">&nbsp;</span>
+      <h2 class="sec">단어장</h2>
+    </div>
+    <div class="vstats">
+      <div class="vstat"><div class="n" id="vTotal">0</div><div class="lbl">오늘 단어</div></div>
+      <div class="vstat done"><div class="n" id="vKnown">0</div><div class="lbl">외움</div></div>
+      <div class="vstat"><div class="n" id="vCum">0</div><div class="lbl">누적</div></div>
+    </div>
+    <div id="vocabList"></div>
+  </section>
+
+  <section id="view-lib" hidden>
+    <div class="sec-head" style="margin-top:20px">
+      <span class="eyebrow" id="libCount">&nbsp;</span>
+      <h2 class="sec">서재</h2>
+    </div>
+    <div id="libDone"></div>
+    <hr class="rule">
+    <div class="sec-head" style="margin:0 0 6px">
+      <span class="eyebrow">아직 요약하지 않은 글</span>
+    </div>
+    <p class="note" style="margin-top:0" id="libPendingNote"></p>
+    <ul class="lib" id="libList"></ul>
+    <p class="note" id="buildStamp"></p>
+  </section>
+</div>
+
+<nav class="tabbar">
+  <div class="tabbar-in" role="tablist" aria-label="화면 전환">
+    <button class="tab" role="tab" aria-selected="true" data-view="today">
+      <svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M12 4h6.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H12"/></svg>
+      오늘
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-view="vocab">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h6M7 14h4"/></svg>
+      단어장<span class="badge" id="tabBadge" hidden>0</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-view="lib">
+      <svg viewBox="0 0 24 24"><path d="M5 4v16M9.5 4v16M14 5l4.5 15"/><path d="M3.5 20h17"/></svg>
+      서재
+    </button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+
+  var state = { lang: "ko", articles: [], index: [], meta: null, known: [], current: 0 };
+
+  /* ---------- 저장소 ---------- */
+  function load(k, fb){ try{ var v = localStorage.getItem(k); return v === null ? fb : JSON.parse(v); }catch(e){ return fb; } }
+  function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+  state.lang  = load("hrp.lang", "ko");
+  state.known = load("hrp.known", []);
+  if (!Array.isArray(state.known)) state.known = [];
+
+  var esc = function(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  };
+  var isKnown = function(w){ return state.known.indexOf(w) !== -1; };
+
+  /* ---------- 데이터 ---------- */
+  async function getJSON(path, fallback){
+    try{
+      var res = await fetch(path, { cache: "no-cache" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    }catch(e){
+      console.warn("불러오기 실패: " + path, e);
+      return fallback;
+    }
+  }
+
+  /* ---------- 오늘 ---------- */
+  function renderToday(){
+    var el = document.getElementById("todayBody");
+    var a = state.articles[state.current];
+
+    if (!a){
+      el.innerHTML =
+        '<div class="note"><b>아직 요약된 글이 없습니다.</b><br>' +
+        'GitHub Actions 의 <b>자료 수집</b> 워크플로를 실행하면 새 글이 대기열에 들어가고, ' +
+        'Claude Code 세션에서 요약하면 여기에 나타납니다.' +
+        (state.index.length ? '<br><br>수집된 글 목록 <b>' + state.index.length + '건</b>은 서재 탭에서 볼 수 있습니다.' : '') +
+        '</div>';
+      document.getElementById("todayDate").textContent = "";
+      return;
+    }
+
+    document.getElementById("todayDate").textContent = a.published + " · " + a.sourceName;
+    document.getElementById("dayNo").textContent = "DAY " + state.articles.length;
+
+    var findings = (a.findings || []).map(function(f){
+      return '<li><span class="k">' + esc(f.k) + '</span>' +
+             '<span class="v l-ko">' + f.ko + '</span>' +
+             '<span class="v l-en">' + f.en + '</span></li>';
+    }).join("");
+
+    var detail = (a.detail || []).map(function(s){
+      return '<h3><span class="l-ko">' + esc(s.h.ko) + '</span><span class="l-en">' + esc(s.h.en) + '</span></h3>' +
+             '<div class="l-ko">' + s.body.ko + '</div>' +
+             '<div class="l-en">' + s.body.en + '</div>';
+    }).join("");
+
+    el.innerHTML =
+      '<article class="paper" data-lang="' + state.lang + '" id="paperCard">' +
+        '<div class="paper-top">' +
+          '<div class="venue">' +
+            (a.category ? '<span class="tag">' + esc(a.category) + '</span>' : "") +
+            '<span>' + esc(a.sourceName) + '</span><span>·</span><span>' + esc(a.published) + '</span>' +
+          '</div>' +
+          '<h1>' + esc(a.title) + '</h1>' +
+        '</div>' +
+
+        '<div class="toggle-row">' +
+          '<span class="eyebrow">요약</span>' +
+          '<div class="seg" role="group" aria-label="요약 언어 선택">' +
+            '<button type="button" id="btnKo" aria-pressed="' + (state.lang === "ko") + '">한글</button>' +
+            '<button type="button" id="btnEn" aria-pressed="' + (state.lang === "en") + '">ENG</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="summary">' +
+          '<p class="l-ko">' + a.summary.ko + '</p>' +
+          '<p class="l-en">' + a.summary.en + '</p>' +
+          (findings ? '<ul class="findings">' + findings + '</ul>' : "") +
+        '</div>' +
+
+        '<div class="paper-foot">' +
+          '<button type="button" class="btn primary" id="btnDetail">상세 보기</button>' +
+          '<button type="button" class="btn" id="btnToVocab">단어 ' + (a.vocab || []).length + '개 <span style="opacity:.6">→</span></button>' +
+        '</div>' +
+
+        (detail ? '<div class="detail" id="detail" hidden><div class="detail-in">' + detail + '</div></div>' : "") +
+      '</article>' +
+
+      '<div class="note">원문은 저장하지 않습니다. 위 요약과 단어는 이 글을 읽고 직접 작성한 것이며, ' +
+      '전문은 <a href="' + esc(a.url) + '" target="_blank" rel="noopener">' + esc(a.sourceName) + ' 원문</a>에서 보세요.</div>';
+
+    document.getElementById("btnKo").addEventListener("click", function(){ setLang("ko"); });
+    document.getElementById("btnEn").addEventListener("click", function(){ setLang("en"); });
+    document.getElementById("btnToVocab").addEventListener("click", function(){ go("vocab"); });
+
+    var detailEl = document.getElementById("detail");
+    var btnDetail = document.getElementById("btnDetail");
+    if (detailEl){
+      btnDetail.addEventListener("click", function(){
+        var open = !detailEl.hidden;
+        detailEl.hidden = open;
+        btnDetail.textContent = open ? "상세 보기" : "접기";
+        if (!open) detailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    } else {
+      btnDetail.hidden = true;
+    }
+
+    stopSpeech();
+    if (detailEl) setupSpeech(detailEl);
+  }
+
+  function setLang(v){
+    state.lang = v;
+    var card = document.getElementById("paperCard");
+    if (card) card.setAttribute("data-lang", v);
+    var ko = document.getElementById("btnKo"), en = document.getElementById("btnEn");
+    if (ko) ko.setAttribute("aria-pressed", String(v === "ko"));
+    if (en) en.setAttribute("aria-pressed", String(v === "en"));
+    save("hrp.lang", v);
+    onLangChanged();
+  }
+
+
+  /* ---------- 읽어주기 (Web Speech API) ----------
+     - 지금 보고 있는 언어로 읽는다. 한글 화면이면 한국어, ENG 화면이면 미국식 영어.
+     - 문장 단위로 끊어 읽는다. 긴 문단을 통째로 넘기면 iOS 가 중간에 끊는다.
+     - 읽는 문장을 하이라이트하고, 문장을 누르면 거기서부터 읽는다.
+  */
+  var synth = window.speechSynthesis || null;
+  var tts = {
+    q: { ko: [], en: [] },
+    qi: 0,
+    playing: false,
+    rate: 1,
+    voices: { ko: [], en: [] },
+    voice:  { ko: null, en: null },
+  };
+
+  function ttsSupported(){ return !!(synth && window.SpeechSynthesisUtterance); }
+  function langTag(){ return state.lang === "ko" ? "ko-KR" : "en-US"; }
+  function queue(){ return tts.q[state.lang] || []; }
+
+  function pickVoices(){
+    if (!ttsSupported()) return;
+    var all = synth.getVoices() || [];
+
+    // 영어: 미국식을 우선한다
+    var en = all.filter(function(v){ return /^en[-_]US/i.test(v.lang); });
+    if (!en.length) en = all.filter(function(v){ return /^en/i.test(v.lang); });
+    var preferEn = ["Samantha", "Ava", "Allison", "Susan", "Alex", "Aaron", "Nicky", "Google US English"];
+    en.sort(function(a, b){
+      var ia = preferEn.findIndex(function(n){ return a.name.indexOf(n) === 0; });
+      var ib = preferEn.findIndex(function(n){ return b.name.indexOf(n) === 0; });
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+
+    var ko = all.filter(function(v){ return /^ko/i.test(v.lang); });
+    var preferKo = ["Yuna", "Sora", "Google 한국의", "Google 한국어"];
+    ko.sort(function(a, b){
+      var ia = preferKo.findIndex(function(n){ return a.name.indexOf(n) === 0; });
+      var ib = preferKo.findIndex(function(n){ return b.name.indexOf(n) === 0; });
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+
+    tts.voices = { ko: ko, en: en };
+    ["ko", "en"].forEach(function(k){
+      var saved = load("hrp.voice." + k, null);
+      tts.voice[k] = tts.voices[k].find(function(v){ return v.name === saved; }) || tts.voices[k][0] || null;
+    });
+  }
+
+  if (ttsSupported()){
+    pickVoices();
+    synth.addEventListener("voiceschanged", function(){ pickVoices(); refreshBar(); });
+  }
+
+  function fillVoiceSelect(sel){
+    if (!sel) return;
+    var list = tts.voices[state.lang] || [];
+    sel.innerHTML = list.length
+      ? list.map(function(v){
+          var on = tts.voice[state.lang] && v.name === tts.voice[state.lang].name;
+          return '<option value="' + esc(v.name) + '"' + (on ? " selected" : "") + '>' +
+                 esc(v.name.replace(/\s*\(.*\)$/, "")) + '</option>';
+        }).join("")
+      : '<option value="">기기 기본 음성</option>';
+  }
+
+  // 문장 단위로 쪼갠다. 한 덩어리는 180자를 넘기지 않는다.
+  function sentencesOf(text){
+    var clean = String(text).replace(/\s+/g, " ").trim();
+    if (!clean) return [];
+    var parts = clean.match(/[^.!?]+[.!?]+["'’\)\]]*\s*|[^.!?]+$/g) || [clean];
+    var out = [], cur = "";
+    parts.forEach(function(s){
+      s = s.trim();
+      if (!s) return;
+      if (cur && (cur + " " + s).length > 180){ out.push(cur); cur = s; }
+      else cur = cur ? cur + " " + s : s;
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  // 본문 블록을 읽기 단위로 감싼다. 목록 항목은 그 자체가 한 단위다.
+  function wrapUnits(container, units){
+    var kids = Array.prototype.slice.call(container.childNodes);
+    var buf = [];
+    function flush(){
+      if (!buf.length) return;
+      var text = buf.map(function(n){ return n.textContent; }).join("").trim();
+      if (!text){ buf = []; return; }
+      var span = document.createElement("span");
+      span.className = "rd";
+      container.insertBefore(span, buf[0]);
+      buf.forEach(function(n){ span.appendChild(n); });
+      units.push(span);
+      buf = [];
+    }
+    kids.forEach(function(n){
+      if (n.nodeType === 1 && (n.tagName === "UL" || n.tagName === "OL")){
+        flush();
+        Array.prototype.forEach.call(n.children, function(li){
+          if (li.textContent.trim()){ li.classList.add("rd"); units.push(li); }
+        });
+      } else if (n.nodeType === 1 && n.tagName === "BR"){
+        flush();
+      } else {
+        buf.push(n);
+      }
+    });
+    flush();
+  }
+
+  function setupSpeech(detailEl){
+    var inner = detailEl.querySelector(".detail-in");
+    if (!inner || inner.dataset.rdReady) return;
+    inner.dataset.rdReady = "1";
+
+    if (!ttsSupported()){
+      var warn = document.createElement("div");
+      warn.className = "no-tts";
+      warn.textContent = "이 브라우저는 음성 읽기를 지원하지 않습니다. 아이폰 사파리나 크롬에서 열어 보세요.";
+      inner.insertBefore(warn, inner.firstChild);
+      return;
+    }
+
+    // 한글과 영문 각각의 읽기 단위를 만든다
+    var units = { ko: [], en: [] };
+    Array.prototype.forEach.call(inner.children, function(node){
+      if (node.tagName === "H3"){
+        ["ko", "en"].forEach(function(k){
+          var el = node.querySelector(".l-" + k);
+          if (el && el.textContent.trim()){ el.classList.add("rd"); units[k].push(el); }
+        });
+      } else if (node.classList){
+        if (node.classList.contains("l-ko")) wrapUnits(node, units.ko);
+        else if (node.classList.contains("l-en")) wrapUnits(node, units.en);
+      }
+    });
+
+    tts.q = { ko: [], en: [] };
+    ["ko", "en"].forEach(function(k){
+      units[k].forEach(function(el){
+        sentencesOf(el.textContent).forEach(function(s){ tts.q[k].push({ el: el, text: s }); });
+      });
+    });
+    if (!queue().length) return;
+
+    var bar = document.createElement("div");
+    bar.className = "readbar";
+    bar.innerHTML =
+      '<button type="button" class="play" id="ttsPlay">' +
+        '<svg width="12" height="13" viewBox="0 0 12 13" aria-hidden="true">' +
+        '<path d="M1 1.2v10.6L11 6.5z" fill="currentColor"/></svg> 읽어주기</button>' +
+      '<button type="button" class="ghost" id="ttsStop" hidden>정지</button>' +
+      '<select id="rateSel" aria-label="읽기 속도">' +
+        '<option value="0.7">0.7×</option><option value="0.85">0.85×</option>' +
+        '<option value="1" selected>1.0×</option><option value="1.15">1.15×</option>' +
+        '<option value="1.3">1.3×</option></select>' +
+      '<select id="voiceSel" aria-label="음성 선택"></select>' +
+      '<span class="prog" id="ttsProg"></span>' +
+      '<span class="hint" id="ttsHint"></span>';
+    inner.insertBefore(bar, inner.firstChild);
+
+    tts.rate = load("hrp.rate", 1);
+    bar.querySelector("#rateSel").value = String(tts.rate);
+
+    bar.querySelector("#ttsPlay").addEventListener("click", function(){
+      if (tts.playing) pauseSpeech(); else speakFrom(tts.qi || 0);
+    });
+    bar.querySelector("#ttsStop").addEventListener("click", stopSpeech);
+    bar.querySelector("#rateSel").addEventListener("change", function(e){
+      tts.rate = parseFloat(e.target.value) || 1;
+      save("hrp.rate", tts.rate);
+      if (tts.playing) speakFrom(tts.qi);
+    });
+    bar.querySelector("#voiceSel").addEventListener("change", function(e){
+      var v = (tts.voices[state.lang] || []).find(function(x){ return x.name === e.target.value; });
+      if (v){ tts.voice[state.lang] = v; save("hrp.voice." + state.lang, v.name); }
+      if (tts.playing) speakFrom(tts.qi);
+    });
+
+    // 문장을 누르면 거기서부터
+    inner.addEventListener("click", function(e){
+      if (e.target.closest(".vw")) return;          // 단어 버튼은 단어장으로
+      var el = e.target.closest(".rd");
+      if (!el) return;
+      var at = queue().findIndex(function(q){ return q.el === el; });
+      if (at >= 0) speakFrom(at);
+    });
+
+    refreshBar();
+  }
+
+  // 언어를 바꾸면 읽던 자리가 달라지므로 멈추고 컨트롤을 다시 맞춘다
+  function onLangChanged(){
+    if (tts.playing || tts.qi) stopSpeech();
+    refreshBar();
+  }
+
+  function refreshBar(){
+    fillVoiceSelect(document.getElementById("voiceSel"));
+    var hint = document.getElementById("ttsHint");
+    if (hint){
+      var has = (tts.voices[state.lang] || []).length;
+      hint.textContent = state.lang === "ko"
+        ? (has ? "한국어로 읽습니다. 문장을 누르면 그 문장부터 다시 읽습니다."
+               : "이 기기에 한국어 음성이 없습니다. 설정 → 손쉬운 사용 → 음성 콘텐츠에서 내려받을 수 있습니다.")
+        : (has ? "미국식 영어로 읽습니다. 문장을 누르면 그 문장부터 다시 읽습니다."
+               : "이 기기에 영어 음성이 없습니다.");
+    }
+    updateBar();
+  }
+
+  function highlight(el){
+    var inner = document.querySelector("#detail .detail-in");
+    if (inner) inner.classList.add("speaking");
+    document.querySelectorAll("#detail .rd.active").forEach(function(n){ n.classList.remove("active"); });
+    if (!el) return;
+    el.classList.add("active");
+    var r = el.getBoundingClientRect();
+    if (r.top < 120 || r.bottom > window.innerHeight - 140){
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function updateBar(){
+    var play = document.getElementById("ttsPlay");
+    var stop = document.getElementById("ttsStop");
+    var prog = document.getElementById("ttsProg");
+    if (!play) return;
+    var total = queue().length;
+    play.innerHTML = tts.playing
+      ? '<svg width="12" height="13" viewBox="0 0 12 13" aria-hidden="true">' +
+        '<rect x="1" y="1" width="3.5" height="11" fill="currentColor"/>' +
+        '<rect x="7.5" y="1" width="3.5" height="11" fill="currentColor"/></svg> 일시정지'
+      : '<svg width="12" height="13" viewBox="0 0 12 13" aria-hidden="true">' +
+        '<path d="M1 1.2v10.6L11 6.5z" fill="currentColor"/></svg> ' + (tts.qi ? "이어서 읽기" : "읽어주기");
+    if (stop) stop.hidden = !tts.playing && !tts.qi;
+    if (prog) prog.textContent = (tts.playing || tts.qi)
+      ? (tts.qi + 1) + " / " + total
+      : total + " 문장";
+  }
+
+  function speakFrom(qi){
+    var q = queue();
+    if (!ttsSupported() || !q.length) return;
+    synth.cancel();
+    tts.qi = Math.max(0, Math.min(qi, q.length - 1));
+    tts.playing = true;
+    updateBar();
+    setTimeout(speakNext, 80);     // iOS: cancel 직후 speak 는 씹힌다
+  }
+
+  function speakNext(){
+    if (!tts.playing) return;
+    var q = queue();
+    if (tts.qi >= q.length){ stopSpeech(); return; }
+    var item = q[tts.qi];
+    highlight(item.el);
+    updateBar();
+    var u = new SpeechSynthesisUtterance(item.text);
+    u.lang = langTag();
+    u.rate = tts.rate;
+    if (tts.voice[state.lang]) u.voice = tts.voice[state.lang];
+    u.onend = function(){ if (!tts.playing) return; tts.qi++; speakNext(); };
+    u.onerror = function(){ if (!tts.playing) return; tts.qi++; speakNext(); };
+    synth.speak(u);
+  }
+
+  function pauseSpeech(){
+    if (!ttsSupported()) return;
+    tts.playing = false;
+    synth.cancel();               // iOS 의 pause/resume 은 불안정해 문장 단위로 재개한다
+    updateBar();
+  }
+
+  function stopSpeech(){
+    if (!ttsSupported()) return;
+    tts.playing = false;
+    tts.qi = 0;
+    synth.cancel();
+    var inner = document.querySelector("#detail .detail-in");
+    if (inner) inner.classList.remove("speaking");
+    document.querySelectorAll("#detail .rd.active").forEach(function(n){ n.classList.remove("active"); });
+    updateBar();
+  }
+
+  // 단어는 영어 단어이므로 언제나 영어로 읽는다 (단어 -> 예문)
+  function sayWord(word, example){
+    if (!ttsSupported()) return;
+    tts.playing = false;
+    synth.cancel();
+    setTimeout(function(){
+      [word, example].filter(Boolean).forEach(function(text, i){
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = "en-US";
+        u.rate = i === 0 ? Math.min(tts.rate, 0.85) : tts.rate;  // 단어는 조금 천천히
+        if (tts.voice.en) u.voice = tts.voice.en;
+        synth.speak(u);
+      });
+    }, 80);
+  }
+
+  /* ---------- 단어장 ---------- */
+  function renderVocab(){
+    var a = state.articles[state.current];
+    var list = document.getElementById("vocabList");
+    var vocab = (a && a.vocab) || [];
+    list.innerHTML = "";
+
+    document.getElementById("vocabFrom").textContent = a ? a.title.slice(0, 48) + " 에서" : "";
+
+    if (!vocab.length){
+      list.innerHTML = '<div class="note">아직 단어가 없습니다.</div>';
+      stats();
+      return;
+    }
+
+    vocab.forEach(function(item, i){
+      var k = isKnown(item.w);
+      var el = document.createElement("div");
+      el.className = "card" + (k ? " known" : "");
+      el.id = "v-" + i;
+      el.innerHTML =
+        '<button type="button" class="card-head" aria-expanded="false">' +
+          '<span><span class="term">' + esc(item.w) + '</span><span class="pos">' + esc(item.pos) + '</span></span>' +
+          '<span class="chev">' + (k ? "✓" : "▸") + '</span>' +
+        '</button>' +
+        '<div class="card-body" hidden>' +
+          '<div class="def-ko">' + esc(item.ko) + '</div>' +
+          '<div class="def-en">' + esc(item.en) + '</div>' +
+          '<div class="ex">' + item.ex + '<span class="src">' + esc(a.sourceName) + ' · ' + esc(a.published) + '</span></div>' +
+          '<div class="card-actions">' +
+            '<button type="button" class="mini say" aria-label="발음 듣기">🔊</button>' +
+            '<button type="button" class="mini again">다시 볼래요</button>' +
+            '<button type="button" class="mini yes">외웠어요</button>' +
+          '</div>' +
+        '</div>';
+
+      var head = el.querySelector(".card-head");
+      var body = el.querySelector(".card-body");
+      head.addEventListener("click", function(){
+        var open = !body.hidden;
+        body.hidden = open;
+        el.classList.toggle("open", !open);
+        head.setAttribute("aria-expanded", String(!open));
+      });
+      el.querySelector(".mini.say").addEventListener("click", function(){
+        sayWord(item.w, String(item.ex).replace(/<[^>]+>/g, ""));
+      });
+      el.querySelector(".mini.yes").addEventListener("click", function(){
+        if (!isKnown(item.w)) state.known.push(item.w);
+        save("hrp.known", state.known);
+        renderVocab(); stats();
+      });
+      el.querySelector(".mini.again").addEventListener("click", function(){
+        state.known = state.known.filter(function(x){ return x !== item.w; });
+        save("hrp.known", state.known);
+        renderVocab(); stats();
+      });
+      list.appendChild(el);
+    });
+    stats();
+  }
+
+  function stats(){
+    var a = state.articles[state.current];
+    var vocab = (a && a.vocab) || [];
+    var done = vocab.filter(function(v){ return isKnown(v.w); }).length;
+    document.getElementById("vTotal").textContent = vocab.length;
+    document.getElementById("vKnown").textContent = done;
+    document.getElementById("vCum").textContent = state.known.length;
+    var left = vocab.length - done;
+    var badge = document.getElementById("tabBadge");
+    badge.textContent = left;
+    badge.hidden = left === 0;
+    document.getElementById("streak").innerHTML =
+      "요약 <b>" + state.articles.length + "</b>편 · 단어 <b>" + state.known.length + "</b>";
+  }
+
+  /* ---------- 서재 ---------- */
+  function renderLib(){
+    var done = document.getElementById("libDone");
+    document.getElementById("libCount").textContent =
+      "요약 " + state.articles.length + "편 · 수집 " + state.index.length + "건";
+
+    done.innerHTML = state.articles.length
+      ? '<ul class="lib">' + state.articles.map(function(a, i){
+          return '<li data-i="' + i + '" style="cursor:pointer">' +
+            '<span class="date">' + esc((a.published || "").slice(5).replace("-", ".")) + '</span>' +
+            '<span><span class="t">' + esc(a.title) + '</span>' +
+            '<span class="m">' + esc(a.sourceName) + '<span class="dot">·</span>' +
+            '<span class="w">단어 ' + (a.vocab || []).length + '</span></span></span></li>';
+        }).join("") + '</ul>'
+      : '<p class="note" style="margin-top:0">요약된 글이 아직 없습니다.</p>';
+
+    done.querySelectorAll("li[data-i]").forEach(function(li){
+      li.addEventListener("click", function(){
+        state.current = +li.dataset.i;
+        renderToday(); renderVocab(); go("today");
+      });
+    });
+
+    var pending = state.index.filter(function(e){
+      return !state.articles.some(function(a){ return a.url === e.url; });
+    });
+    document.getElementById("libPendingNote").textContent =
+      pending.length + "건이 수집돼 있습니다. 최근 40건만 표시합니다. 제목을 눌러 원문으로 갑니다.";
+
+    var stamp = document.getElementById("buildStamp");
+    if (stamp){
+      stamp.innerHTML = "이 화면은 <b>" + esc((state.meta && state.meta.builtAt) || "알 수 없음") +
+        "</b> 빌드입니다. 새 기능이 안 보이면 이 시각부터 확인하세요." +
+        "<br>읽어주기 기능은 <b>오늘 탭 → 상세 보기</b> 를 펼쳐야 나타납니다.";
+    }
+
+    document.getElementById("libList").innerHTML = pending.slice(0, 40).map(function(e){
+      return '<li><span class="date">' + esc((e.published || "").slice(5).replace("-", ".")) + '</span>' +
+        '<span><a class="t" href="' + esc(e.url) + '" target="_blank" rel="noopener" ' +
+        'style="color:inherit;text-decoration:none;display:block">' + esc(e.title) + '</a>' +
+        '<span class="m">' + esc(e.source.toUpperCase()) + '</span></span></li>';
+    }).join("");
+  }
+
+  /* ---------- 화면 전환 ---------- */
+  var views = {
+    today: document.getElementById("view-today"),
+    vocab: document.getElementById("view-vocab"),
+    lib:   document.getElementById("view-lib"),
+  };
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+
+  function go(name){
+    if (name !== "today") stopSpeech();
+    Object.keys(views).forEach(function(k){ views[k].hidden = (k !== name); });
+    tabs.forEach(function(t){ t.setAttribute("aria-selected", String(t.dataset.view === name)); });
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t){ t.addEventListener("click", function(){ go(t.dataset.view); }); });
+
+  /* ---------- 본문 속 단어 툴팁 ----------
+     PC 는 마우스를 올리면, 폰은 누르면 뜻이 뜬다.
+     읽던 자리를 잃지 않는 것이 목적이라, 단어장으로 보내지 않고 그 자리에서 보여준다.
+  */
+  var pop = null, popAnchor = null, hoverTimer = null;
+  var canHover = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  function vocabOf(word){
+    var a = state.articles[state.current];
+    return a && (a.vocab || []).find(function(v){ return v.w === word; });
+  }
+
+  function closePop(){
+    if (hoverTimer){ clearTimeout(hoverTimer); hoverTimer = null; }
+    if (pop){ pop.remove(); pop = null; }
+    if (popAnchor){ popAnchor.classList.remove("on"); popAnchor = null; }
+  }
+
+  function placePop(el, anchor){
+    var r = anchor.getBoundingClientRect();
+    el.style.visibility = "hidden";
+    el.style.left = "0px";
+    el.style.top = "0px";
+    var w = el.offsetWidth, h = el.offsetHeight, pad = 14;
+    var left = r.left + r.width / 2 - w / 2;
+    left = Math.max(pad, Math.min(left, window.innerWidth - w - pad));
+    var top = r.top - h - 9;
+    if (top < 64) top = r.bottom + 9;                       // 위가 좁으면 아래로
+    top = Math.min(top, window.innerHeight - h - 76);        // 탭바를 피한다
+    el.style.left = Math.round(left) + "px";
+    el.style.top = Math.round(top) + "px";
+    el.style.visibility = "";
+  }
+
+  function showPop(btn){
+    var item = vocabOf(btn.dataset.w);
+    if (!item) return;
+    if (popAnchor === btn) return;
+    closePop();
+
+    pop = document.createElement("div");
+    pop.className = "wpop";
+    pop.setAttribute("role", "dialog");
+    pop.innerHTML =
+      '<div><span class="w">' + esc(item.w) + '</span><span class="p">' + esc(item.pos) + '</span></div>' +
+      '<div class="ko">' + esc(item.ko) + '</div>' +
+      '<p class="en">' + esc(item.en) + '</p>' +
+      '<div class="acts">' +
+        '<button type="button" class="say" aria-label="발음 듣기">🔊 발음</button>' +
+        '<button type="button" class="go">단어장 →</button>' +
+      '</div>';
+    document.body.appendChild(pop);
+    placePop(pop, btn);
+
+    btn.classList.add("on");
+    popAnchor = btn;
+
+    pop.querySelector(".say").addEventListener("click", function(e){
+      e.stopPropagation();
+      sayWord(item.w, String(item.ex).replace(/<[^>]+>/g, ""));
+    });
+    pop.querySelector(".go").addEventListener("click", function(e){
+      e.stopPropagation();
+      openVocabWord(item.w);
+      closePop();
+    });
+    if (canHover){
+      pop.addEventListener("mouseenter", function(){ if (hoverTimer){ clearTimeout(hoverTimer); hoverTimer = null; } });
+      pop.addEventListener("mouseleave", function(){ hoverTimer = setTimeout(closePop, 220); });
+    }
+  }
+
+  // 단어장 탭으로 보내고 해당 카드를 펼친다
+  function openVocabWord(word){
+    var a = state.articles[state.current];
+    if (!a) return;
+    var idx = (a.vocab || []).findIndex(function(v){ return v.w === word; });
+    if (idx < 0) return;
+    go("vocab");
+    var el = document.getElementById("v-" + idx);
+    if (!el) return;
+    var head = el.querySelector(".card-head"), body = el.querySelector(".card-body");
+    if (body.hidden){
+      body.hidden = false;
+      el.classList.add("open");
+      head.setAttribute("aria-expanded", "true");
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  document.addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest(".vw") : null;
+    if (b){
+      e.preventDefault();
+      if (popAnchor === b) closePop(); else showPop(b);   // 다시 누르면 닫힌다
+      return;
+    }
+    if (pop && !e.target.closest(".wpop")) closePop();
+  });
+
+  if (canHover){
+    document.addEventListener("mouseover", function(e){
+      var b = e.target.closest ? e.target.closest(".vw") : null;
+      if (!b || popAnchor === b) return;
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(function(){ showPop(b); }, 160);
+    });
+    document.addEventListener("mouseout", function(e){
+      var b = e.target.closest ? e.target.closest(".vw") : null;
+      if (!b) return;
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(closePop, 220);
+    });
+  }
+
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closePop(); });
+  window.addEventListener("scroll", closePop, { passive: true });
+  window.addEventListener("resize", closePop);
+
+  /* ---------- 시작 ---------- */
+  (async function start(){
+    var results = await Promise.all([
+      getJSON("data/articles.json", []),
+      getJSON("data/index.json", []),
+      getJSON("data/meta.json", null),
+    ]);
+    state.articles = results[0] || [];
+    state.index    = results[1] || [];
+    state.meta     = results[2];
+
+    // 최신 글이 앞에 오도록
+    state.articles.sort(function(x, y){ return (y.published || "").localeCompare(x.published || ""); });
+
+    renderToday();
+    renderVocab();
+    renderLib();
+    stats();
+  })();
+})();
+</script>
+
+</body>
+</html>

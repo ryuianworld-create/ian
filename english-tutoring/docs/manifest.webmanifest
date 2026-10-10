@@ -1,0 +1,16 @@
+{
+  "name": "HR 논문 한 편",
+  "short_name": "HR 논문",
+  "description": "매일 HR 논문 한 편을 한글·영문 요약으로 읽고, 본문에서 나온 단어를 외웁니다.",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F6F2",
+  "theme_color": "#7A2E3E",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,46 @@
+name: 사이트 배포
+
+# Pages 소스가 "GitHub Actions" 로 설정돼 있어야 한다.
+# main 에 푸시할 때마다 docs/ 를 그대로 배포한다.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:      # 수동 재배포 버튼
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 새 배포가 오면 진행 중인 것은 취소한다.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 배포 내용 확인
+        run: |
+          echo "커밋: $(git rev-parse --short HEAD)"
+          echo "요약 편수: $(grep -o '"id"' docs/data/articles.json | wc -l)"
+          test -f docs/index.html || { echo "docs/index.html 이 없다"; exit 1; }
+          test -f docs/data/articles.json || { echo "docs/data/articles.json 이 없다"; exit 1; }
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
