@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대환장 거대 원룸</title>
+<style>
+  :root { --ink:#fff; --panel:rgba(0,0,0,.55); --accent:#ffd23f; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; overflow:hidden; background:#000; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif; user-select:none; }
+  canvas { display:block; }
+  #hud { position:fixed; left:16px; top:16px; background:var(--panel); padding:10px 14px; border-radius:10px; font-size:14px; line-height:1.5; pointer-events:none; }
+  #hud b { color:var(--accent); }
+  #place { position:fixed; right:16px; top:16px; background:var(--panel); padding:10px 14px; border-radius:10px; font-size:16px; pointer-events:none; }
+  #hint { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:var(--panel); padding:10px 18px; border-radius:999px; font-size:16px; pointer-events:none; display:none; white-space:nowrap; }
+  #cross { position:fixed; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border:2px solid #fff; border-radius:50%; pointer-events:none; opacity:.8; }
+  #start { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.7); cursor:pointer; z-index:10; }
+  #start .box { background:#1b2230; padding:28px 36px; border-radius:16px; max-width:600px; text-align:center; line-height:1.8; font-size:15px; }
+  #start h1 { margin:0 0 10px; color:var(--accent); font-size:28px; }
+  #start .go { margin-top:14px; display:inline-block; background:var(--accent); color:#000; font-weight:bold; padding:10px 24px; border-radius:999px; font-size:18px; }
+  #toast { position:fixed; left:50%; top:80px; transform:translateX(-50%); background:var(--accent); color:#000; padding:10px 20px; border-radius:999px; font-weight:bold; font-size:18px; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
+  #fade { position:fixed; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity .4s; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <b>시간</b> <span id="clock">🌞 낮</span> <span id="bar"></span> &nbsp; <b>방</b> 원룸 · 로마 3규빗(133cm) &nbsp; <b>나</b> 2cm 꼬마<br>
+  이동 <b>WASD / 화살표</b> · 점프 <b>Space</b> · 상호작용 <b>E</b> · 옷 설치 <b>Enter</b> · 카메라 <b>마우스</b>
+</div>
+<div id="place">🏠 거대 원룸</div>
+<div id="hint"></div>
+<div id="cross"></div>
+<div id="toast"></div>
+<div id="fade"></div>
+<div id="start">
+  <div class="box">
+    <h1>대환장 거대 원룸</h1>
+    너는 2cm짜리 꼬마 사람! 방은 로마 3규빗(133cm) 원룸인데 너한테는 엄청 커.<br>
+    🧦 양말은 이불 · 👕 옷은 끌고 와서 <b>Enter</b>로 침대 설치 · 🧽 수세미 타고 싱크대 수영장<br>
+    🗄 서랍 1 = 찜질방, 서랍 2 = 침대+이불 2개 · 📦 박스 안 1층·2층 침대 · 📺 TV 옆 구멍 = 코인노래방<br>
+    🪀 팽이 줄을 타고 TV로 · 🧊 냉장고 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
+    <span class="go">클릭해서 시작</span>
+  </div>
+</div>
+<script src="three.min.js"></script>
+<script>
+// ===== 기본 세팅 =====
+const scene = new THREE.Scene();
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.05, 3000);
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+// 단위: 1 = 0.5cm.  방 = 로마 3규빗 = 133cm → 266유닛.  플레이어 키 4유닛 = 2cm (꼬마라서 방이 거대하게 보임)
+const CUBIT = 44.4, ROOM = CUBIT*3*2; // 266.4
+const half = ROOM/2, H = 120; // 천장
+const PH = 4;                       // 플레이어 키
+const STEP = 3.2;                   // 자동으로 올라가는 턱 높이
+
+// ===== 유틸 =====
+const mat = (c, o={}) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:.8}, o));
+const solids = [];   // 충돌 박스
+const climbs = [];   // 타고 올라가는 것
+const waters = [];   // 수영 영역
+const interact = []; // E 상호작용
+function box(w,h,d, x,y,z, color, opts={}) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), color instanceof THREE.Material ? color : mat(color, opts.m||{}));
+  m.position.set(x,y,z); m.castShadow = opts.shadow!==false; m.receiveShadow = true;
+  (opts.parent||scene).add(m);
+  m.updateWorldMatrix(true, false); // 부모 그룹 위치까지 반영해서 충돌 박스 계산
+  if (opts.solid!==false) solids.push({mesh:m, box:new THREE.Box3().setFromObject(m), tag:opts.tag});
+  if (opts.climb) climbs.push({mesh:m, box:new THREE.Box3().setFromObject(m).expandByScalar(3)});
+  return m;
+}
+function refreshSolid(mesh){ const s=solids.find(s=>s.mesh===mesh); if(s){ mesh.updateWorldMatrix(true,false); s.box.setFromObject(mesh);} }
+function label(text, x,y,z, size=6){
+  const c=document.createElement('canvas'); c.width=512; c.height=128; const g=c.getContext('2d');
+  g.fillStyle='rgba(0,0,0,.5)'; g.fillRect(0,0,512,128); g.fillStyle='#fff'; g.font='bold 60px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,256,64);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true, depthTest:false})); s.scale.set(size*4,size,1); s.position.set(x,y,z); scene.add(s); return s;
+}
+// 계단: 바닥부터 꽉 찬 블록 계단
+function stairs(x0,y0,z0, dx,dz, steps, rise, w, color){
+  for(let i=0;i<steps;i++){ const h=rise*(i+1); box(dx?Math.abs(dx):w, h, dz?Math.abs(dz):w, x0+dx*i, y0+h/2, z0+dz*i, color); }
+}
+function canvasTex(draw, rep=1){ const c=document.createElement('canvas'); c.width=c.height=256; draw(c.getContext('2d')); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rep,rep); return t; }
+
+// ===== 조명 / 낮밤 =====
+const hemi = new THREE.HemisphereLight(0xffffff, 0x777766, 1.0); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 1.0); sun.position.set(60,150,40); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048); const sc=sun.shadow.camera; sc.left=-170; sc.right=170; sc.top=170; sc.bottom=-170; sc.far=600; scene.add(sun);
+const lamp = new THREE.PointLight(0xffe0a0, 0, 600); lamp.position.set(0,H-5,0); scene.add(lamp);
+const fill = new THREE.PointLight(0xffffff, .5, 600); fill.position.set(0,H-10,0); scene.add(fill);
+scene.fog = new THREE.Fog(0xcfe8ff, 300, 900);
+
+// ===== 방 (원룸) =====
+const floorTex = canvasTex(g=>{ g.fillStyle='#d9c29a'; g.fillRect(0,0,256,256); g.strokeStyle='#c4ab82'; g.lineWidth=3; for(let i=0;i<=256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); } }, 12);
+box(ROOM, 2, ROOM, 0,-1,0, new THREE.MeshStandardMaterial({map:floorTex, roughness:.9}), {shadow:false}); // 장판 바닥
+box(ROOM, 2, ROOM, 0,H+1,0, 0xf4f4f4, {shadow:false}); // 천장
+const wallTex = canvasTex(g=>{ g.fillStyle='#f2ead8'; g.fillRect(0,0,256,256); g.fillStyle='#e9dfc8'; for(let y=0;y<256;y+=32) for(let x=0;x<256;x+=32) if((x+y)/32%2===0) g.fillRect(x,y,32,32); }, 8);
+const wallM = new THREE.MeshStandardMaterial({map:wallTex, roughness:.9});
+box(ROOM, H, 2, 0,H/2,-half-1, wallM, {shadow:false}); // 북
+box(ROOM, H, 2, 0,H/2, half+1, wallM, {shadow:false}); // 남 (현관문)
+box(2, H, ROOM, -half-1,H/2,0, wallM, {shadow:false}); // 서
+box(2, H, ROOM,  half+1,H/2,0, wallM, {shadow:false}); // 동
+// 창문(동벽)
+const windowM = new THREE.MeshStandardMaterial({color:0x9fd3ff, emissive:0x4477aa, emissiveIntensity:.5});
+box(1, 50, 70, half-.3, 70, 40, windowM, {solid:false, shadow:false});
+box(1, 52, 3, half-.5, 70, 40, 0xffffff, {solid:false}); box(1,3,72, half-.5,70,40, 0xffffff,{solid:false});
+// 현관문 (남벽 가운데, 열려 있음)
+const door = box(28, 70, 2, 0, 35, half-1, 0x8b5a2b, {solid:false});
+door.rotation.y = Math.PI/2.8; door.position.set(-18, 35, half+4);
+box(30, 2, 30, 0, 1, half-14, 0x8d6e63, {solid:false}); // 현관 매트
+label('현관문', 0, 76, half-8, 7);
+// 러그
+box(90, .6, 60, 0, .3, 20, 0xef9a9a, {solid:false, shadow:false});
+
+// ===== 양말 이불 (문 들어와서 왼쪽 바닥) =====
+function sock(x,z,color,rot){
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=rot;
+  const a=box(18,3,7, 0,1.5,0, color, {parent:g, solid:false}); const b=box(7,3,10, 7,1.5,3.5, color, {parent:g, solid:false});
+  box(18.2,1,7.2, 0,2.6,0, 0xffffff, {parent:g, solid:false});
+  scene.add(g); g.updateMatrixWorld(true);
+  solids.push({mesh:a, box:new THREE.Box3().setFromObject(a)}); solids.push({mesh:b, box:new THREE.Box3().setFromObject(b)});
+  interact.push({pos:new THREE.Vector3(x,2,z), r:14, label:'E: 양말 이불 덮고 자기 🧦', fn:()=>sleep('양말 이불 속에서 꿀잠… 😴')});
+}
+sock(-95, 40, 0xff6b9d, .3); sock(-80, 50, 0x4fc3f7, -.5);
+label('양말 이불 🧦', -88, 14, 45, 6);
+
+// ===== 옷걸이 + 아주 큰 옷들 (양말 바로 뒤, 서벽) =====
+box(3, 80, 3, -half+10, 40, 18, 0x666666); box(3,80,3, -half+10,40,74, 0x666666);
+box(3, 3, 60, -half+10, 80, 46, 0x888888, {solid:false});
+const clothes = [];
+[0xe53935, 0x43a047, 0x1e88e5, 0xfdd835].forEach((c,i)=>{
+  const g=new THREE.Group(); const z=26+i*13;
+  g.position.set(-half+10, 76, z);
+  box(2, 4, 4, 0,3,0, 0xcccccc, {parent:g, solid:false});            // 옷걸이 고리
+  box(34, 46, 4, 0,-23,0, c, {parent:g, solid:false});               // 몸통 (아주 큼)
+  box(9, 26, 4, -21,-13,0, c, {parent:g, solid:false}); box(9,26,4, 21,-13,0, c, {parent:g, solid:false}); // 소매
+  scene.add(g);
+  const cl={group:g, hanging:true, color:c};
+  clothes.push(cl);
+  interact.push({pos:new THREE.Vector3(-half+10, 6, z), r:18, label:'E: 옷 끌어당기기 👕 (잡고 가서 Enter로 설치)', fn:()=>{ cl.hanging=false; heldCloth=cl; toast('옷을 잡았다! 끌고 가서 Enter 👕'); }, cond:()=>cl.hanging && !heldCloth});
+});
+label('옷들 👕 (끌어당겨서 침대로!)', -half+10, 88, 46, 7);
+let heldCloth = null;
+function installCloth(){
+  const cl=heldCloth; if(!cl) return;
+  const g=cl.group;
+  const fx=-Math.sin(yaw), fz=-Math.cos(yaw);
+  g.position.set(player.x+fx*28, 0, player.z+fz*28); g.rotation.set(0, yaw, 0);
+  while(g.children.length) g.remove(g.children[0]);
+  const bed=box(48, 6, 32, 0,3,0, cl.color, {parent:g}); box(16,4,12, -14,7,0, 0xffffff, {parent:g, solid:false});
+  g.updateMatrixWorld(true); refreshSolid(bed);
+  interact.push({pos:g.position.clone().setY(6), r:20, label:'E: 커다란 옷 침대에서 자기 🛏', fn:()=>sleep('커다란 옷 침대에서 꿀잠… 😴')});
+  heldCloth=null; toast('옷 침대 설치 완료! 🛏');
+}
+
+// ===== 박스 (문 들어와서 오른쪽 위 = 북동) : 1층/2층 침대 =====
+const BX=half-40, BZ=-half+40;
+const cardboard = mat(0xc9a66b);
+box(60, 2, 60, BX, 1, BZ, cardboard);                    // 박스 바닥
+box(60, 2, 48, BX, 25, BZ-6, cardboard);                 // 2층 바닥 (남쪽 끝은 계단 구멍)
+box(60, 2, 74, BX, 49, BZ-4, cardboard);                 // 박스 지붕 (북쪽 벽까지 덮고, 남쪽은 TV장 앞까지)
+box(2, 50, 60, BX+29, 25, BZ, cardboard);                // 동벽
+box(60, 50, 2, BX, 25, BZ-29, cardboard);                // 북벽
+box(60, 50, 2, BX, 25, BZ+29, cardboard);                // 남벽
+box(2, 50, 20, BX-29, 25, BZ-20, cardboard);             // 서벽 (가운데가 입구)
+box(2, 50, 20, BX-29, 25, BZ+20, cardboard);
+function bed(x,y,z, color, name){
+  box(30, 5, 18, x,y+2.5,z, 0x8d6e63); box(28,3,16, x,y+6.5,z, color, {solid:false}); box(10,3,8, x-8,y+9,z, 0xffffff, {solid:false});
+  interact.push({pos:new THREE.Vector3(x,y+5,z), r:18, label:'E: '+name+'에서 자기 🛏', fn:()=>sleep(name+'에서 꿀잠… 😴')});
+}
+bed(BX-4, 2, BZ-12, 0x5c6bc0, '박스 1층 침대');
+bed(BX-8, 26, BZ-12, 0xab47bc, '박스 2층 침대');
+stairs(BX-16, 2, BZ+22, 4, 0, 11, 2.4, 10, 0xa1887f);   // 박스 안 계단 1층→2층 (남쪽 벽 따라 동쪽 벽까지 올라감)
+label('계단 ⬆ 2층', BX-22, 12, BZ+22, 4);
+stairs(BX-48, 0, BZ+30, 0, -3, 20, 2.5, 12, 0xa1887f);  // 박스 밖 계단 → 지붕
+box(26, 2, 15, BX-42, 49, BZ-33.5, 0xa1887f);            // 계단 끝 → 지붕 연결 발판 (벽까지)
+label('박스 📦 (1층·2층 침대)', BX-34, 62, BZ, 7);
+label('1층 ➡', BX-34, 14, BZ, 4); label('2층', BX-34, 38, BZ, 4);
+label('지붕 가는 계단', BX-48, 60, BZ+36, 6);
+
+// ===== 텔레비전 (코인노래방) : 박스 옆, 동벽 =====
+const TX=half-42, TZ=-half+90;
+box(76, 48, 34, TX, 24, TZ, 0x4e342e);                            // TV장 (TV보다 넓어서 옆으로 걸어갈 수 있음)
+box(16, 2, 10, TX-20, 49, TZ-20, 0xc9a66b);                       // 박스 지붕 → TV장 건너가는 판자
+const tvBody = new THREE.Group(); tvBody.position.set(TX, 48, TZ); scene.add(tvBody);
+const tvM = mat(0x212121);
+box(56, 2, 26, 0, 1, 0, tvM, {parent:tvBody}); box(56,2,26, 0,43,0, tvM,{parent:tvBody});   // 바닥/천장
+box(2, 44, 26, 27, 22, 0, tvM, {parent:tvBody});                                         // 동쪽 벽
+box(2, 44, 8, -27, 22, 9, tvM, {parent:tvBody}); box(2,44,8, -27,22,-9, tvM,{parent:tvBody}); box(2,24,10, -27,32,0, tvM,{parent:tvBody}); // 서쪽 벽: 아래 구멍 (10×18)
+box(56, 44, 2, 0, 22, -12, tvM, {parent:tvBody});                                        // 뒤
+const screenMat = new THREE.MeshStandardMaterial({color:0x1565c0, emissive:0x0d47a1, emissiveIntensity:.8, transparent:true, opacity:1});
+box(50, 38, 1, 0, 22, 12.5, screenMat, {parent:tvBody, tag:'screen'});                    // 화면 (안에 들어가면 열림)
+label('TV 📺 (옆 구멍 → 코인노래방)', TX, 100, TZ+20, 8);
+label('구멍 ➡', TX-33, 60, TZ, 4);
+// 코인노래방 내부
+const kara = new THREE.Group(); kara.position.set(TX, 50, TZ); scene.add(kara);
+box(18, 10, 8, 16, 5, -5, 0x6a1b9a, {parent:kara});                                      // 소파
+box(12, 8, 5, 0, 4, -8, 0x333333, {parent:kara});                                        // 노래방 기계
+box(10, 5, .5, 0, 8, -5.4, 0x00e5ff, {parent:kara, solid:false, m:{emissive:0x00bcd4, emissiveIntensity:1}});
+box(1.5, 8, 1.5, -12, 4, 0, 0xbdbdbd, {parent:kara, solid:false});                      // 마이크
+const disco=new THREE.Mesh(new THREE.SphereGeometry(4,16,16), mat(0xffffff,{metalness:.9, roughness:.1})); disco.position.set(0,34,0); kara.add(disco);
+const karaLight = new THREE.PointLight(0xff00ff, 0, 120); karaLight.position.set(0,30,0); kara.add(karaLight);
+box(6,6,1, -20, 20, 10, 0xffc107, {parent:kara, solid:false, m:{emissive:0xff8f00, emissiveIntensity:.5}}); // 코인 투입구
+interact.push({pos:new THREE.Vector3(TX-10, 54, TZ), r:16, label:'E: 노래 부르기 🎤', fn:()=>{ toast('🎵 라라라~ 노래 부르는 중! 🎵'); karaLight.intensity=5; setTimeout(()=>karaLight.intensity=insideTV?2:0, 3000); }});
+let insideTV=false;
+
+// ===== 팽이 + 줄 (아무것도 안 올라가도 줄 타고 TV장 위로) =====
+const PX=TX-20, PZ=TZ+19;
+const spinTop=new THREE.Mesh(new THREE.ConeGeometry(10, 14, 24), mat(0xff7043)); spinTop.position.set(PX, 7, PZ); spinTop.rotation.x=Math.PI; spinTop.castShadow=true; scene.add(spinTop);
+box(2, 66, 2, PX, 33, PZ, 0xffeb3b, {climb:true});                                       // 팽이 줄 (바닥~TV장 위)
+label('팽이 줄 🪀 (붙어서 W로 올라가기)', PX, 72, PZ, 7);
+
+// ===== 부엌 (북벽 서쪽): 싱크대 + 수세미 + 서랍 + 냉장고 =====
+const KX=-half+34, KZ=-half+36;
+const sinkMat = mat(0xeceff1, {metalness:.3, roughness:.4});
+box(60, 2, 40, KX, 1, KZ, sinkMat);
+box(2, 45, 40, KX-29, 22.5, KZ, sinkMat); box(2,45,40, KX+29,22.5,KZ, sinkMat); box(60,45,2, KX,22.5,KZ-19, sinkMat);
+const drawerFront = mat(0xb0bec5);
+box(60, 15, 2, KX, 7.5, KZ+19, drawerFront); box(60, 15, 2, KX, 22.5, KZ+19, drawerFront); box(60, 15, 2, KX, 37.5, KZ+19, sinkMat);
+box(60, 2, 6, KX, 15, KZ+23, 0x90a4ae); box(60,2,6, KX,30,KZ+23, 0x90a4ae);            // 서랍 손잡이 (밟을 수 있음)
+stairs(KX+48, 0, KZ+30, -3, 0, 10, 3, 10, 0xff8a65);                                    // 책 계단 (동쪽에서 서쪽으로 올라감) → 서랍 2 손잡이 높이
+// 싱크대 테두리 + 개수대 (수영장)
+box(60, 2, 6, KX, 46, KZ-17, sinkMat); box(60,2,6, KX,46,KZ+17, sinkMat); box(6,2,40, KX-27,46,KZ, sinkMat); box(6,2,40, KX+27,46,KZ, sinkMat);
+box(48, 2, 28, KX, 32, KZ, sinkMat);
+box(2, 14, 28, KX-24, 39, KZ, sinkMat); box(2,14,28, KX+24,39,KZ, sinkMat); box(48,14,2, KX,39,KZ-14, sinkMat); box(48,14,2, KX,39,KZ+14, sinkMat);
+const water = box(47, 12, 27, KX, 39, KZ, new THREE.MeshStandardMaterial({color:0x29b6f6, transparent:true, opacity:.55, roughness:.1, side:THREE.DoubleSide}), {solid:false, shadow:false});
+waters.push({box:new THREE.Box3().setFromObject(water)});
+box(3, 14, 3, KX, 53, KZ-16, 0x9e9e9e, {solid:false}); box(3,3,10, KX,60,KZ-12, 0x9e9e9e,{solid:false}); // 수도꼭지
+label('싱크대 수영장 🏊', KX, 70, KZ, 7);
+// 수세미 (바닥에서 싱크대 위까지 기대어 있음 - 타고 올라감)
+const scrub = box(14, 54, 6, KX+12, 27, KZ+26, 0x66bb6a, {climb:true, m:{roughness:1}});
+scrub.rotation.x = -0.22; refreshSolid(scrub); climbs[climbs.length-1].box.setFromObject(scrub).expandByScalar(3);
+const scrubTop=box(14, 1.5, 6, KX+12, 54, KZ+20, 0xffeb3b, {solid:false}); scrubTop.rotation.x=-0.22;
+label('수세미 🧽 (붙어서 W로 올라가기)', KX+12, 64, KZ+34, 7);
+label('서랍1 찜질방 ♨ / 서랍2 침실 🛏', KX, 42, KZ+30, 7);
+
+// 서랍 속 공간: 서랍이 거대해서 들어가면 방이 됨 (하늘 위 별도 공간으로 이동)
+const rooms = {};
+let exitPos = new THREE.Vector3(KX, PH, KZ+34);
+function makeRoom(name, ox, oz, wallColor, floorColor, build){
+  const g=new THREE.Group(); g.position.set(ox, 500, oz); scene.add(g);
+  const W=80, D=80, RH=40;
+  box(W,2,D, 0,-1,0, floorColor, {parent:g}); box(W,2,D, 0,RH+1,0, wallColor, {parent:g});
+  const wm=mat(wallColor);
+  box(W,RH,2, 0,RH/2,-D/2-1, wm,{parent:g}); box(W,RH,2, 0,RH/2,D/2+1, wm,{parent:g}); box(2,RH,D, -W/2-1,RH/2,0, wm,{parent:g}); box(2,RH,D, W/2+1,RH/2,0, wm,{parent:g});
+  const light=new THREE.PointLight(0xffffff, 1.2, 200); light.position.set(0,RH-5,0); g.add(light);
+  box(20, 30, 1, 0, 15, D/2-.5, 0x90a4ae, {parent:g, solid:false}); // 나가는 문
+  build(g);
+  interact.push({pos:new THREE.Vector3(ox,502,oz+34), r:14, label:'E: 서랍 밖으로 나가기 🚪', fn:()=>teleport(exitPos, '🏠 거대 원룸')});
+  rooms[name]={group:g, spawn:new THREE.Vector3(ox, 500+PH+0.1, oz+32)};
+}
+makeRoom('jjim', 600, 0, 0xffcc80, 0xa1887f, g=>{
+  box(30,10,30, -20,5,-20, 0xbf360c, {parent:g}); box(30,10,30, 20,5,-20, 0x8d6e63,{parent:g});
+  box(70,6,20, 0,3,8, 0xd7ccc8, {parent:g});                                   // 누울 자리
+  for(let i=0;i<3;i++){ const e=new THREE.Mesh(new THREE.SphereGeometry(2.5,12,12), mat(0x8d6e63)); e.position.set(-6+i*6, 13, -20); g.add(e); }
+  box(40,10,1, 0,30,-39, 0xff7043, {parent:g, solid:false, m:{emissive:0xbf360c, emissiveIntensity:.6}});
+  const heat=new THREE.PointLight(0xff5722, 2, 150); heat.position.set(0,20,0); g.add(heat);
+  interact.push({pos:new THREE.Vector3(600,506,8), r:16, label:'E: 찜질하기 ♨ (맥반석 계란 🥚)', fn:()=>sleep('뜨끈뜨끈 찜질방에서 땀 빼기… ♨ 맥반석 계란 냠냠 🥚')});
+});
+label('찜질방 ♨', 600, 535, -30, 10);
+makeRoom('bedroom', 800, 0, 0xc5cae9, 0xe8eaf6, g=>{
+  box(40,6,24, 0,3,-10, 0x8d6e63, {parent:g}); box(38,3,22, 0,7.5,-10, 0xf8bbd0,{parent:g, solid:false}); box(12,3,8, -12,10,-10, 0xffffff,{parent:g, solid:false});
+  box(36,3,20, 0,11,-10, 0x4db6ac, {parent:g, solid:false});                 // 이불 1 (침대 위)
+  box(36,3,20, -20,1.5,18, 0xffb74d, {parent:g});                              // 이불 2 (바닥)
+  interact.push({pos:new THREE.Vector3(800,508,-10), r:16, label:'E: 침대 + 이불 두 개 덮고 자기 🛏', fn:()=>sleep('서랍 속 침대, 이불 두 개 덮고 꿀잠… 😴')});
+});
+label('서랍 침실 🛏 (이불 2개)', 800, 535, -30, 10);
+interact.push({pos:new THREE.Vector3(KX, 6, KZ+26), r:30, label:'E: 첫번째 서랍 열고 들어가기 ♨ 찜질방', fn:()=>teleport(rooms.jjim.spawn, '♨ 첫번째 서랍 – 찜질방'), cond:()=>player.y<17});
+interact.push({pos:new THREE.Vector3(KX, 24, KZ+26), r:34, label:'E: 두번째 서랍 열고 들어가기 🛏 침대+이불', fn:()=>teleport(rooms.bedroom.spawn, '🛏 두번째 서랍 – 침실'), cond:()=>player.y>=17});
+
+// 냉장고 (싱크대 오른쪽)
+const FX=KX+56, FZ=KZ;
+box(36, 84, 36, FX, 42, FZ, 0xeeeeee, {m:{metalness:.4, roughness:.3}});
+box(2, 30, 1, FX+10, 25, FZ+18.5, 0x9e9e9e, {solid:false}); box(2,30,1, FX+10,62,FZ+18.5, 0x9e9e9e,{solid:false});
+box(36, .5, 36, FX, 42, FZ+.3, 0x9e9e9e, {solid:false});
+label('냉장고 🧊', FX, 92, FZ+20, 7);
+interact.push({pos:new THREE.Vector3(FX, 4, FZ+22), r:16, label:'E: 냉장고 열기 🧊', fn:()=>toast('🥛 우유, 🍓 딸기, 🍰 케이크… 간식 먹고 힘이 난다!')});
+
+// ===== 화장실 (냉장고 오른쪽) =====
+const WX=FX+50, WZ=KZ;
+const tile=new THREE.MeshStandardMaterial({map:canvasTex(g=>{ g.fillStyle='#b2ebf2'; g.fillRect(0,0,256,256); g.strokeStyle='#80deea'; g.lineWidth=4; for(let i=0;i<=256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); } }, 3), roughness:.5});
+box(60, 2, 50, WX, 1, WZ+5, tile);
+box(2, 60, 50, WX-29, 30, WZ+5, tile); box(2,60,50, WX+29,30,WZ+5, tile); box(60,60,2, WX,30,WZ-19, tile);
+box(20,60,2, WX-20,30,WZ+29, tile); box(20,60,2, WX+20,30,WZ+29, tile);                 // 앞벽 (가운데 문)
+box(16, 14, 16, WX-12, 9, WZ-5, 0xffffff); box(14,2,14, WX-12,17,WZ-5, 0xffffff,{solid:false}); box(16,20,4, WX-12,22,WZ-13, 0xffffff); // 변기
+box(20, 20, 14, WX+14, 12, WZ-8, 0xffffff); box(18,2,12, WX+14,21,WZ-8, 0x80deea,{solid:false});   // 세면대
+box(26, 2, 26, WX+10, 2, WZ+14, 0xffffff); box(3,34,3, WX+22,19,WZ+2, 0x9e9e9e,{solid:false}); box(8,2,8, WX+18,36,WZ+6, 0x9e9e9e,{solid:false}); // 샤워
+label('화장실 🚽', WX, 66, WZ+32, 7);
+interact.push({pos:new THREE.Vector3(WX+10, 3, WZ+14), r:12, label:'E: 샤워하기 🚿', fn:()=>toast('🚿 촤아아~ 깨끗해졌다!')});
+interact.push({pos:new THREE.Vector3(WX-12, 3, WZ+6), r:10, label:'E: 변기 앉기 🚽', fn:()=>toast('🚽 ...시원하다.')});
+
+// ===== 플레이어 (사람) =====
+const player = {x:0, y:PH, z:half-30, vx:0, vy:0, vz:0, onGround:false, r:1.6};
+let yaw=Math.PI, pitch=-0.15;
+const body = new THREE.Group(); scene.add(body);
+const skin=mat(0xffcc99), shirt=mat(0x1e88e5), pants=mat(0x37474f);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.7,12,12), skin); head.position.y=3.5; body.add(head);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.72,12,12, 0, Math.PI*2, 0, Math.PI/2), mat(0x3e2723)); hair.position.y=3.6; body.add(hair);
+const torso=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.5,.7), shirt); torso.position.y=2.2; body.add(torso);
+const legL=new THREE.Mesh(new THREE.BoxGeometry(.5,1.4,.5), pants); legL.position.set(-.35,.7,0); body.add(legL);
+const legR=legL.clone(); legR.position.x=.35; body.add(legR);
+const armL=new THREE.Mesh(new THREE.BoxGeometry(.4,1.4,.4), skin); armL.position.set(-.95,2.2,0); body.add(armL);
+const armR=armL.clone(); armR.position.x=.95; body.add(armR);
+body.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+
+// ===== 입력 =====
+const keys={};
+addEventListener('keydown', e=>{ keys[e.code]=true; if(e.code==='KeyE') doInteract(); if(e.code==='Enter') installCloth(); if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); });
+addEventListener('keyup', e=>keys[e.code]=false);
+let locked=false, dragging=false;
+const startEl=document.getElementById('start');
+startEl.addEventListener('click', ()=>{ startEl.style.display='none'; try{ renderer.domElement.requestPointerLock(); }catch(e){} });
+renderer.domElement.addEventListener('mousedown', ()=>{ dragging=true; if(!locked){ try{ const p=renderer.domElement.requestPointerLock(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } });
+addEventListener('mouseup', ()=>dragging=false);
+document.addEventListener('pointerlockchange', ()=>{ locked = document.pointerLockElement===renderer.domElement; });
+document.addEventListener('mousemove', e=>{ if(!locked && !dragging) return; yaw -= e.movementX*0.0025; pitch -= e.movementY*0.0025; pitch=Math.max(-1.2, Math.min(1.2, pitch)); });
+
+// ===== 상호작용 =====
+const hintEl=document.getElementById('hint'), toastEl=document.getElementById('toast'), fadeEl=document.getElementById('fade'), placeEl=document.getElementById('place');
+let toastT=0;
+function toast(t){ toastEl.textContent=t; toastEl.style.opacity=1; clearTimeout(toastT); toastT=setTimeout(()=>toastEl.style.opacity=0, 2500); }
+const tmpV=new THREE.Vector3();
+function nearest(){
+  let best=null, bd=1e9; tmpV.set(player.x,player.y,player.z);
+  for(const it of interact){ if(it.cond && !it.cond()) continue; const d=it.pos.distanceTo(tmpV); if(d<it.r && d<bd){ bd=d; best=it; } }
+  return best;
+}
+function doInteract(){ const it=nearest(); if(it) it.fn(); }
+function teleport(pos, name){
+  fadeEl.style.opacity=1;
+  setTimeout(()=>{ if(pos.y>400) exitPos.set(player.x, player.y, player.z); // 서랍에 들어갈 때 위치 기억
+    player.x=pos.x; player.y=pos.y; player.z=pos.z; player.vx=player.vy=player.vz=0; placeEl.textContent=name; fadeEl.style.opacity=0; camera.position.set(pos.x, pos.y+6, pos.z+16); }, 400);
+}
+function sleep(msg){
+  fadeEl.style.opacity=1; toast(msg);
+  setTimeout(()=>{ dayT += 90; fadeEl.style.opacity=0; toast('잘 잤다! 시간이 훌쩍 지났어 ⏩'); }, 1200);
+}
+
+// ===== 물리 =====
+const G=-60, SPEED=26, JUMP=22;
+const pBox=new THREE.Box3(), pMin=new THREE.Vector3(), pMax=new THREE.Vector3();
+function collides(x,y,z){
+  pMin.set(x-player.r, y-PH, z-player.r); pMax.set(x+player.r, y, z+player.r); pBox.set(pMin,pMax);
+  for(const s of solids){ if(s.tag==='screen' && insideTV) continue; if(s.box.intersectsBox(pBox)) return s; }
+  return null;
+}
+function inAny(list, x,y,z){ tmpV.set(x,y-PH/2,z); return list.some(c=>c.box.containsPoint(tmpV)); }
+
+// ===== 낮밤 (3분마다 바뀜) =====
+let dayT = 0; const DAY_LEN = 180;
+const clockEl=document.getElementById('clock'), barEl=document.getElementById('bar');
+function updateSky(){
+  const t=(dayT%(DAY_LEN*2))/DAY_LEN; // 0~1 낮, 1~2 밤
+  const night = t>=1; const k = night ? 1 - Math.abs((t-1)*2-1) : 1 - Math.abs(t*2-1);
+  sun.intensity = night ? 0.05 : 0.6+0.6*k; hemi.intensity = night ? .25 : .8+.4*k;
+  lamp.intensity = night ? 2.2 : 0; fill.intensity = night ? .2 : .5;
+  const sky = night ? new THREE.Color(0x0b1026) : new THREE.Color(0xcfe8ff).lerp(new THREE.Color(0xffd6a0), 1-k);
+  scene.background = sky; scene.fog.color = sky;
+  windowM.emissive.set(night ? 0x0b1026 : 0x4477aa); windowM.color.set(night ? 0x1a2240 : 0x9fd3ff);
+  const ang = (t%1)*Math.PI; sun.position.set(Math.cos(ang)*120, 140+Math.sin(ang)*80, 60);
+  clockEl.textContent = night ? '🌙 밤' : '🌞 낮';
+  const left = Math.ceil(DAY_LEN - (dayT%DAY_LEN)); barEl.textContent = '(' + Math.floor(left/60) + ':' + String(left%60).padStart(2,'0') + ' 뒤 ' + (night?'🌞':'🌙') + ')';
+}
+
+// ===== 루프 =====
+let last=performance.now();
+const camTarget=new THREE.Vector3();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  dayT += dt; updateSky();
+
+  let mx=0, mz=0;
+  if(keys.KeyW||keys.ArrowUp) mz-=1; if(keys.KeyS||keys.ArrowDown) mz+=1;
+  if(keys.KeyA||keys.ArrowLeft) mx-=1; if(keys.KeyD||keys.ArrowRight) mx+=1;
+  const len=Math.hypot(mx,mz)||1; mx/=len; mz/=len;
+  const fwdX=-Math.sin(yaw), fwdZ=-Math.cos(yaw), rightX=Math.cos(yaw), rightZ=-Math.sin(yaw);
+  const wx = fwdX*(-mz) + rightX*mx, wz = fwdZ*(-mz) + rightZ*mx;
+
+  const climbing = inAny(climbs, player.x, player.y, player.z);
+  const swimming = inAny(waters, player.x, player.y, player.z);
+  player.vx = wx*(swimming?SPEED*.6:SPEED); player.vz = wz*(swimming?SPEED*.6:SPEED);
+
+  if(climbing){
+    player.vy = (keys.KeyW||keys.ArrowUp||keys.Space) ? 15 : (keys.KeyS||keys.ArrowDown) ? -15 : 0;
+    player.vx*=.5; player.vz*=.5;
+  } else if(swimming){
+    player.vy += (keys.Space ? 30 : -12)*dt; player.vy = Math.max(-10, Math.min(12, player.vy));
+  } else {
+    player.vy += G*dt;
+    if(keys.Space && player.onGround){ player.vy=JUMP; player.onGround=false; }
+  }
+
+  const nx=player.x+player.vx*dt;
+  if(!collides(nx, player.y, player.z)) player.x=nx;
+  else if(player.onGround && !collides(nx, player.y+STEP, player.z)){ player.x=nx; player.y+=STEP; }
+  const nz=player.z+player.vz*dt;
+  if(!collides(player.x, player.y, nz)) player.z=nz;
+  else if(player.onGround && !collides(player.x, player.y+STEP, nz)){ player.z=nz; player.y+=STEP; }
+  const ny=player.y+player.vy*dt; player.onGround=false;
+  const hit=collides(player.x, ny, player.z);
+  if(!hit) player.y=ny;
+  else { if(player.vy<0){ player.y = hit.box.max.y+PH+0.01; if(collides(player.x,player.y,player.z)) player.y=ny; else player.onGround=true; } player.vy=0; }
+  if(player.y<PH){ player.y=PH; player.vy=0; player.onGround=true; }
+  if(climbing && player.vy===0) player.onGround=true;
+  if(player.y<400){ player.x=Math.max(-half+2, Math.min(half-2, player.x)); player.z=Math.max(-half+2, Math.min(half+12, player.z)); }
+
+  // TV 안에 들어가면 화면이 열리고, 밖에서 노래방이 보임
+  const wasIn=insideTV;
+  insideTV = Math.abs(player.x-TX)<28 && Math.abs(player.z-TZ)<13 && player.y>48 && player.y<94;
+  if(insideTV!==wasIn){ screenMat.opacity = insideTV ? .06 : 1; karaLight.intensity = insideTV ? 2 : 0; placeEl.textContent = insideTV ? '📺 코인노래방 (TV 안)' : '🏠 거대 원룸'; if(insideTV) toast('TV 화면이 열렸다! 밖에서 노래방이 보여 📺🎤'); }
+  disco.rotation.y += dt*2; spinTop.rotation.y += dt*6;
+
+  // 잡은 옷 끌고 가기
+  if(heldCloth){ const g=heldCloth.group; const tx=player.x-fwdX*12, tz=player.z-fwdZ*12; g.position.x+=(tx-g.position.x)*.15; g.position.z+=(tz-g.position.z)*.15; g.position.y+=(player.y+40-g.position.y)*.1; g.rotation.y=yaw; }
+
+  // 플레이어 모델
+  body.position.set(player.x, player.y-PH, player.z); body.rotation.y = yaw + (Math.hypot(mx,mz)>0 ? Math.atan2(mx,-mz) : 0);
+  const walk = Math.hypot(player.vx,player.vz)>1 ? Math.sin(now/90)*.6 : 0;
+  legL.rotation.x=walk; legR.rotation.x=-walk; armL.rotation.x=-walk; armR.rotation.x=walk;
+
+  // 카메라 (3인칭, 마우스로 회전)
+  const camDist = insideTV ? 9 : (heldCloth ? 22 : 16);
+  camTarget.set(player.x + Math.sin(yaw)*Math.cos(pitch)*camDist, Math.max(player.y + 2 + Math.sin(pitch)*camDist, 1.5), player.z + Math.cos(yaw)*Math.cos(pitch)*camDist);
+  if(player.y<400){ camTarget.x=Math.max(-half+1, Math.min(half-1, camTarget.x)); camTarget.z=Math.max(-half+1, Math.min(half+14, camTarget.z)); camTarget.y=Math.min(camTarget.y, H-1); }
+  else { // 서랍 속 방: 방 중심 기준 ±38 안에 카메라 유지
+    const cx=Math.round(player.x/200)*200, cz=0;
+    camTarget.x=Math.max(cx-38, Math.min(cx+38, camTarget.x)); camTarget.z=Math.max(cz-38, Math.min(cz+38, camTarget.z)); camTarget.y=Math.max(501.5, Math.min(538, camTarget.y)); }
+  camera.position.lerp(camTarget, .35);
+  camera.lookAt(player.x, player.y+1, player.z);
+
+  const it=nearest();
+  if(heldCloth){ hintEl.style.display='block'; hintEl.textContent='Enter: 여기에 커다란 옷 침대 설치 🛏'; }
+  else if(it){ hintEl.style.display='block'; hintEl.textContent=it.label; } else hintEl.style.display='none';
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
