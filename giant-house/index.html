@@ -16,7 +16,7 @@
   #hint { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:var(--panel); padding:10px 18px; border-radius:999px; font-size:16px; pointer-events:none; display:none; white-space:nowrap; }
   #cross { position:fixed; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border:2px solid #fff; border-radius:50%; pointer-events:none; opacity:.8; }
   #start { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.7); cursor:pointer; z-index:10; }
-  #start .box { background:#1b2230; padding:28px 36px; border-radius:16px; max-width:600px; text-align:center; line-height:1.8; font-size:15px; }
+  #start .box { background:#1b2230; padding:28px 36px; border-radius:16px; max-width:620px; text-align:center; line-height:1.8; font-size:15px; }
   #start h1 { margin:0 0 10px; color:var(--accent); font-size:28px; }
   #start .go { margin-top:14px; display:inline-block; background:var(--accent); color:#000; font-weight:bold; padding:10px 24px; border-radius:999px; font-size:18px; }
   #toast { position:fixed; left:50%; top:80px; transform:translateX(-50%); background:var(--accent); color:#000; padding:10px 20px; border-radius:999px; font-weight:bold; font-size:18px; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
@@ -26,7 +26,7 @@
 <body>
 <div id="hud">
   <b>시간</b> <span id="clock">🌞 낮</span> <span id="bar"></span> &nbsp; <b>방</b> 원룸 · 로마 3규빗(133cm) &nbsp; <b>나</b> 2cm 꼬마<br>
-  이동 <b>WASD / 화살표</b> · 점프 <b>Space</b> · 상호작용 <b>E</b> · 옷 설치 <b>Enter</b> · 카메라 <b>마우스</b>
+  이동 <b>WASD / 화살표</b> · 점프 <b>Space</b> · 상호작용 <b>E</b> · 옷 설치 <b>Enter</b> · 카메라 <b>마우스</b> · 친구 <b>E</b> 말 걸기(따라와/기다려)
 </div>
 <div id="place">🏠 거대 원룸</div>
 <div id="hint"></div>
@@ -39,7 +39,9 @@
     너는 2cm짜리 꼬마 사람! 방은 로마 3규빗(133cm) 원룸인데 너한테는 엄청 커.<br>
     🧦 양말은 이불 · 👕 옷은 끌고 와서 <b>Enter</b>로 침대 설치 · 🧽 수세미 타고 싱크대 수영장<br>
     🗄 서랍 1 = 찜질방, 서랍 2 = 침대+이불 2개 · 📦 박스 안 1층·2층 침대 · 📺 TV 옆 구멍 = 코인노래방<br>
-    🪀 팽이 줄을 타고 TV로 · 🧊 냉장고 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
+    🧊 현관 오른쪽 냉장고: 1층은 걸어가서 자고, 2·3층은 잼·우유·주스를 밟고 점프해서 올라가<br>
+    👫 친구 5명이 같이 살아. <b>E</b>로 말 걸면 따라오고, 친구들도 침대·TV·샤워를 써<br>
+    🪀 팽이 줄을 타고 TV로 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
     <span class="go">클릭해서 시작</span>
   </div>
 </div>
@@ -59,6 +61,7 @@ const CUBIT = 44.4, ROOM = CUBIT*3*2; // 266.4
 const half = ROOM/2, H = 120; // 천장
 const PH = 4;                       // 플레이어 키
 const STEP = 3.2;                   // 자동으로 올라가는 턱 높이
+const G=-60, SPEED=26, JUMP=30;     // 점프 높이 ≈ 7.5
 
 // ===== 유틸 =====
 const mat = (c, o={}) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:.8}, o));
@@ -75,11 +78,17 @@ function box(w,h,d, x,y,z, color, opts={}) {
   if (opts.climb) climbs.push({mesh:m, box:new THREE.Box3().setFromObject(m).expandByScalar(3)});
   return m;
 }
+function cyl(r,h, x,y,z, color, opts={}){ const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,20), mat(color, opts.m||{})); m.position.set(x,y,z); m.castShadow=true; (opts.parent||scene).add(m); return m; }
 function refreshSolid(mesh){ const s=solids.find(s=>s.mesh===mesh); if(s){ mesh.updateWorldMatrix(true,false); s.box.setFromObject(mesh);} }
+function textCanvas(text, font, bg, fg, w=512, h=128){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  if(bg){ g.fillStyle=bg; g.beginPath(); const r=30; g.moveTo(r,4); g.lineTo(w-r,4); g.quadraticCurveTo(w-4,4,w-4,r); g.lineTo(w-4,h-r-4); g.quadraticCurveTo(w-4,h-4,w-r,h-4); g.lineTo(r,h-4); g.quadraticCurveTo(4,h-4,4,h-r-4); g.lineTo(4,r); g.quadraticCurveTo(4,4,r,4); g.fill(); }
+  g.fillStyle=fg; g.font=font; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,w/2,h/2);
+  return c;
+}
 function label(text, x,y,z, size=6){
-  const c=document.createElement('canvas'); c.width=512; c.height=128; const g=c.getContext('2d');
-  g.fillStyle='rgba(0,0,0,.5)'; g.fillRect(0,0,512,128); g.fillStyle='#fff'; g.font='bold 60px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,256,64);
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true, depthTest:false})); s.scale.set(size*4,size,1); s.position.set(x,y,z); scene.add(s); return s;
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(textCanvas(text,'bold 60px sans-serif','rgba(0,0,0,.5)','#fff')), transparent:true, depthTest:false}));
+  s.scale.set(size*4,size,1); s.position.set(x,y,z); scene.add(s); return s;
 }
 // 계단: 바닥부터 꽉 찬 블록 계단
 function stairs(x0,y0,z0, dx,dz, steps, rise, w, color){
@@ -107,8 +116,8 @@ box(2, H, ROOM, -half-1,H/2,0, wallM, {shadow:false}); // 서
 box(2, H, ROOM,  half+1,H/2,0, wallM, {shadow:false}); // 동
 // 창문(동벽)
 const windowM = new THREE.MeshStandardMaterial({color:0x9fd3ff, emissive:0x4477aa, emissiveIntensity:.5});
-box(1, 50, 70, half-.3, 70, 40, windowM, {solid:false, shadow:false});
-box(1, 52, 3, half-.5, 70, 40, 0xffffff, {solid:false}); box(1,3,72, half-.5,70,40, 0xffffff,{solid:false});
+box(1, 50, 70, half-.3, 70, -5, windowM, {solid:false, shadow:false});
+box(1, 52, 3, half-.5, 70, -5, 0xffffff, {solid:false}); box(1,3,72, half-.5,70,-5, 0xffffff,{solid:false});
 // 현관문 (남벽 가운데, 열려 있음)
 const door = box(28, 70, 2, 0, 35, half-1, 0x8b5a2b, {solid:false});
 door.rotation.y = Math.PI/2.8; door.position.set(-18, 35, half+4);
@@ -117,13 +126,17 @@ label('현관문', 0, 76, half-8, 7);
 // 러그
 box(90, .6, 60, 0, .3, 20, 0xef9a9a, {solid:false, shadow:false});
 
+// ===== 침대 (공통) : 받침 3 높이라 걸어서 올라갈 수 있음 =====
+function bed(x,y,z, color, name, w=30){
+  box(w, 3, 18, x,y+1.5,z, 0x8d6e63); box(w-2,3,16, x,y+4.5,z, color, {solid:false}); box(10,3,8, x-w/2+7,y+7,z, 0xffffff, {solid:false});
+  interact.push({pos:new THREE.Vector3(x,y+5,z), r:18, label:'E: '+name+'에서 자기 🛏', fn:()=>sleep(name+'에서 꿀잠… 😴')});
+}
+
 // ===== 양말 이불 (문 들어와서 왼쪽 바닥) =====
 function sock(x,z,color,rot){
-  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=rot;
-  const a=box(18,3,7, 0,1.5,0, color, {parent:g, solid:false}); const b=box(7,3,10, 7,1.5,3.5, color, {parent:g, solid:false});
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=rot; scene.add(g);
+  box(18,3,7, 0,1.5,0, color, {parent:g}); box(7,3,10, 7,1.5,3.5, color, {parent:g});
   box(18.2,1,7.2, 0,2.6,0, 0xffffff, {parent:g, solid:false});
-  scene.add(g); g.updateMatrixWorld(true);
-  solids.push({mesh:a, box:new THREE.Box3().setFromObject(a)}); solids.push({mesh:b, box:new THREE.Box3().setFromObject(b)});
   interact.push({pos:new THREE.Vector3(x,2,z), r:14, label:'E: 양말 이불 덮고 자기 🧦', fn:()=>sleep('양말 이불 속에서 꿀잠… 😴')});
 }
 sock(-95, 40, 0xff6b9d, .3); sock(-80, 50, 0x4fc3f7, -.5);
@@ -152,9 +165,11 @@ function installCloth(){
   const fx=-Math.sin(yaw), fz=-Math.cos(yaw);
   g.position.set(player.x+fx*28, 0, player.z+fz*28); g.rotation.set(0, yaw, 0);
   while(g.children.length) g.remove(g.children[0]);
-  const bed=box(48, 6, 32, 0,3,0, cl.color, {parent:g}); box(16,4,12, -14,7,0, 0xffffff, {parent:g, solid:false});
-  g.updateMatrixWorld(true); refreshSolid(bed);
-  interact.push({pos:g.position.clone().setY(6), r:20, label:'E: 커다란 옷 침대에서 자기 🛏', fn:()=>sleep('커다란 옷 침대에서 꿀잠… 😴')});
+  const b=box(48, 3, 32, 0,1.5,0, cl.color, {parent:g}); box(46,3,30, 0,4.5,0, cl.color, {parent:g, solid:false, m:{roughness:1}}); box(16,4,12, -14,7,0, 0xffffff, {parent:g, solid:false});
+  g.updateMatrixWorld(true); refreshSolid(b);
+  const p=g.position.clone();
+  interact.push({pos:p.clone().setY(6), r:20, label:'E: 커다란 옷 침대에서 자기 🛏', fn:()=>sleep('커다란 옷 침대에서 꿀잠… 😴')});
+  spots.push({name:'옷 침대', pos:[p.x,4,p.z], act:'sleep', say:'커다란 옷 침대다! 😴', dur:8});
   heldCloth=null; toast('옷 침대 설치 완료! 🛏');
 }
 
@@ -169,10 +184,6 @@ box(60, 50, 2, BX, 25, BZ-29, cardboard);                // 북벽
 box(60, 50, 2, BX, 25, BZ+29, cardboard);                // 남벽
 box(2, 50, 20, BX-29, 25, BZ-20, cardboard);             // 서벽 (가운데가 입구)
 box(2, 50, 20, BX-29, 25, BZ+20, cardboard);
-function bed(x,y,z, color, name){
-  box(30, 5, 18, x,y+2.5,z, 0x8d6e63); box(28,3,16, x,y+6.5,z, color, {solid:false}); box(10,3,8, x-8,y+9,z, 0xffffff, {solid:false});
-  interact.push({pos:new THREE.Vector3(x,y+5,z), r:18, label:'E: '+name+'에서 자기 🛏', fn:()=>sleep(name+'에서 꿀잠… 😴')});
-}
 bed(BX-4, 2, BZ-12, 0x5c6bc0, '박스 1층 침대');
 bed(BX-8, 26, BZ-12, 0xab47bc, '박스 2층 침대');
 stairs(BX-16, 2, BZ+22, 4, 0, 11, 2.4, 10, 0xa1887f);   // 박스 안 계단 1층→2층 (남쪽 벽 따라 동쪽 벽까지 올라감)
@@ -206,7 +217,8 @@ box(1.5, 8, 1.5, -12, 4, 0, 0xbdbdbd, {parent:kara, solid:false});              
 const disco=new THREE.Mesh(new THREE.SphereGeometry(4,16,16), mat(0xffffff,{metalness:.9, roughness:.1})); disco.position.set(0,34,0); kara.add(disco);
 const karaLight = new THREE.PointLight(0xff00ff, 0, 120); karaLight.position.set(0,30,0); kara.add(karaLight);
 box(6,6,1, -20, 20, 10, 0xffc107, {parent:kara, solid:false, m:{emissive:0xff8f00, emissiveIntensity:.5}}); // 코인 투입구
-interact.push({pos:new THREE.Vector3(TX-10, 54, TZ), r:16, label:'E: 노래 부르기 🎤', fn:()=>{ toast('🎵 라라라~ 노래 부르는 중! 🎵'); karaLight.intensity=5; setTimeout(()=>karaLight.intensity=insideTV?2:0, 3000); }});
+interact.push({pos:new THREE.Vector3(TX-10, 54, TZ), r:16, label:'E: 노래 부르기 🎤', fn:()=>{ toast('🎵 라라라~ 노래 부르는 중! 🎵'); flashKara(); if(singer) say(singer,'같이 불러~ 🎤',3); }});
+function flashKara(){ karaLight.intensity=5; setTimeout(()=>karaLight.intensity=insideTV?2:0, 3000); }
 let insideTV=false;
 
 // ===== 팽이 + 줄 (아무것도 안 올라가도 줄 타고 TV장 위로) =====
@@ -215,7 +227,7 @@ const spinTop=new THREE.Mesh(new THREE.ConeGeometry(10, 14, 24), mat(0xff7043));
 box(2, 66, 2, PX, 33, PZ, 0xffeb3b, {climb:true});                                       // 팽이 줄 (바닥~TV장 위)
 label('팽이 줄 🪀 (붙어서 W로 올라가기)', PX, 72, PZ, 7);
 
-// ===== 부엌 (북벽 서쪽): 싱크대 + 수세미 + 서랍 + 냉장고 =====
+// ===== 부엌 (북벽 서쪽): 싱크대 + 수세미 + 서랍 + 가스레인지 =====
 const KX=-half+34, KZ=-half+36;
 const sinkMat = mat(0xeceff1, {metalness:.3, roughness:.4});
 box(60, 2, 40, KX, 1, KZ, sinkMat);
@@ -273,16 +285,14 @@ label('서랍 침실 🛏 (이불 2개)', 800, 535, -30, 10);
 interact.push({pos:new THREE.Vector3(KX, 6, KZ+26), r:30, label:'E: 첫번째 서랍 열고 들어가기 ♨ 찜질방', fn:()=>teleport(rooms.jjim.spawn, '♨ 첫번째 서랍 – 찜질방'), cond:()=>player.y<17});
 interact.push({pos:new THREE.Vector3(KX, 24, KZ+26), r:34, label:'E: 두번째 서랍 열고 들어가기 🛏 침대+이불', fn:()=>teleport(rooms.bedroom.spawn, '🛏 두번째 서랍 – 침실'), cond:()=>player.y>=17});
 
-// 냉장고 (싱크대 오른쪽)
-const FX=KX+56, FZ=KZ;
-box(36, 84, 36, FX, 42, FZ, 0xeeeeee, {m:{metalness:.4, roughness:.3}});
-box(2, 30, 1, FX+10, 25, FZ+18.5, 0x9e9e9e, {solid:false}); box(2,30,1, FX+10,62,FZ+18.5, 0x9e9e9e,{solid:false});
-box(36, .5, 36, FX, 42, FZ+.3, 0x9e9e9e, {solid:false});
-label('냉장고 🧊', FX, 92, FZ+20, 7);
-interact.push({pos:new THREE.Vector3(FX, 4, FZ+22), r:16, label:'E: 냉장고 열기 🧊', fn:()=>toast('🥛 우유, 🍓 딸기, 🍰 케이크… 간식 먹고 힘이 난다!')});
+// 가스레인지 (싱크대 오른쪽)
+const SX=KX+56, SZ=KZ;
+box(36, 45, 40, SX, 22.5, SZ, sinkMat); box(36, 2, 40, SX, 46, SZ, 0x455a64);
+cyl(6, 1, SX-8, 47.5, SZ+4, 0x333333); cyl(6, 1, SX+8, 47.5, SZ+4, 0x333333); cyl(7, 8, SX-8, 52, SZ+4, 0x90a4ae);
+label('가스레인지 🍳', SX, 60, SZ+22, 6);
 
-// ===== 화장실 (냉장고 오른쪽) =====
-const WX=FX+50, WZ=KZ;
+// ===== 화장실 (가스레인지 오른쪽) =====
+const WX=SX+50, WZ=KZ;
 const tile=new THREE.MeshStandardMaterial({map:canvasTex(g=>{ g.fillStyle='#b2ebf2'; g.fillRect(0,0,256,256); g.strokeStyle='#80deea'; g.lineWidth=4; for(let i=0;i<=256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); } }, 3), roughness:.5});
 box(60, 2, 50, WX, 1, WZ+5, tile);
 box(2, 60, 50, WX-29, 30, WZ+5, tile); box(2,60,50, WX+29,30,WZ+5, tile); box(60,60,2, WX,30,WZ-19, tile);
@@ -294,19 +304,137 @@ label('화장실 🚽', WX, 66, WZ+32, 7);
 interact.push({pos:new THREE.Vector3(WX+10, 3, WZ+14), r:12, label:'E: 샤워하기 🚿', fn:()=>toast('🚿 촤아아~ 깨끗해졌다!')});
 interact.push({pos:new THREE.Vector3(WX-12, 3, WZ+6), r:10, label:'E: 변기 앉기 🚽', fn:()=>toast('🚽 ...시원하다.')});
 
-// ===== 플레이어 (사람) =====
-const player = {x:0, y:PH, z:half-30, vx:0, vy:0, vz:0, onGround:false, r:1.6};
+// ===== 냉장고 (현관문에서 오른쪽 = 동벽) : 1층은 걸어서, 2·3층은 점프해서 =====
+const FX=half-21, FZ=85, FW=40, FD=44, FH=64;
+const fridgeM = mat(0xeeeeee,{metalness:.4, roughness:.3}), fridgeIn = mat(0xf7f7f7);
+box(FW, 2, FD, FX, 1, FZ, fridgeIn);                      // 바닥 (윗면 2)
+box(FW, 2, FD, FX, FH-1, FZ, fridgeM);                    // 천장
+box(2, FH, FD, FX+FW/2-1, FH/2, FZ, fridgeM);             // 뒷판 (동벽 쪽)
+box(FW, FH, 2, FX, FH/2, FZ-FD/2+1, fridgeM);             // 남쪽 옆판
+box(FW, FH, 2, FX, FH/2, FZ+FD/2-1, fridgeM);             // 북쪽 옆판
+box(20, 2, FD-2, FX+10, 21, FZ, fridgeIn);                // 2층 선반 (뒤쪽 절반, 윗면 22)
+box(20, 2, FD-2, FX-10, 41, FZ, fridgeIn);                // 3층 선반 (앞쪽 절반, 윗면 42)
+const fdoor = box(2, FH-2, FD, 0,0,0, fridgeM, {solid:false}); // 열린 문 (경첩: 앞쪽 북쪽 모서리)
+{ const th=1.75, hx=FX-FW/2, hz=FZ+FD/2; fdoor.position.set(hx - 22*Math.sin(th), FH/2, hz - 22*Math.cos(th)); fdoor.rotation.y=th; }
+box(1, 20, 1, FX-FW/2-3, 30, FZ-FD/2+6, 0x9e9e9e, {solid:false}); // 손잡이
+const fridgeLight=new THREE.PointLight(0xdff5ff, .9, 90); fridgeLight.position.set(FX-6, 50, FZ); scene.add(fridgeLight);
+function food(w,h,d, x,z, base, color, name){ box(w,h,d, x, base+h/2, z, color); if(name) label(name, x, base+h+3, z, 3); }
+// 1층 → 2층: 앞쪽 절반에서 잼(8) → 우유(14) → 주스(20) 밟고 동쪽 2층 선반(22)으로 점프
+food(8,6,8,  FX-6, FZ+18, 2, 0xff8f00, '잼'); food(8,12,8, FX-6, FZ+9, 2, 0xffffff, '우유'); food(8,18,8, FX-6, FZ, 2, 0x8e24aa, '주스');
+// 2층 → 3층: 뒤쪽 절반에서 잼(28) → 우유(34) → 주스(40) 밟고 서쪽 3층 선반(42)으로 점프
+food(8,6,8,  FX+10, FZ+18, 22, 0xff8f00); food(8,12,8, FX+10, FZ+9, 22, 0xffffff); food(8,18,8, FX+10, FZ, 22, 0x8e24aa);
+bed(FX+10, 2,  FZ-13, 0x80deea, '냉장고 1층 침대', 18);
+bed(FX+10, 22, FZ-13, 0x4dd0e1, '냉장고 2층 침대', 18);
+bed(FX-10, 42, FZ-13, 0x26c6da, '냉장고 3층 침대', 18);
+label('냉장고 🧊 (1층 걸어서 / 2·3층 점프!)', FX-10, FH+10, FZ, 8);
+label('1층', FX-30, 8, FZ-13, 3); label('2층 ⬆', FX-30, 28, FZ-13, 3); label('3층 ⬆', FX-30, 48, FZ-13, 3);
+
+// ===== 사람 모델 (플레이어 + 친구들 공통) =====
+function makePerson(shirtC, hairC, pantsC=0x37474f){
+  const g=new THREE.Group();
+  const skin=mat(0xffcc99), shirt=mat(shirtC), pants=mat(pantsC);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.7,12,12), skin); head.position.y=3.5; g.add(head);
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.72,12,12, 0, Math.PI*2, 0, Math.PI/2), mat(hairC)); hair.position.y=3.6; g.add(hair);
+  const torso=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.5,.7), shirt); torso.position.y=2.2; g.add(torso);
+  const legL=new THREE.Mesh(new THREE.BoxGeometry(.5,1.4,.5), pants); legL.position.set(-.35,.7,0); g.add(legL);
+  const legR=legL.clone(); legR.position.x=.35; g.add(legR);
+  const armL=new THREE.Mesh(new THREE.BoxGeometry(.4,1.4,.4), skin); armL.position.set(-.95,2.2,0); g.add(armL);
+  const armR=armL.clone(); armR.position.x=.95; g.add(armR);
+  g.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+  scene.add(g);
+  return {group:g, legL, legR, armL, armR};
+}
+
+// ===== 플레이어 =====
+const player = {x:0, y:PH, z:half-30, vx:0, vy:0, vz:0, onGround:false, r:1.6, h:PH};
 let yaw=Math.PI, pitch=-0.15;
-const body = new THREE.Group(); scene.add(body);
-const skin=mat(0xffcc99), shirt=mat(0x1e88e5), pants=mat(0x37474f);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.7,12,12), skin); head.position.y=3.5; body.add(head);
-const hair=new THREE.Mesh(new THREE.SphereGeometry(.72,12,12, 0, Math.PI*2, 0, Math.PI/2), mat(0x3e2723)); hair.position.y=3.6; body.add(hair);
-const torso=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.5,.7), shirt); torso.position.y=2.2; body.add(torso);
-const legL=new THREE.Mesh(new THREE.BoxGeometry(.5,1.4,.5), pants); legL.position.set(-.35,.7,0); body.add(legL);
-const legR=legL.clone(); legR.position.x=.35; body.add(legR);
-const armL=new THREE.Mesh(new THREE.BoxGeometry(.4,1.4,.4), skin); armL.position.set(-.95,2.2,0); body.add(armL);
-const armR=armL.clone(); armR.position.x=.95; body.add(armR);
-body.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+const me = makePerson(0x1e88e5, 0x3e2723);
+const body = me.group, legL=me.legL, legR=me.legR, armL=me.armL, armR=me.armR;
+
+// ===== 친구들 (NPC) =====
+const npcs=[], NPC_SPEED=13;
+const spots=[
+  {name:'양말 이불', pos:[-95,4,40], act:'sleep', say:'양말 이불 포근해~ 😴', dur:8},
+  {name:'양말 이불', pos:[-80,4,50], act:'sleep', say:'쿨쿨… 🧦', dur:8},
+  {name:'러그', pos:[0,4,20], act:'dance', say:'신난다! 💃', dur:6},
+  {name:'현관', pos:[0,4,half-14], act:'look', say:'밖에 누구 왔나? 👀', dur:5},
+  {name:'TV 앞', pos:[TX-10,4,TZ+32], act:'watch', say:'TV 재밌다 📺', dur:7},
+  {name:'박스 1층 침대', way:[[BX-45,4,BZ],[BX-20,4,BZ]], pos:[BX-4,4,BZ-12], act:'sleep', say:'박스 침대 최고 📦', dur:8},
+  {name:'냉장고 1층 침대', way:[[FX-40,4,FZ-13]], pos:[FX+10,4,FZ-13], act:'sleep', say:'냉장고 안은 시원해~ 🧊', dur:8},
+  {name:'샤워', way:[[WX,4,WZ+45],[WX,4,WZ+22]], pos:[WX+10,4,WZ+14], act:'shower', say:'촤아아~ 🚿', dur:6},
+  {name:'팽이', pos:[PX-14,4,PZ], act:'watch', say:'팽이 빙글빙글 🪀', dur:5},
+];
+const chat=['심심해~ 뭐 하지?','이 집 진짜 크다!','같이 놀자! 😊','배고파… 냉장고 가야지 🧊','TV 보고 싶다 📺','노래방 가고 싶어 🎤','양말 이불 포근하겠다 🧦','낮잠 자고 싶다 😴'];
+function josa(name){ const c=name.charCodeAt(name.length-1); return (c>=0xAC00 && c<=0xD7A3 && (c-0xAC00)%28!==0) ? '이랑' : '랑'; }
+function makeBubble(){ const c=document.createElement('canvas'); c.width=512; c.height=128; const tex=new THREE.CanvasTexture(c); const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, depthTest:false})); s.scale.set(14,3.5,1); s.visible=false; scene.add(s); return {sprite:s, canvas:c, tex, until:0}; }
+function say(n, text, dur=3){
+  const b=n.bubble, g=b.canvas.getContext('2d'); g.clearRect(0,0,512,128);
+  const tc=textCanvas(text,'bold 44px sans-serif','rgba(255,255,255,.95)','#222'); g.drawImage(tc,0,0);
+  g.fillStyle='rgba(255,255,255,.95)'; g.beginPath(); g.moveTo(236,122); g.lineTo(276,122); g.lineTo(256,128); g.fill();
+  b.tex.needsUpdate=true; b.sprite.visible=true; b.until=performance.now()+dur*1000;
+}
+function addNPC(name, shirt, hair, x, z, opts={}){
+  const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(textCanvas(name,'bold 56px sans-serif','rgba(0,0,0,.45)','#fff',256,96)), transparent:true, depthTest:false})); tag.scale.set(5,1.9,1); scene.add(tag);
+  const n=Object.assign({name, ent:{x,y:PH+0.1,z,vx:0,vy:0,vz:0,onGround:false,r:1.6,h:4}, yaw:Math.random()*6.28, person:makePerson(shirt,hair), bubble:makeBubble(), tag,
+    state:'idle', timer:1+Math.random()*3, follow:false, lying:false, phase:Math.random()*10, stuckT:0, lastX:x, lastZ:z, chatT:4+Math.random()*8, spot:null, lines:null}, opts);
+  npcs.push(n); return n;
+}
+addNPC('민수', 0xe53935, 0x3e2723, -20, 60);
+addNPC('지우', 0xff80ab, 0x5d4037, 30, 75);
+addNPC('도윤', 0x43a047, 0x212121, -50, 95);
+// 싱크대 수영장에서 수영하는 친구
+const swimmer = addNPC('하준', 0xffa726, 0x4e342e, KX+6, KZ, {lines:['물이 진짜 시원해! 🏊','수세미 타고 올라와!','첨벙첨벙~ 💦'],
+  placed:(n,now)=>{ const e=n.ent; e.x=KX+6+Math.sin(now/1500)*9; e.z=KZ+Math.cos(now/2100)*5; e.y=37+Math.sin(now/400)*.5;
+    const p=n.person; p.group.position.set(e.x, e.y-2.4, e.z); p.group.rotation.set(-Math.PI/2, Math.atan2(Math.cos(now/1500), -Math.sin(now/2100))+Math.PI, 0);
+    p.armL.rotation.x=Math.sin(now/150)*1.6; p.armR.rotation.x=-Math.sin(now/150)*1.6; p.legL.rotation.x=Math.sin(now/120)*.8; p.legR.rotation.x=-Math.sin(now/120)*.8; }});
+// 코인노래방에서 노래하는 친구
+const singer = addNPC('서연', 0xfdd835, 0x6d4c41, TX+8, TZ-3, {lines:['같이 노래하자! 🎤','이 노래 최고야 🎵','코인 더 넣어줘 🪙'],
+  placed:(n,now)=>{ const e=n.ent; e.y=54; const p=n.person; p.group.position.set(e.x, e.y-4+Math.abs(Math.sin(now/250))*.6, e.z); p.group.rotation.set(0, Math.PI, 0);
+    p.armR.rotation.x=-2.4; p.armL.rotation.x=Math.sin(now/200)*.8; if(now>n.chatT){ say(n, ['🎵 라라라~ 🎵','🎶 랄랄라~','🎤 다음 곡!'][Math.floor(Math.random()*3)], 2.5); n.chatT=now+4000; } }});
+singer.chatT=0;
+function pickSpot(n){
+  const free=spots.filter(s=>!s.busy && s!==n.spot); if(!free.length) return;
+  const s=free[Math.floor(Math.random()*free.length)]; s.busy=n; n.spot=s;
+  n.path=(s.way||[]).concat([s.pos]); n.idx=0; n.state='walk'; n.stuckT=0; n.lastX=n.ent.x; n.lastZ=n.ent.z;
+  say(n, s.name+' 가야지~', 2);
+}
+function startAct(n){ const s=n.spot; n.state='act'; n.timer=s.dur; n.ent.x=s.pos[0]; n.ent.z=s.pos[2]; say(n, s.say, 4); if(s.act==='sleep') n.lying=true; }
+function endAct(n){ n.lying=false; n.state='idle'; n.timer=2+Math.random()*3; if(n.spot) n.spot.busy=null; }
+function talk(n){
+  if(n.placed){ say(n, n.lines[Math.floor(Math.random()*n.lines.length)], 3); if(n===singer) flashKara(); return; }
+  if(!n.follow){ n.follow=true; n.lying=false; n.state='idle'; if(n.spot) n.spot.busy=null; say(n, '따라갈게! 🏃', 3); toast(n.name+'(이)가 따라온다!'); }
+  else { n.follow=false; n.state='idle'; n.timer=1; say(n, '여기서 놀고 있을게~ 👋', 3); }
+}
+function updateNPC(n, dt, now){
+  const e=n.ent, p=n.person;
+  if(n.placed){ n.placed(n, now); }
+  else {
+    e.vx=e.vz=0;
+    if(n.follow){
+      const dx=player.x-e.x, dz=player.z-e.z, d=Math.hypot(dx,dz);
+      if(Math.abs(player.y-e.y)>100){ /* 서랍 속으로 간 동안엔 기다림 */ }
+      else if(d>7){ e.vx=dx/d*NPC_SPEED*1.4; e.vz=dz/d*NPC_SPEED*1.4; n.yaw=Math.atan2(dx,dz); if(e.onGround && player.vy>5 && d<14) e.vy=JUMP; }
+      else n.yaw=Math.atan2(dx,dz);
+      n.stuckT+=dt; if(n.stuckT>1){ if(d>8 && Math.hypot(e.x-n.lastX,e.z-n.lastZ)<2 && e.onGround) e.vy=JUMP; n.lastX=e.x; n.lastZ=e.z; n.stuckT=0; }
+    } else if(n.state==='idle'){ n.timer-=dt; if(n.timer<=0) pickSpot(n); }
+    else if(n.state==='walk'){
+      const t=n.path[n.idx]; const dx=t[0]-e.x, dz=t[2]-e.z, d=Math.hypot(dx,dz);
+      if(d<2.5){ n.idx++; if(n.idx>=n.path.length) startAct(n); }
+      else { e.vx=dx/d*NPC_SPEED; e.vz=dz/d*NPC_SPEED; n.yaw=Math.atan2(dx,dz); }
+      n.stuckT+=dt; if(n.stuckT>1.5){ if(Math.hypot(e.x-n.lastX,e.z-n.lastZ)<3){ say(n,'어? 막혔네 😅',2); n.state='idle'; n.timer=1; if(n.spot) n.spot.busy=null; n.spot=null; } n.lastX=e.x; n.lastZ=e.z; n.stuckT=0; }
+    } else if(n.state==='act'){ n.timer-=dt; if(n.timer<=0) endAct(n); }
+    if(n.state!=='act'){ n.chatT-=dt; if(n.chatT<=0){ say(n, chat[Math.floor(Math.random()*chat.length)], 3); n.chatT=8+Math.random()*10; } }
+    e.vy+=G*dt; physics(e, dt);
+    const dance = n.state==='act' && n.spot && n.spot.act==='dance';
+    p.group.position.set(e.x, e.y-e.h + (n.lying?1.2:0) + (dance?Math.abs(Math.sin(now/120))*1.5:0), e.z);
+    p.group.rotation.set(n.lying?-Math.PI/2:0, n.yaw + (dance?now/150:0), 0);
+    const walk = Math.hypot(e.vx,e.vz)>1 ? Math.sin(now/90+n.phase)*.6 : 0;
+    p.legL.rotation.x=walk; p.legR.rotation.x=-walk; p.armL.rotation.x=dance?Math.sin(now/100)*1.5:-walk; p.armR.rotation.x=dance?-Math.sin(now/100)*1.5:walk;
+  }
+  n.tag.position.set(e.x, e.y+1.3, e.z);
+  n.bubble.sprite.position.set(e.x, e.y+4.2, e.z);
+  if(n.bubble.sprite.visible && now>n.bubble.until) n.bubble.sprite.visible=false;
+}
 
 // ===== 입력 =====
 const keys={};
@@ -328,6 +456,7 @@ const tmpV=new THREE.Vector3();
 function nearest(){
   let best=null, bd=1e9; tmpV.set(player.x,player.y,player.z);
   for(const it of interact){ if(it.cond && !it.cond()) continue; const d=it.pos.distanceTo(tmpV); if(d<it.r && d<bd){ bd=d; best=it; } }
+  for(const n of npcs){ const d=Math.hypot(n.ent.x-player.x, n.ent.y-player.y, n.ent.z-player.z); if(d<9 && d<bd){ bd=d; best={label:'E: '+n.name+josa(n.name)+' 이야기하기 💬'+(n.placed?'':(n.follow?' (기다려)':' (따라와)')), fn:()=>talk(n)}; } }
   return best;
 }
 function doInteract(){ const it=nearest(); if(it) it.fn(); }
@@ -338,16 +467,30 @@ function teleport(pos, name){
 }
 function sleep(msg){
   fadeEl.style.opacity=1; toast(msg);
+  npcs.forEach(n=>{ if(Math.hypot(n.ent.x-player.x, n.ent.z-player.z)<45) say(n, '잘 자~ 😴', 3); });
   setTimeout(()=>{ dayT += 90; fadeEl.style.opacity=0; toast('잘 잤다! 시간이 훌쩍 지났어 ⏩'); }, 1200);
 }
 
-// ===== 물리 =====
-const G=-60, SPEED=26, JUMP=22;
+// ===== 물리 (플레이어 + 친구 공통) =====
 const pBox=new THREE.Box3(), pMin=new THREE.Vector3(), pMax=new THREE.Vector3();
-function collides(x,y,z){
-  pMin.set(x-player.r, y-PH, z-player.r); pMax.set(x+player.r, y, z+player.r); pBox.set(pMin,pMax);
-  for(const s of solids){ if(s.tag==='screen' && insideTV) continue; if(s.box.intersectsBox(pBox)) return s; }
+function collides(x,y,z, e=player){
+  pMin.set(x-e.r, y-e.h, z-e.r); pMax.set(x+e.r, y, z+e.r); pBox.set(pMin,pMax);
+  for(const s of solids){ if(s.tag==='screen' && e===player && insideTV) continue; if(s.box.intersectsBox(pBox)) return s; }
   return null;
+}
+function physics(e, dt){
+  const nx=e.x+e.vx*dt;
+  if(!collides(nx, e.y, e.z, e)) e.x=nx;
+  else if(e.onGround && !collides(nx, e.y+STEP, e.z, e)){ e.x=nx; e.y+=STEP; }
+  const nz=e.z+e.vz*dt;
+  if(!collides(e.x, e.y, nz, e)) e.z=nz;
+  else if(e.onGround && !collides(e.x, e.y+STEP, nz, e)){ e.z=nz; e.y+=STEP; }
+  const ny=e.y+e.vy*dt; e.onGround=false;
+  const hit=collides(e.x, ny, e.z, e);
+  if(!hit) e.y=ny;
+  else { if(e.vy<0){ e.y = hit.box.max.y+e.h+0.01; if(collides(e.x,e.y,e.z,e)) e.y=ny; else e.onGround=true; } e.vy=0; }
+  if(e.y<e.h){ e.y=e.h; e.vy=0; e.onGround=true; }
+  if(e.y<400){ e.x=Math.max(-half+2, Math.min(half-2, e.x)); e.z=Math.max(-half+2, Math.min(half+12, e.z)); }
 }
 function inAny(list, x,y,z){ tmpV.set(x,y-PH/2,z); return list.some(c=>c.box.containsPoint(tmpV)); }
 
@@ -395,29 +538,20 @@ function loop(now){
     player.vy += G*dt;
     if(keys.Space && player.onGround){ player.vy=JUMP; player.onGround=false; }
   }
-
-  const nx=player.x+player.vx*dt;
-  if(!collides(nx, player.y, player.z)) player.x=nx;
-  else if(player.onGround && !collides(nx, player.y+STEP, player.z)){ player.x=nx; player.y+=STEP; }
-  const nz=player.z+player.vz*dt;
-  if(!collides(player.x, player.y, nz)) player.z=nz;
-  else if(player.onGround && !collides(player.x, player.y+STEP, nz)){ player.z=nz; player.y+=STEP; }
-  const ny=player.y+player.vy*dt; player.onGround=false;
-  const hit=collides(player.x, ny, player.z);
-  if(!hit) player.y=ny;
-  else { if(player.vy<0){ player.y = hit.box.max.y+PH+0.01; if(collides(player.x,player.y,player.z)) player.y=ny; else player.onGround=true; } player.vy=0; }
-  if(player.y<PH){ player.y=PH; player.vy=0; player.onGround=true; }
+  physics(player, dt);
   if(climbing && player.vy===0) player.onGround=true;
-  if(player.y<400){ player.x=Math.max(-half+2, Math.min(half-2, player.x)); player.z=Math.max(-half+2, Math.min(half+12, player.z)); }
 
   // TV 안에 들어가면 화면이 열리고, 밖에서 노래방이 보임
   const wasIn=insideTV;
   insideTV = Math.abs(player.x-TX)<28 && Math.abs(player.z-TZ)<13 && player.y>48 && player.y<94;
-  if(insideTV!==wasIn){ screenMat.opacity = insideTV ? .06 : 1; karaLight.intensity = insideTV ? 2 : 0; placeEl.textContent = insideTV ? '📺 코인노래방 (TV 안)' : '🏠 거대 원룸'; if(insideTV) toast('TV 화면이 열렸다! 밖에서 노래방이 보여 📺🎤'); }
+  if(insideTV!==wasIn){ screenMat.opacity = insideTV ? .06 : 1; karaLight.intensity = insideTV ? 2 : 0; placeEl.textContent = insideTV ? '📺 코인노래방 (TV 안)' : '🏠 거대 원룸'; if(insideTV){ toast('TV 화면이 열렸다! 밖에서 노래방이 보여 📺🎤'); say(singer,'어서 와! 같이 부르자 🎤',3); } }
   disco.rotation.y += dt*2; spinTop.rotation.y += dt*6;
 
   // 잡은 옷 끌고 가기
   if(heldCloth){ const g=heldCloth.group; const tx=player.x-fwdX*12, tz=player.z-fwdZ*12; g.position.x+=(tx-g.position.x)*.15; g.position.z+=(tz-g.position.z)*.15; g.position.y+=(player.y+40-g.position.y)*.1; g.rotation.y=yaw; }
+
+  // 친구들
+  for(const n of npcs) updateNPC(n, dt, now);
 
   // 플레이어 모델
   body.position.set(player.x, player.y-PH, player.z); body.rotation.y = yaw + (Math.hypot(mx,mz)>0 ? Math.atan2(mx,-mz) : 0);
