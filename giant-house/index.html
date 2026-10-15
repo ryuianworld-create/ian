@@ -39,7 +39,7 @@
     너는 2cm짜리 꼬마 사람! 방은 로마 3규빗(133cm) 원룸인데 너한테는 엄청 커.<br>
     🧦 양말은 이불 · 👕 옷은 끌고 와서 <b>Enter</b>로 침대 설치 · 🧽 수세미 타고 싱크대 수영장<br>
     🗄 서랍 1 = 찜질방, 서랍 2 = 침대+이불 2개 · 📦 박스 안 1층·2층 침대 · 📺 TV 옆 구멍 = 코인노래방<br>
-    🧊 현관 오른쪽 냉장고: 1층은 걸어가서 자고, 2·3층은 잼·우유·주스를 밟고 점프해서 올라가<br>
+    🧊 현관 오른쪽 냉장고: 1층은 걸어가서 자고, 2·3층은 칸(선반)을 하나씩 점프해서 올라가<br>
     👫 친구 5명이 같이 살아. <b>E</b>로 말 걸면 따라오고, 친구들도 침대·TV·샤워를 써<br>
     🪀 팽이 줄을 타고 TV로 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
     <span class="go">클릭해서 시작</span>
@@ -61,7 +61,7 @@ const CUBIT = 44.4, ROOM = CUBIT*3*2; // 266.4
 const half = ROOM/2, H = 120; // 천장
 const PH = 4;                       // 플레이어 키
 const STEP = 3.2;                   // 자동으로 올라가는 턱 높이
-const G=-60, SPEED=26, JUMP=30;     // 점프 높이 ≈ 7.5
+const G=-60, SPEED=26, JUMP=32;     // 점프 높이 ≈ 8.5
 
 // ===== 유틸 =====
 const mat = (c, o={}) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:.8}, o));
@@ -312,22 +312,28 @@ box(FW, 2, FD, FX, FH-1, FZ, fridgeM);                    // 천장
 box(2, FH, FD, FX+FW/2-1, FH/2, FZ, fridgeM);             // 뒷판 (동벽 쪽)
 box(FW, FH, 2, FX, FH/2, FZ-FD/2+1, fridgeM);             // 남쪽 옆판
 box(FW, FH, 2, FX, FH/2, FZ+FD/2-1, fridgeM);             // 북쪽 옆판
-box(20, 2, FD-2, FX+10, 21, FZ, fridgeIn);                // 2층 선반 (뒤쪽 절반, 윗면 22)
-box(20, 2, FD-2, FX-10, 41, FZ, fridgeIn);                // 3층 선반 (앞쪽 절반, 윗면 42)
 const fdoor = box(2, FH-2, FD, 0,0,0, fridgeM, {solid:false}); // 열린 문 (경첩: 앞쪽 북쪽 모서리)
 { const th=1.75, hx=FX-FW/2, hz=FZ+FD/2; fdoor.position.set(hx - 22*Math.sin(th), FH/2, hz - 22*Math.cos(th)); fdoor.rotation.y=th; }
 box(1, 20, 1, FX-FW/2-3, 30, FZ-FD/2+6, 0x9e9e9e, {solid:false}); // 손잡이
 const fridgeLight=new THREE.PointLight(0xdff5ff, .9, 90); fridgeLight.position.set(FX-6, 50, FZ); scene.add(fridgeLight);
-function food(w,h,d, x,z, base, color, name){ box(w,h,d, x, base+h/2, z, color); if(name) label(name, x, base+h+3, z, 3); }
-// 1층 → 2층: 앞쪽 절반에서 잼(8) → 우유(14) → 주스(20) 밟고 동쪽 2층 선반(22)으로 점프
-food(8,6,8,  FX-6, FZ+18, 2, 0xff8f00, '잼'); food(8,12,8, FX-6, FZ+9, 2, 0xffffff, '우유'); food(8,18,8, FX-6, FZ, 2, 0x8e24aa, '주스');
-// 2층 → 3층: 뒤쪽 절반에서 잼(28) → 우유(34) → 주스(40) 밟고 서쪽 3층 선반(42)으로 점프
-food(8,6,8,  FX+10, FZ+18, 22, 0xff8f00); food(8,12,8, FX+10, FZ+9, 22, 0xffffff); food(8,18,8, FX+10, FZ, 22, 0x8e24aa);
-bed(FX+10, 2,  FZ-13, 0x80deea, '냉장고 1층 침대', 18);
-bed(FX+10, 22, FZ-13, 0x4dd0e1, '냉장고 2층 침대', 18);
-bed(FX-10, 42, FZ-13, 0x26c6da, '냉장고 3층 침대', 18);
-label('냉장고 🧊 (1층 걸어서 / 2·3층 점프!)', FX-10, FH+10, FZ, 8);
-label('1층', FX-30, 8, FZ-13, 3); label('2층 ⬆', FX-30, 28, FZ-13, 3); label('3층 ⬆', FX-30, 48, FZ-13, 3);
+// 칸(선반)이 양쪽 절반을 번갈아 가며 7.5씩 높아짐 → 칸에서 칸으로 점프해서 올라감
+//  윗면 높이: 1층 2 → 칸 9.5 → 칸 17 → 2층 24.5 → 칸 32 → 칸 39.5 → 3층 47
+const shelfM = mat(0xe3f2fd, {roughness:.4, metalness:.1});
+function kan(top, side, name){ // side: +1 / -1 = 냉장고 양쪽 절반. 가운데 4칸 틈을 두어 점프할 때 머리 위가 비어 있음
+  const z=FZ+side*11;
+  box(FW-2, 2, 18, FX, top-1, z, shelfM);                                   // 칸 바닥
+  box(FW-2, 1.5, 1, FX, top+.75, z-side*8.5, 0x90caf9, {solid:false});       // 칸 안쪽 턱(유리 테두리)
+  box(1, 1.5, 18, FX-FW/2+1.5, top+.75, z, 0x90caf9);                       // 앞쪽 턱 (떨어지지 않게)
+  label(name, FX-FW/2-6, top+5, z, 3.5);
+}
+kan(9.5, 1, '칸 ⬆'); kan(17, -1, '칸 ⬆');
+kan(24.5, 1, '2층 🛏'); kan(32, -1, '칸 ⬆'); kan(39.5, 1, '칸 ⬆');
+kan(47, -1, '3층 🛏');
+bed(FX+8, 2,  FZ-11, 0x80deea, '냉장고 1층 침대', 18);  // 1층: 바닥 남쪽 절반
+bed(FX+8, 24.5, FZ+11, 0x4dd0e1, '냉장고 2층 침대', 18);  // 2층: 북쪽 칸
+bed(FX+8, 47, FZ-11, 0x26c6da, '냉장고 3층 침대', 18);    // 3층: 남쪽 칸
+label('냉장고 🧊 (1층 걸어서 / 칸을 밟고 점프해서 2·3층)', FX-10, FH+10, FZ, 8);
+label('1층 🛏', FX-FW/2-6, 7, FZ-11, 3.5);
 
 // ===== 사람 모델 (플레이어 + 친구들 공통) =====
 function makePerson(shirtC, hairC, pantsC=0x37474f){
@@ -360,7 +366,7 @@ const spots=[
   {name:'현관', pos:[0,4,half-14], act:'look', say:'밖에 누구 왔나? 👀', dur:5},
   {name:'TV 앞', pos:[TX-10,4,TZ+32], act:'watch', say:'TV 재밌다 📺', dur:7},
   {name:'박스 1층 침대', way:[[BX-45,4,BZ],[BX-20,4,BZ]], pos:[BX-4,4,BZ-12], act:'sleep', say:'박스 침대 최고 📦', dur:8},
-  {name:'냉장고 1층 침대', way:[[FX-40,4,FZ-13]], pos:[FX+10,4,FZ-13], act:'sleep', say:'냉장고 안은 시원해~ 🧊', dur:8},
+  {name:'냉장고 1층 침대', way:[[FX-40,4,FZ-11]], pos:[FX+8,4,FZ-11], act:'sleep', say:'냉장고 안은 시원해~ 🧊', dur:8},
   {name:'샤워', way:[[WX,4,WZ+45],[WX,4,WZ+22]], pos:[WX+10,4,WZ+14], act:'shower', say:'촤아아~ 🚿', dur:6},
   {name:'팽이', pos:[PX-14,4,PZ], act:'watch', say:'팽이 빙글빙글 🪀', dur:5},
 ];
