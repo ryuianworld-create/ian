@@ -42,6 +42,7 @@
     🧊 현관 오른쪽 냉장고: 1층은 걸어가서 자고, 2·3층은 칸(선반)을 하나씩 점프해서 올라가<br>
     👫 친구 5명이 같이 살아. <b>E</b>로 말 걸면 따라오고, 친구들도 침대·TV·샤워를 써<br>
     🪀 팽이 줄을 타고 TV로 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
+    🚪 현관문 밖으로 나가면 겨울의 스위스 알프스 ❄ — 설산, 전나무, 눈사람 ⛄, 썰매 🛷, 얼어붙은 호수<br>
     <span class="go">클릭해서 시작</span>
   </div>
 </div>
@@ -111,7 +112,9 @@ box(ROOM, 2, ROOM, 0,H+1,0, 0xf4f4f4, {shadow:false}); // 천장
 const wallTex = canvasTex(g=>{ g.fillStyle='#f2ead8'; g.fillRect(0,0,256,256); g.fillStyle='#e9dfc8'; for(let y=0;y<256;y+=32) for(let x=0;x<256;x+=32) if((x+y)/32%2===0) g.fillRect(x,y,32,32); }, 8);
 const wallM = new THREE.MeshStandardMaterial({map:wallTex, roughness:.9});
 box(ROOM, H, 2, 0,H/2,-half-1, wallM, {shadow:false}); // 북
-box(ROOM, H, 2, 0,H/2, half+1, wallM, {shadow:false}); // 남 (현관문)
+box(ROOM/2-15, H, 2, -(ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 왼쪽)
+box(ROOM/2-15, H, 2,  (ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 오른쪽)
+box(30, H-72, 2, 0, 72+(H-72)/2, half+1, wallM, {shadow:false});          // 문 위쪽
 box(2, H, ROOM, -half-1,H/2,0, wallM, {shadow:false}); // 서
 box(2, H, ROOM,  half+1,H/2,0, wallM, {shadow:false}); // 동
 // 창문(동벽)
@@ -122,7 +125,7 @@ box(1, 52, 3, half-.5, 70, -5, 0xffffff, {solid:false}); box(1,3,72, half-.5,70,
 const door = box(28, 70, 2, 0, 35, half-1, 0x8b5a2b, {solid:false});
 door.rotation.y = Math.PI/2.8; door.position.set(-18, 35, half+4);
 box(30, 2, 30, 0, 1, half-14, 0x8d6e63, {solid:false}); // 현관 매트
-label('현관문', 0, 76, half-8, 7);
+label('현관문 🚪 → 밖은 스위스 알프스 ❄', 0, 80, half-8, 8);
 // 러그
 box(90, .6, 60, 0, .3, 20, 0xef9a9a, {solid:false, shadow:false});
 
@@ -131,6 +134,74 @@ function bed(x,y,z, color, name, w=30){
   box(w, 3, 18, x,y+1.5,z, 0x8d6e63); box(w-2,3,16, x,y+4.5,z, color, {solid:false}); box(10,3,8, x-w/2+7,y+7,z, 0xffffff, {solid:false});
   interact.push({pos:new THREE.Vector3(x,y+5,z), r:18, label:'E: '+name+'에서 자기 🛏', fn:()=>sleep(name+'에서 꿀잠… 😴')});
 }
+
+// ===== 바깥: 겨울의 스위스 알프스 ❄ =====
+const OUT = half+1;                                   // 이 z보다 남쪽이면 바깥
+const snowTex = canvasTex(g=>{ g.fillStyle='#f4f8fc'; g.fillRect(0,0,256,256); for(let i=0;i<400;i++){ g.fillStyle=Math.random()<.5?'#e3edf7':'#ffffff'; g.fillRect(Math.random()*256, Math.random()*256, 3, 3); } }, 40);
+const snowM = new THREE.MeshStandardMaterial({map:snowTex, roughness:.95});
+box(3000, 2, 3000, 0, -1.6, 300, snowM, {shadow:false});                // 눈 덮인 땅 (집 바닥보다 살짝 낮아서 겹치지 않음)
+// 집 지붕 (밖에서 보면 눈 쌓인 샬레)
+{ const th=Math.PI/6, L=(half+12)/Math.cos(th), cy=H+2+(half+12)*Math.tan(th)/2;
+  const r1=box(ROOM+24, 3, L, 0, cy, (half+12)/2, 0xf5f8fa, {solid:false}); r1.rotation.x=th;
+  const r2=box(ROOM+24, 3, L, 0, cy, -(half+12)/2, 0xf5f8fa, {solid:false}); r2.rotation.x=-th;
+  const u1=box(ROOM+24, 1, L, 0, cy-2, (half+12)/2, 0x6d4c41, {solid:false}); u1.rotation.x=th;
+  const u2=box(ROOM+24, 1, L, 0, cy-2, -(half+12)/2, 0x6d4c41, {solid:false}); u2.rotation.x=-th;
+  box(14, 30, 14, half-40, H+2+(half+12-40)*Math.tan(th)+10, 40, 0x8d6e63, {solid:false}); }   // 굴뚝
+box(3, 60, 3, -half-8, 30, half+20, 0xffffff, {solid:false}); box(3,60,3, half+8,30,half+20, 0xffffff,{solid:false}); // 집 모서리 기둥(눈)
+// 현관 앞 돌길
+for(let i=0;i<8;i++) box(14, .8, 10, (i%2?4:-4), -0.2, OUT+8+i*13, 0x90a4ae, {solid:false, shadow:false});
+// 설산 (멀리 둘러싼 알프스)
+function mountain(x,z,r,h){ const rock=new THREE.Mesh(new THREE.ConeGeometry(r,h,7), mat(0x8a98a8,{roughness:1})); rock.position.set(x,h/2-2,z); scene.add(rock);
+  const cap=new THREE.Mesh(new THREE.ConeGeometry(r*.42,h*.42,7), mat(0xffffff,{roughness:.9})); cap.position.set(x,h-h*.21-1,z); scene.add(cap); }
+[[-900,OUT+1300,420,520],[-400,OUT+1500,520,700],[150,OUT+1450,480,640],[700,OUT+1400,440,560],[1200,OUT+1150,380,480],[-1300,OUT+1000,360,440],
+ [-1400,-300,400,520],[1400,-200,420,540],[-700,-half-900,450,560],[600,-half-950,480,620],[0,-half-1100,520,720],[1300,500,360,460],[-1350,400,380,470]].forEach(m=>mountain(...m));
+// 전나무 (눈 쌓인)
+function pine(x,z,sc=1){ cyl(2*sc, 10*sc, x, 5*sc, z, 0x5d4037); box(4*sc, 10*sc, 4*sc, x, 5*sc, z, 0x5d4037).visible=false; // 줄기 + 충돌
+  for(let i=0;i<3;i++){ const r=(11-i*2.5)*sc, hh=13*sc, y=(9+i*8)*sc;
+    const c=new THREE.Mesh(new THREE.ConeGeometry(r,hh,8), mat(0x2e7d32,{roughness:1})); c.position.set(x,y+hh/2,z); c.castShadow=true; scene.add(c);
+    const sn=new THREE.Mesh(new THREE.ConeGeometry(r*.75,hh*.35,8), mat(0xffffff)); sn.position.set(x,y+hh*.8,z); scene.add(sn); } }
+let seed=7; const rnd=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
+for(let i=0;i<34;i++){ let x=(rnd()-.5)*900, z=OUT+30+rnd()*520; if(Math.abs(x)<26 && z<OUT+140) x+= x<0?-40:40; pine(x,z,.8+rnd()*.9); }
+for(let i=0;i<10;i++){ pine(-half-60-rnd()*300, (rnd()-.5)*500, 1+rnd()*.6); pine(half+60+rnd()*300, (rnd()-.5)*500, 1+rnd()*.6); }
+// 눈사람 ⛄
+{ const sx=34, sz=OUT+62;
+  [[8,8],[6,20],[4.5,29]].forEach(([r,y])=>{ const b=new THREE.Mesh(new THREE.SphereGeometry(r,16,16), mat(0xffffff,{roughness:.9})); b.position.set(sx,y,sz); b.castShadow=true; scene.add(b); });
+  box(14, 30, 14, sx, 15, sz, 0xffffff).visible=false; // 충돌
+  [[-1.5,30.5],[1.5,30.5],[0,21],[0,18],[0,15]].forEach(([dx,y])=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(.6,8,8), mat(0x212121)); e.position.set(sx+dx,y,sz-4.2); scene.add(e); });
+  const nose=new THREE.Mesh(new THREE.ConeGeometry(.8,4,8), mat(0xff7043)); nose.position.set(sx,29,sz-6); nose.rotation.x=-Math.PI/2; scene.add(nose);
+  cyl(5, .8, sx, 33.4, sz, 0x212121); cyl(3.2, 5, sx, 36, sz, 0x212121);           // 모자
+  box(14, 2.5, 2.5, sx, 24.5, sz, 0xe53935, {solid:false});                       // 목도리
+  const arm=box(10, .8, .8, sx+9, 21, sz, 0x5d4037, {solid:false}); arm.rotation.z=.4; const arm2=box(10,.8,.8, sx-9,21,sz, 0x5d4037,{solid:false}); arm2.rotation.z=-.4;
+  label('눈사람 ⛄', sx, 42, sz, 5);
+  interact.push({pos:new THREE.Vector3(sx,4,sz+10), r:22, label:'E: 눈사람이랑 인사 ⛄', fn:()=>toast('⛄ 안녕! 알프스에 온 걸 환영해! 춥지?')}); }
+// 썰매 🛷
+{ const sx=-36, sz=OUT+48; const g=new THREE.Group(); g.position.set(sx,0,sz); g.rotation.y=.4; scene.add(g);
+  box(16, 1.5, 30, 0, 3.5, 0, 0xc62828, {parent:g}); box(1.5,1.5,32, -7,1.5,0, 0x8d6e63,{parent:g}); box(1.5,1.5,32, 7,1.5,0, 0x8d6e63,{parent:g});
+  box(16, 4, 1.5, 0, 6, -14, 0x8d6e63, {parent:g, solid:false});
+  label('썰매 🛷', sx, 14, sz, 4);
+  interact.push({pos:new THREE.Vector3(sx,4,sz), r:16, label:'E: 썰매 타기 🛷', fn:()=>{ toast('🛷 슝~ 썰매 타고 눈밭 질주!'); sledT=2.5; player.vy=12; }}); }
+let sledT=0;
+// 안내판
+box(2, 26, 2, -22, 13, OUT+16, 0x6d4c41); box(26, 10, 1.5, -22, 24, OUT+16, 0xa1887f, {solid:false});
+label('스위스 알프스 🇨🇭 겨울 ❄', -22, 32, OUT+16, 6);
+// 멀리 보이는 샬레(통나무집)와 얼어붙은 호수
+{ const cx=320, cz=OUT+420; box(120, 50, 90, cx, 25, cz, 0x795548); const r=box(140, 3, 60, cx, 60, cz+25, 0xffffff,{solid:false}); r.rotation.x=.55; const r2=box(140,3,60, cx,60,cz-25, 0xffffff,{solid:false}); r2.rotation.x=-.55;
+  box(14,10,1, cx-30, 20, cz-45.5, 0xffe082, {solid:false, m:{emissive:0xffb300, emissiveIntensity:.8}}); box(14,10,1, cx+30,20,cz-45.5, 0xffe082,{solid:false, m:{emissive:0xffb300, emissiveIntensity:.8}});
+  label('이웃 샬레 🏡', cx, 80, cz, 8);
+  const lake=new THREE.Mesh(new THREE.CylinderGeometry(130,130,1,40), mat(0xbfe3f5,{roughness:.15, metalness:.3})); lake.position.set(-330,-0.3,OUT+380); lake.receiveShadow=true; scene.add(lake);
+  label('얼어붙은 호수 🧊', -330, 20, OUT+380, 8); }
+// 눈 내리기 (플레이어 주변에서만)
+const SNOW_N=2200, snowPos=new Float32Array(SNOW_N*3), snowSpd=new Float32Array(SNOW_N);
+for(let i=0;i<SNOW_N;i++){ snowPos[i*3]=(Math.random()-.5)*420; snowPos[i*3+1]=Math.random()*160; snowPos[i*3+2]=(Math.random()-.5)*420; snowSpd[i]=14+Math.random()*12; }
+const snowGeo=new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos,3));
+const snow=new THREE.Points(snowGeo, new THREE.PointsMaterial({color:0xffffff, size:1.4, transparent:true, opacity:.9, sizeAttenuation:true})); snow.visible=false; scene.add(snow);
+function updateSnow(dt, now){
+  snow.visible = player.z > OUT-60 && player.y<400; if(!snow.visible) return;
+  snow.position.set(player.x, 0, player.z);
+  for(let i=0;i<SNOW_N;i++){ let y=snowPos[i*3+1]-snowSpd[i]*dt; snowPos[i*3]+=Math.sin(now/700+i)*4*dt; if(y<0) y+=160; snowPos[i*3+1]=y; }
+  snowGeo.attributes.position.needsUpdate=true;
+}
+let outside=false;
 
 // ===== 양말 이불 (문 들어와서 왼쪽 바닥) =====
 function sock(x,z,color,rot){
@@ -369,6 +440,8 @@ const spots=[
   {name:'냉장고 1층 침대', way:[[FX-40,4,FZ-11]], pos:[FX+8,4,FZ-11], act:'sleep', say:'냉장고 안은 시원해~ 🧊', dur:8},
   {name:'샤워', way:[[WX,4,WZ+45],[WX,4,WZ+22]], pos:[WX+10,4,WZ+14], act:'shower', say:'촤아아~ 🚿', dur:6},
   {name:'팽이', pos:[PX-14,4,PZ], act:'watch', say:'팽이 빙글빙글 🪀', dur:5},
+  {name:'눈사람', way:[[0,4,half-20],[0,4,OUT+30]], pos:[34,4,OUT+76], act:'look', say:'눈사람 귀엽다 ⛄', dur:6},
+  {name:'눈밭', way:[[0,4,half-20],[0,4,OUT+30]], pos:[-40,4,OUT+100], act:'dance', say:'눈 온다! ❄ 신난다!', dur:7},
 ];
 const chat=['심심해~ 뭐 하지?','이 집 진짜 크다!','같이 놀자! 😊','배고파… 냉장고 가야지 🧊','TV 보고 싶다 📺','노래방 가고 싶어 🎤','양말 이불 포근하겠다 🧦','낮잠 자고 싶다 😴'];
 function josa(name){ const c=name.charCodeAt(name.length-1); return (c>=0xAC00 && c<=0xD7A3 && (c-0xAC00)%28!==0) ? '이랑' : '랑'; }
@@ -496,7 +569,8 @@ function physics(e, dt){
   if(!hit) e.y=ny;
   else { if(e.vy<0){ e.y = hit.box.max.y+e.h+0.01; if(collides(e.x,e.y,e.z,e)) e.y=ny; else e.onGround=true; } e.vy=0; }
   if(e.y<e.h){ e.y=e.h; e.vy=0; e.onGround=true; }
-  if(e.y<400){ e.x=Math.max(-half+2, Math.min(half-2, e.x)); e.z=Math.max(-half+2, Math.min(half+12, e.z)); }
+  if(e.y<400){ if(e.z<OUT){ e.x=Math.max(-half+2, Math.min(half-2, e.x)); e.z=Math.max(-half+2, e.z); }
+    else { e.x=Math.max(-1400, Math.min(1400, e.x)); e.z=Math.min(1750, e.z); } }
 }
 function inAny(list, x,y,z){ tmpV.set(x,y-PH/2,z); return list.some(c=>c.box.containsPoint(tmpV)); }
 
@@ -508,7 +582,7 @@ function updateSky(){
   const night = t>=1; const k = night ? 1 - Math.abs((t-1)*2-1) : 1 - Math.abs(t*2-1);
   sun.intensity = night ? 0.05 : 0.6+0.6*k; hemi.intensity = night ? .25 : .8+.4*k;
   lamp.intensity = night ? 2.2 : 0; fill.intensity = night ? .2 : .5;
-  const sky = night ? new THREE.Color(0x0b1026) : new THREE.Color(0xcfe8ff).lerp(new THREE.Color(0xffd6a0), 1-k);
+  const sky = night ? new THREE.Color(0x0b1026) : new THREE.Color(0xdbe9f6).lerp(new THREE.Color(0xf3d9c0), 1-k);
   scene.background = sky; scene.fog.color = sky;
   windowM.emissive.set(night ? 0x0b1026 : 0x4477aa); windowM.color.set(night ? 0x1a2240 : 0x9fd3ff);
   const ang = (t%1)*Math.PI; sun.position.set(Math.cos(ang)*120, 140+Math.sin(ang)*80, 60);
@@ -552,6 +626,14 @@ function loop(now){
   insideTV = Math.abs(player.x-TX)<28 && Math.abs(player.z-TZ)<13 && player.y>48 && player.y<94;
   if(insideTV!==wasIn){ screenMat.opacity = insideTV ? .06 : 1; karaLight.intensity = insideTV ? 2 : 0; placeEl.textContent = insideTV ? '📺 코인노래방 (TV 안)' : '🏠 거대 원룸'; if(insideTV){ toast('TV 화면이 열렸다! 밖에서 노래방이 보여 📺🎤'); say(singer,'어서 와! 같이 부르자 🎤',3); } }
   disco.rotation.y += dt*2; spinTop.rotation.y += dt*6;
+  // 바깥(알프스) 감지
+  const nowOut = player.y<400 && player.z>OUT;
+  if(nowOut!==outside){ outside=nowOut; if(!insideTV) placeEl.textContent = outside ? '🏔 스위스 알프스 · 겨울 ❄' : '🏠 거대 원룸';
+    if(outside){ toast('❄ 와, 눈이다! 스위스 알프스! 춥다~'); npcs.forEach(n=>{ if(Math.hypot(n.ent.x-player.x,n.ent.z-player.z)<40) say(n,'밖은 춥다! ❄',3); }); } }
+  const fogN = outside ? 500 : 300, fogF = outside ? 2800 : 900;
+  scene.fog.near += (fogN-scene.fog.near)*.05; scene.fog.far += (fogF-scene.fog.far)*.05;
+  updateSnow(dt, now);
+  if(sledT>0){ sledT-=dt; player.vx*=2; player.vz*=2; }
 
   // 잡은 옷 끌고 가기
   if(heldCloth){ const g=heldCloth.group; const tx=player.x-fwdX*12, tz=player.z-fwdZ*12; g.position.x+=(tx-g.position.x)*.15; g.position.z+=(tz-g.position.z)*.15; g.position.y+=(player.y+40-g.position.y)*.1; g.rotation.y=yaw; }
@@ -567,7 +649,8 @@ function loop(now){
   // 카메라 (3인칭, 마우스로 회전)
   const camDist = insideTV ? 9 : (heldCloth ? 22 : 16);
   camTarget.set(player.x + Math.sin(yaw)*Math.cos(pitch)*camDist, Math.max(player.y + 2 + Math.sin(pitch)*camDist, 1.5), player.z + Math.cos(yaw)*Math.cos(pitch)*camDist);
-  if(player.y<400){ camTarget.x=Math.max(-half+1, Math.min(half-1, camTarget.x)); camTarget.z=Math.max(-half+1, Math.min(half+14, camTarget.z)); camTarget.y=Math.min(camTarget.y, H-1); }
+  if(player.y<400 && player.z<OUT){ camTarget.x=Math.max(-half+1, Math.min(half-1, camTarget.x)); camTarget.z=Math.max(-half+1, Math.min(half+14, camTarget.z)); camTarget.y=Math.min(camTarget.y, H-1); }
+  else if(player.y<400){ camTarget.x=Math.max(-1450, Math.min(1450, camTarget.x)); camTarget.z=Math.min(1780, camTarget.z); }
   else { // 서랍 속 방: 방 중심 기준 ±38 안에 카메라 유지
     const cx=Math.round(player.x/200)*200, cz=0;
     camTarget.x=Math.max(cx-38, Math.min(cx+38, camTarget.x)); camTarget.z=Math.max(cz-38, Math.min(cz+38, camTarget.z)); camTarget.y=Math.max(501.5, Math.min(538, camTarget.y)); }
