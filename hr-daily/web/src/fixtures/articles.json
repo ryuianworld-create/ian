@@ -1,0 +1,321 @@
+[
+  {
+    "id": "aihr-hr-operating-model-of-the-future",
+    "source_id": "aihr",
+    "source_name": "AIHR",
+    "kind": "article",
+    "title": "How To Build the HR Operating Model of the Future",
+    "url": "https://www.aihr.com/blog/hr-operating-model-of-the-future/",
+    "published": "2026-10-23",
+    "category": "HR Strategy",
+    "featured_date": "2026-10-24",
+    "summary": {
+      "ko": "지금 표준으로 쓰이는 HR 비즈니스 파트너 모델은 1990년대에 만들어진 것이다. AI와 자동화가 일하는 방식을 바꾸고 HR의 역할 범위가 넓어진 지금, 이 모델은 수명이 다했다는 것이 이 글의 진단이다. 조직의 64%가 지난 2년 사이 HR 운영 모델을 손봤지만, 전문센터(CoE)·HRBP·공유서비스 사이의 책임 구분이 명확하다고 답한 곳은 19%에 그쳤다. 그 결과 전략 역할인 HRBP가 승인과 행정 뒤처리에 묻히고, AI는 이런 조율 공백을 메우는 대신 더 키운다. 글은 미래형 운영 모델을 '앞으로 3~5년간 사업이 HR에 요구할 것'을 기준으로 구조·서비스·기술·역량을 다시 맞추는 모델로 정의하고, AI를 덧붙이는 층이 아니라 설계의 핵심에 두는 AIHR의 AI-first 3층 모델을 예로 든다. 바꿀 때가 됐다는 5가지 신호와 진단법, 그리고 수요 정의부터 측정·조정까지 9단계 전환 절차를 제시한다. 핵심 메시지는 한 번에 전부 바꾸지 말고, 사업 요구와 HR 실제 제공 사이의 격차가 가장 큰 곳에서 시작해 증명하고 넓혀 가라는 것이다.",
+      "en": "The HR Business Partner model that most organisations still run on dates from the 1990s. With AI and automation reshaping how work gets done and HR's remit widening, the article argues this model has reached the end of its life. 64% of HR functions changed their operating model in the past two years, yet only 19% report a clear split of responsibilities between centres of expertise, HRBPs and shared services. The result: strategic roles soak up approvals and admin, and AI widens these coordination gaps instead of closing them. A future-ready model, the article says, is one designed around what the business will need from HR over the next three to five years, aligning structure, services, technology and skills — with AI built into the core rather than bolted on. It offers AIHR's three-layer AI-first model as one blueprint, five signs that it is time to change (each with a quick diagnostic), and a nine-step transition from defining demand to measuring and adjusting. The closing advice: don't redesign everything at once — start where the gap between what the business needs and what HR delivers is widest, prove it there, then expand."
+    },
+    "findings": [
+      {
+        "k": "64%",
+        "ko": "지난 2년 사이 HR 운영 모델을 바꾼 조직의 비율. 바꾸긴 했지만 역할 정리는 따라오지 못했다.",
+        "en": "Share of HR functions that changed their operating model in the past two years — structures moved, responsibilities didn't."
+      },
+      {
+        "k": "19%",
+        "ko": "CoE·HRBP·공유서비스 사이의 책임 구분이 명확하다고 답한 조직. 나머지는 전략 업무와 운영 업무가 역할을 가로질러 섞여 있다.",
+        "en": "Organisations reporting a clear division of responsibilities between CoEs, HRBPs and shared services. Everywhere else, strategic and operational work stays mixed across roles."
+      },
+      {
+        "k": "$1.6M",
+        "ko": "직원 4,500명 규모 글로벌 보험사가 역량 기반 통합 운영 모델로 전환해 얻은 효율 개선 효과.",
+        "en": "Efficiency gains at a 4,500-employee global insurer after moving to an integrated, capability-based HR operating model."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "왜 지금 운영 모델이 한계에 왔나",
+          "en": "Why today's model has hit its limits"
+        },
+        "body": {
+          "ko": "HR <span class=\"vw\" data-w=\"operating model\">operating model</span>은 HR이 어떤 구조·서비스·기술·역량으로 사업을 지원하는지를 정한 설계도다. 글은 현재 모델의 문제를 세 가지로 짚는다.<ul><li><b>역할은 바뀌었는데 책임은 안 바뀌었다</b> — 조직 셋 중 둘이 모델을 손봤지만, <span class=\"vw\" data-w=\"center of expertise\">center of expertise</span>·<span class=\"vw\" data-w=\"HR business partner\">HR business partner</span>·<span class=\"vw\" data-w=\"shared services\">shared services</span> 사이에 누가 무엇을 맡는지 명확한 곳은 다섯 중 하나뿐이다</li><li><b>전략 역할이 행정 넘침을 흡수한다</b> — 책임이 흐릿하니 HRBP가 애초 설계에 없던 승인·조율·뒤처리를 떠안는다</li><li><b>AI는 문제를 해결하지 않고 증폭한다</b> — 조율과 <span class=\"vw\" data-w=\"accountability\">accountability</span>의 공백이 있는 조직에 AI를 얹으면 그 공백이 더 커진다</li></ul>그래서 HR 팀의 역량 부족, 예산·인원 부족, 낡은 시스템 같은 '흔한 범인'은 증상일 때가 많다. 진짜 원인은 사업이 HR에 요구하는 것과 모델이 맞지 않는다는 데 있다.",
+          "en": "An HR <span class=\"vw\" data-w=\"operating model\">operating model</span> is the blueprint for how HR's structure, services, technology and skills support the business. The article names three problems with the current one.<ul><li><b>Roles evolved faster than responsibilities</b> — two in three organisations changed their model, but only one in five has a clear split between the <span class=\"vw\" data-w=\"center of expertise\">centres of expertise</span>, <span class=\"vw\" data-w=\"HR business partner\">HR business partners</span> and <span class=\"vw\" data-w=\"shared services\">shared services</span></li><li><b>Strategic roles absorb the administrative overflow</b> — with ownership blurred, HRBPs end up doing approvals, coordination and follow-ups that were never designed into the role</li><li><b>AI amplifies the gaps rather than fixing them</b> — layer AI onto weak coordination and <span class=\"vw\" data-w=\"accountability\">accountability</span>, and the weakness grows</li></ul>That is why the usual suspects — skills gaps, thin budgets, old technology — are often symptoms. The underlying cause is a model that no longer fits what the business needs from HR."
+        }
+      },
+      {
+        "h": {
+          "ko": "AI-first 모델의 3층 구조",
+          "en": "The three layers of an AI-first model"
+        },
+        "body": {
+          "ko": "미래형 모델의 정의는 간단하다. <b>앞으로 3~5년 동안 사업이 HR에 요구할 것</b>을 기준으로 설계한 모델이다. AIHR은 자문 경험에서 AI가 기존 모델 위에 얹은 층일 때보다 모델의 일부일 때 효과가 크다고 보고, 세 층으로 된 AI-first 모델을 하나의 청사진으로 제시한다.<ul><li><b>전략 층</b> — HR의 장기 방향을 정하고 우선순위를 조직 목표에 맞춘다</li><li><b>솔루션·직원경험 층</b> — 전략을 실제 서비스, 직원 경험, HR 솔루션으로 바꾼다</li><li><b><span class=\"vw\" data-w=\"enablement\">enablement</span>·기술 층</b> — 모델 전체의 토대. 그 중심에 HR 시스템·자동화·데이터를 하나로 잇는 '기술 넥서스'가 있다</li></ul>이것만이 답은 아니다. HR 전략·채널·제품과 솔루션·HR 기술과 데이터라는 네 가지 핵심 역량을 축으로 짜는 <b>역량 기반 모델</b>도 대안으로 소개된다. 어느 쪽이든 각 역량을 어떻게 배치하고 연결하느냐가 모델이 가치를 내는 방식을 결정한다.",
+          "en": "The definition is simple: a future-ready model is one designed around <b>what the business will need from HR in the next three to five years</b>. From its advisory work, AIHR finds AI works best as an integral part of the model rather than an extra layer, and offers a three-layer AI-first model as one blueprint.<ul><li><b>Strategic layer</b> — sets HR's long-term direction and aligns priorities with organisational goals</li><li><b>Solutions and people-experience layer</b> — turns strategy into actual services, employee experiences and HR solutions</li><li><b><span class=\"vw\" data-w=\"enablement\">Enablement</span> and technology layer</b> — the foundation of the whole model, with a 'technology nexus' at its core that connects HR systems, automation and data into one environment</li></ul>It is not the only option. A <b>capability-driven model</b> built on four core capabilities — HR strategy, channels, products and solutions, and HR technology and data — is presented as an alternative. Either way, how the capabilities are arranged and connected decides how the model delivers value."
+        }
+      },
+      {
+        "h": {
+          "ko": "바꿀 때가 됐다는 5가지 신호",
+          "en": "Five signs it is time to change"
+        },
+        "body": {
+          "ko": "각 신호에는 바로 써볼 수 있는 간단한 점검법이 붙어 있다.<ul><li><b>HRBP가 프로세스 조정자가 됐다</b> — 한 주의 대부분이 승인·에스컬레이션·행정 후속 처리다. <i>점검:</i> HRBP 세 명에게 지난달 자문·전략 업무 비중을 물어보라</li><li><b>HR의 AI 파일럿이 멈춘다</b> — 출시 후 사용량이 떨어지고 사람들이 이메일과 티켓으로 돌아간다. <i>점검:</i> 월별 사용량 추이와 HR 문의 이메일·티켓 수가 다시 늘었는지 본다</li><li><b>HR 안에 <span class=\"vw\" data-w=\"silo\">silo</span>가 있다</b> — CoE와 HRBP가 정보를 나누지 않고 다른 목표를 좇는다. <i>점검:</i> 사업 부서에 HR이 어떻게 움직이는지, CoE와 HRBP에 각자 무슨 목표를 향해 일하는지 묻는다</li><li><b>결정의 주인이 없다</b> — 어떤 결정을 CoE·HRBP·현업 관리자 중 누가 내리는지 몰라 느려지고 중복된다. <i>점검:</i> 팀 회의에서 영역별 책임자를 각자 말해보게 한다</li><li><b>사업 전략은 바뀌었는데 HR 구조는 그대로다</b> — 새 우선순위에 붙은 HR 인원과 예산이 거의 없다. <i>점검:</i> 사업 최우선 과제 세 개를 적고 각각에 HR 인력·예산이 얼마나 가는지 본다</li></ul>",
+          "en": "Each sign comes with a quick check you can run this week.<ul><li><b>Business partners have become process coordinators</b> — most of the week goes to approvals, escalations and admin follow-ups. <i>Check:</i> ask three HRBPs what share of last month went to advisory and strategic work</li><li><b>HR's AI pilots stall</b> — usage drops after launch and people drift back to emails and tickets. <i>Check:</i> track monthly tool usage and whether emails and tickets to HR have climbed back</li><li><b><span class=\"vw\" data-w=\"silo\">Silos</span> inside HR</b> — CoEs and HRBPs don't share information and may chase different outcomes. <i>Check:</i> ask business units how HR operates, and ask CoEs and HRBPs what goals they are working towards</li><li><b>Nobody owns decisions</b> — people don't know whether the CoE, the HRBP or the line manager decides, so responses are slow and work is duplicated. <i>Check:</i> in a team meeting, ask who owns each area</li><li><b>Business strategy shifted, HR structure didn't</b> — new priorities get little dedicated HR support. <i>Check:</i> list the top three business priorities and see how much HR headcount and budget sits behind each</li></ul>"
+        }
+      },
+      {
+        "h": {
+          "ko": "9단계 전환 절차",
+          "en": "The nine-step transition"
+        },
+        "body": {
+          "ko": "전환은 하루아침에 끝나지 않는다. 대부분 옛 구조와 새 구조를 한동안 나란히 운영하게 되므로, 그 혼합 기간을 처음부터 계획에 넣어야 한다.<br><b>1. 사업이 HR에 요구할 것을 정의</b> — 3~5년 사업 전략과 AI가 바꿀 업무를 보고, 미래 수요와 '시간이 지나도 남을' 현재 고충을 합쳐 수요 명세서를 만든다.<br><b>2. 현재 모델을 그 수요와 대조</b> — 서비스·채널·역할·데이터·기술을 비교하고, 사업 언어로 성공 지표를 합의한 뒤 현재 수치를 <span class=\"vw\" data-w=\"baseline\">baseline</span>으로 기록한다.<br><b>3. 목표 모델 설계</b> — AI-first나 역량 기반 모델을 출발점으로 삼고, 기존 역할이 어떻게 달라지는지 그린다.<br><b>4. <span class=\"vw\" data-w=\"change readiness\">change readiness</span> 평가</b> — 리더십 지지, 팀 역량, 문화, 변화 수용 여력을 보고 가장 약한 곳부터 손댄다.<br><b>5. 전환 계획</b> — 프로젝트처럼 단계와 이정표를 두고, <span class=\"vw\" data-w=\"RACI chart\">RACI chart</span>로 누가 이끌고 결정하고 지원하는지 정한다. 전환 중에도 현재 서비스를 유지할 예산을 따로 둔다.<br><b>6. 기술·데이터 토대</b> — 인사 기록, 스킬 프로필, 성과·보상 데이터의 소유자를 정하고 품질을 고치고 AI 사용 규칙을 세운다. 도구는 유지·통합·폐기를 결정하고, AI 에이전트가 혼자 처리할 일과 사람이 검토할 일의 경계를 긋는다.<br><b>7. 변화 주도</b> — 가장 크게 바뀌는 건 HR 자신이다. HR은 스스로 적응하면서 동시에 조직을 이끌어야 한다.<br><b>8. 새 모델이 요구하는 역량 구축</b> — 한 분야의 깊은 전문성에 사업 이해·기술·AI 활용 같은 폭넓은 역량을 더한 <span class=\"vw\" data-w=\"T-shaped profile\">T-shaped profile</span>을 목표로 스킬 격차를 메운다.<br><b>9. 측정과 조정</b> — 2단계의 지표와 기준선을 비교하고, 결과가 처지는 곳은 확대 전에 설계·역할·지원을 고친다.",
+          "en": "The switch doesn't happen overnight. Most organisations will run old and new structures side by side for a while, so plan for that hybrid period from the start.<br><b>1. Define what the business will need from HR</b> — read the three-to-five-year strategy and where AI changes the work, then combine future needs with the current pain points that will still matter into a needs statement.<br><b>2. Assess the current model against those needs</b> — compare services, channels, roles, data and technology; agree success measures in business terms and record today's <span class=\"vw\" data-w=\"baseline\">baseline</span>.<br><b>3. Design the target model</b> — start from the AI-first or capability-driven model and map how existing roles change.<br><b>4. Assess <span class=\"vw\" data-w=\"change readiness\">change readiness</span></b> — leadership support, team skills, culture and capacity to absorb change; fix the weakest areas first.<br><b>5. Build the transition plan</b> — run it as a project with phases and milestones, and use a <span class=\"vw\" data-w=\"RACI chart\">RACI chart</span> to set who leads, decides and supports. Reserve budget to keep today's services running meanwhile.<br><b>6. Lay the technology and data foundation</b> — assign owners for employee records, skills profiles and pay and performance data, fix quality, set rules for AI's use of employee data; decide which tools to keep, integrate or retire, and where AI agents act alone versus where a person reviews.<br><b>7. Lead the change</b> — HR's own roles change most, and HR must adapt while guiding everyone else.<br><b>8. Build the competencies the model requires</b> — aim for <span class=\"vw\" data-w=\"T-shaped profile\">T-shaped profiles</span>: deep expertise in one HR area plus broad business, technology and AI skills.<br><b>9. Measure and adjust</b> — compare results with the step-2 baseline, and where they lag, fix design, roles or support before scaling."
+        }
+      },
+      {
+        "h": {
+          "ko": "무엇을 측정하고, 어디서 시작하나",
+          "en": "What to measure, and where to start"
+        },
+        "body": {
+          "ko": "결과 지표는 사업 언어로 잡는다. 핵심 직무 충원 속도, 핵심 팀의 이직률, 전략 프로젝트에 맞는 스킬이 제때 배치됐는지 같은 것들이다. 모델 자체의 건강도 따로 본다.<ul><li>HRBP 시간 중 자문 업무 비중</li><li><span class=\"vw\" data-w=\"self-service\">self-service</span>나 AI 에이전트로 해결된 일상 요청 비중</li><li>HR 기술 도입률</li><li>5가지 신호의 간단 점검을 반복했을 때 원래 문제가 줄었는지</li></ul><b>사례.</b> 직원 4,500명의 글로벌 보험사는 사업 단위별로 쪼개진 HR을 통합 모델로 옮기면서, 새 모델이 요구하는 역량을 정의하고 공통 역량 체계를 만들고 네 가지 HR 페르소나별 학습 경로를 설계했다. 그 결과 연결된 HR 조직, 더 강한 전략적 파트너십, 그리고 160만 달러의 효율 개선을 얻었다.<br><br><b>HR 시사점.</b> 전부를 한 번에 바꿀 필요는 없다. 사업이 요구하는 것과 HR이 실제 제공하는 것의 격차가 가장 큰 영역을 하나 골라 새 방식을 증명하고, 거기서부터 넓혀 간다. 한국 조직에서도 'HRBP가 결국 행정 창구가 됐다'는 토로는 흔하다. 이 글의 5가지 점검법은 큰 조직 개편 없이도 이번 주에 바로 돌려볼 수 있는 진단 도구다.",
+          "en": "Outcome measures belong in business terms: how fast critical roles are filled, turnover in key teams, whether strategic projects get the right skills on time. Then watch the health of the model itself.<ul><li>Share of HRBP time spent on advisory work</li><li>Share of routine requests resolved through <span class=\"vw\" data-w=\"self-service\">self-service</span> or AI agents</li><li>HR technology adoption</li><li>Whether the quick checks from the five signs show the original problems easing</li></ul><b>Case.</b> A 4,500-employee global insurer moving from HR fragmented by business unit to an integrated model defined the capabilities the new model required, built a shared capability framework and created role-based learning journeys for four HR personas. The outcome: a connected HR function, a stronger strategic partnership with the business, and $1.6 million in efficiency gains.<br><br><b>Takeaway for HR.</b> You don't have to redesign everything at once. Pick the one area where the gap between what the business needs and what HR delivers is widest, prove the new way of working there, and build out from it. 'Our HRBPs have turned into an admin desk' is a familiar complaint in Korean organisations too, and the five quick checks are a diagnostic you can run this week without a reorganisation."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "operating model",
+        "pos": "n.",
+        "ko": "운영 모델 — 조직이 어떤 구조·역할·프로세스·기술로 일을 수행하는지 정한 설계",
+        "en": "How a function is organised to deliver its work: its structure, roles, processes and technology.",
+        "ex": "The HR <b>operating model</b> most companies still use dates back to the 1990s."
+      },
+      {
+        "w": "HR business partner",
+        "pos": "n.",
+        "ko": "HR 비즈니스 파트너(HRBP) — 사업 부서에 배치돼 전략적으로 HR을 자문하는 역할",
+        "en": "An HR professional embedded with a business unit to advise its leaders on people strategy.",
+        "ex": "Ask each <b>HR business partner</b> how much of last month went to advisory work rather than admin."
+      },
+      {
+        "w": "center of expertise",
+        "pos": "n.",
+        "ko": "전문센터(CoE) — 보상·채용·교육 등 특정 HR 영역의 전문가 조직",
+        "en": "A specialist HR team that owns deep knowledge in one area, such as rewards, talent or learning.",
+        "ex": "Only 19% of organisations draw a clear line between the <b>center of expertise</b> and the business partners."
+      },
+      {
+        "w": "shared services",
+        "pos": "n.",
+        "ko": "공유서비스 — 급여·문의 응대 등 반복 업무를 한곳에서 처리하는 조직",
+        "en": "A central unit that handles high-volume, routine HR transactions and employee queries for the whole company.",
+        "ex": "Routine requests should flow to <b>shared services</b> or self-service, not to the HRBP."
+      },
+      {
+        "w": "accountability",
+        "pos": "n.",
+        "ko": "책임 소재 — 결과에 대해 답할 사람이 누구인지 분명한 상태",
+        "en": "Being the person who answers for a decision or outcome.",
+        "ex": "AI amplifies gaps in coordination and <b>accountability</b> rather than closing them."
+      },
+      {
+        "w": "silo",
+        "pos": "n.",
+        "ko": "사일로 — 다른 팀과 정보를 나누지 않고 고립돼 일하는 조직 단위",
+        "en": "A team that works in isolation and does not share information or goals with the rest of the function.",
+        "ex": "When CoEs and HRBPs chase different outcomes, you have a <b>silo</b> problem inside HR."
+      },
+      {
+        "w": "enablement",
+        "pos": "n.",
+        "ko": "실행 지원 — 다른 사람이 일을 해낼 수 있게 도구·데이터·역량을 갖춰 주는 것",
+        "en": "Providing the tools, data and support that let others do their work effectively.",
+        "ex": "In the AI-first model, the <b>enablement</b> and technology layer is the foundation everything else rests on."
+      },
+      {
+        "w": "change readiness",
+        "pos": "n.",
+        "ko": "변화 준비도 — 조직이 변화를 받아들이고 실행할 수 있는 정도",
+        "en": "How prepared an organisation's leaders, culture and skills are to absorb a change.",
+        "ex": "A <b>change readiness</b> assessment shows which parts of HR will resist the new model."
+      },
+      {
+        "w": "RACI chart",
+        "pos": "n.",
+        "ko": "RACI 차트 — 업무별로 실행(R)·결정(A)·자문(C)·통보(I) 대상을 적은 표",
+        "en": "A table that assigns each task to who is Responsible, Accountable, Consulted and Informed.",
+        "ex": "Use a <b>RACI chart</b> so everyone knows who decides on each part of the transition."
+      },
+      {
+        "w": "T-shaped profile",
+        "pos": "n.",
+        "ko": "T자형 인재 — 한 분야의 깊은 전문성에 넓은 공통 역량을 더한 프로필",
+        "en": "Deep expertise in one area combined with broad skills that apply across roles, like business acumen and AI fluency.",
+        "ex": "The future model needs <b>T-shaped profiles</b>, not narrow specialists."
+      },
+      {
+        "w": "self-service",
+        "pos": "n.",
+        "ko": "셀프서비스 — 직원이 HR을 거치지 않고 시스템에서 직접 처리하는 방식",
+        "en": "Letting employees complete HR tasks themselves through a system, without contacting HR.",
+        "ex": "Track the share of routine requests resolved through <b>self-service</b> or AI agents."
+      },
+      {
+        "w": "baseline",
+        "pos": "n.",
+        "ko": "기준선 — 변화를 측정하기 위해 출발 시점에 기록해 둔 수치",
+        "en": "The starting measurement you record so later results can be compared against it.",
+        "ex": "Record a <b>baseline</b> for each success measure before the new model goes live."
+      }
+    ]
+  },
+  {
+    "id": "aihr-culture-and-employee-retention",
+    "source_id": "aihr",
+    "source_name": "AIHR",
+    "kind": "article",
+    "title": "Culture & Employee Retention: 8 Warning Signs & 5 Fixes",
+    "url": "https://www.aihr.com/blog/culture-and-employee-retention/",
+    "published": "2026-09-16",
+    "category": "Talent Management",
+    "featured_date": "2026-10-23",
+    "summary": {
+      "ko": "이직률은 문화 문제의 원인이 아니라 결과다. 사람은 '문화가 나빠서' 떠나는 게 아니라, 나쁜 경험이 반복된 끝에 떠난다. 그래서 유지율은 후행지표이고, 그전에 몰입도가 먼저 떨어진다. 갤럽 조사에서 조직 문화에 강하게 연결돼 있다고 느끼는 미국 직원은 20%에 불과했고, 그 20%는 이직을 알아볼 가능성이 47% 낮았다. 이 글은 문화가 무너지고 있다는 8가지 신호, 사람을 붙잡는 5가지 요인(심리적 안전감·성장 경로·관리자 역량·인정·보상 형평성), 그리고 진단→우선순위→시범운영의 3단계 개선 절차를 제시한다. 핵심 주장은 복지가 아니라 관리자의 일상적 습관이 문화를 만든다는 것이다.",
+      "en": "Turnover is the result of a culture problem, not its cause. People rarely leave because of \"culture\" as a single issue — they leave after repeated negative experiences. Retention is therefore a lagging indicator, and engagement falls first. Gallup found that only 20% of US employees feel strongly connected to their organisation's culture, and that those who do are 47% less likely to be looking for another job. The article sets out 8 warning signs that culture is hurting retention, 5 factors that keep people from leaving (psychological safety, growth pathways, manager quality, recognition, fair pay), and a three-step fix: diagnose, prioritise, then pilot and measure. Its central claim is that culture is built by managers' everyday habits, not by perks."
+    },
+    "findings": [
+      {
+        "k": "20%",
+        "ko": "조직 문화에 강한 유대를 느끼는 미국 직원 비율. 전 세계 직원 몰입도도 같은 20% 수준으로 떨어졌다.",
+        "en": "Share of US employees who feel strongly connected to their culture. Global engagement has fallen to the same 20%."
+      },
+      {
+        "k": "−47%",
+        "ko": "문화에 연결됐다고 느끼는 직원이 다른 일자리를 알아볼 가능성. 몰입할 가능성은 4.3배 높다.",
+        "en": "Lower likelihood of job-hunting among culturally connected employees, who are also 4.3× as likely to be engaged."
+      },
+      {
+        "k": "−51%",
+        "ko": "몰입도 높은 팀의 이직률 감소폭(이직률이 낮은 조직 기준). 높은 조직에서도 21% 낮다.",
+        "en": "Turnover reduction in highly engaged teams at low-turnover organisations; 21% at high-turnover ones."
+      }
+    ],
+    "detail": [
+      {
+        "h": {
+          "ko": "왜 유지율이 후행지표인가",
+          "en": "Why retention is a lagging indicator"
+        },
+        "body": {
+          "ko": "문화란 구성원이 관찰하는 규범, 행동, 기대치, 그리고 명문화되지 않은 규칙이다. 리더가 무엇에 보상하는지, 관리자가 무엇을 눈감아 주는지, 규정이 답을 주지 않을 때 사람들이 어떻게 결정하는지가 곧 문화다. 문제는 그것이 겉으로 드러날 때쯤이면 이미 사람이 나간 뒤라는 점이다. 이직은 누적된 결과이므로, 그 앞단의 <span class=\"vw\" data-w=\"engagement\">engagement</span> 하락을 조기 경보로 봐야 한다.",
+          "en": "Culture is the set of norms, behaviours, expectations and unwritten rules employees observe at work — what leaders reward, what managers tolerate, and how people decide when policy gives no clear answer. The problem is that by the time it shows up in the numbers, people have already gone. Turnover is cumulative, so the earlier fall in <span class=\"vw\" data-w=\"engagement\">engagement</span> is the signal to watch."
+        }
+      },
+      {
+        "h": {
+          "ko": "8가지 경고 신호",
+          "en": "8 warning signs"
+        },
+        "body": {
+          "ko": "<ul><li>특정 직무나 팀에서 이직 증가</li><li>퇴직 면담에서 관리자·성장·업무량 관련 주제가 반복</li><li>사내 추천 채용 감소</li><li>몰입도 점수 하락</li><li>특정 관리자 아래에서만 몰입도 하락</li><li><span class=\"vw\" data-w=\"internal mobility\">internal mobility</span> 저하</li><li>부서 이동 요청 증가</li><li>경력 경로에 대한 불확실성 표출</li></ul>개별 수치보다 <b>패턴</b>이 중요하다. 전사적 하락은 조직 차원의 문제이고, 특정 관리자 아래의 급등은 국소적 문제다. 먼저 관리자별·<span class=\"vw\" data-w=\"tenure\">tenure</span>별로 이직 데이터를 쪼개 보라.",
+          "en": "<ul><li>Rising turnover in specific roles or teams</li><li>Repeated exit-interview themes about managers, growth or workload</li><li>Falling internal referral rates</li><li>Declining engagement scores</li><li>Engagement falling under specific managers</li><li>Lower <span class=\"vw\" data-w=\"internal mobility\">internal mobility</span></li><li>More transfer requests</li><li>Employees voicing uncertainty about career progression</li></ul>The <b>pattern</b> matters more than any single number. A company-wide decline points to an organisational problem; a spike under one manager is local. Start by cutting turnover data by manager and by <span class=\"vw\" data-w=\"tenure\">tenure</span>."
+        }
+      },
+      {
+        "h": {
+          "ko": "사람을 붙잡는 5가지",
+          "en": "5 factors that keep people"
+        },
+        "body": {
+          "ko": "<ul><li><b><span class=\"vw\" data-w=\"psychological safety\">psychological safety</span></b> — 보복이나 망신 걱정 없이 이견을 말하고 실수를 인정할 수 있는가</li><li><b>성장 경로</b> — 다음 단계에 필요한 역량이 무엇이고 그게 현실적인가</li><li><b>관리자 역량</b> — 기대치를 명확히 하고, 정기적으로 피드백하며, 공정하게 대하는가</li><li><b>인정</b> — 연말 시상이 아니라 즉각적이고 구체적인 인정인가</li><li><b><span class=\"vw\" data-w=\"pay equity\">pay equity</span></b> — 보상 결정 방식을 이해하고 공정하다고 느끼는가</li></ul>글은 복지에 대해 분명히 선을 긋는다. 무료 식사나 게임룸은 문화를 <i>보조</i>할 뿐, 신뢰·자율·성장·인정·공정성을 대체하지 못한다.",
+          "en": "<ul><li><b><span class=\"vw\" data-w=\"psychological safety\">psychological safety</span></b> — can people disagree and admit mistakes without fear of retaliation?</li><li><b>Growth pathways</b> — do they know what skills the next step needs, and is it realistic?</li><li><b>Manager quality</b> — clear expectations, regular feedback, fair treatment</li><li><b>Recognition</b> — prompt and specific, not an annual award</li><li><b><span class=\"vw\" data-w=\"pay equity\">pay equity</span></b> — do people understand how pay decisions are made, and see them as fair?</li></ul>The article is blunt about perks: free food and a game room can <i>support</i> culture, but they do not substitute for trust, autonomy, growth, recognition and fairness."
+        }
+      },
+      {
+        "h": {
+          "ko": "3단계 개선 절차",
+          "en": "The three-step fix"
+        },
+        "body": {
+          "ko": "<b>1. 진단</b> — 몰입도 조사, 팀·관리자별 이직률, <span class=\"vw\" data-w=\"stay interview\">stay interview</span>와 퇴직 면담, 사내 이동 데이터를 본다. 개별 불만이 아니라 패턴을 찾는다.<br><b>2. 우선순위</b> — 격차가 가장 큰 한두 곳만 고른다. 무엇을 바꿔야 할지 모르는 채로 전사 문화 혁신을 시작하지 않는다.<br><b>3. 시범운영과 측정</b> — 한 팀에서 먼저 시험한다. 예를 들어 이직률 높은 팀에 구조화된 잔류 면담을 도입하거나, 관리자 1:1 면담에 우선순위·장애물·성장·인정·고충이라는 틀을 준다. 일상적 습관을 건드리는 변화라 큰 투자 없이 검증할 수 있다.",
+          "en": "<b>1. Diagnose</b> — engagement surveys, turnover by team and manager, <span class=\"vw\" data-w=\"stay interview\">stay interviews</span> and exit interviews, internal mobility. Look for patterns, not isolated complaints.<br><b>2. Prioritise</b> — pick one or two areas with the largest gaps. Don't launch a company-wide culture programme before you know what needs to change.<br><b>3. Pilot and measure</b> — test with one team first: structured stay interviews for a high-turnover team, or a simple structure for manager one-on-ones covering priorities, obstacles, development, recognition and concerns. These touch everyday habits, so they can be validated cheaply."
+        }
+      },
+      {
+        "h": {
+          "ko": "무엇을 측정할 것인가",
+          "en": "What to track"
+        },
+        "body": {
+          "ko": "일화만으로 문화를 관리할 수는 없다. 개입을 시작하기 전에 기준선을 잡고 다음을 추적한다.<ul><li><b>유지율</b> — 팀·관리자·직무·근속연차별로 비교</li><li><b>몰입도 추세</b> — 한 번의 설문이 아니라 시간에 따른 변화</li><li><b>잔류·퇴직 면담 주제</b> — 반복되는 주제를 코딩해 변화를 본다</li><li><b><span class=\"vw\" data-w=\"internal mobility\">internal mobility</span></b> — 승진, 전배, 신규 역할 이동</li><li><b>관리자별 패턴</b> — 전사 평균과 크게 다른 팀을 찾아낸다</li></ul>설문을 계속 돌릴 필요는 없다. 연 1회 몰입도 조사에 분기별 펄스 서베이면 충분하고, 추세를 보려면 문항을 웬만하면 바꾸지 않는 편이 낫다. 결과는 팀·관리자·근속연차로 쪼개서 본다.",
+          "en": "You can't manage culture on anecdotes. Set a baseline before any intervention and track:<ul><li><b>Retention rate</b> — compared across teams, managers, roles and tenure groups</li><li><b>Engagement trends</b> — change over time, not a single survey</li><li><b>Stay and exit interview themes</b> — coded, so you can see concerns shift</li><li><b><span class=\"vw\" data-w=\"internal mobility\">Internal mobility</span></b> — promotions, transfers, moves into new roles</li><li><b>Manager-level patterns</b> — teams that differ sharply from the company average</li></ul>You don't need to survey constantly: an annual engagement survey plus quarterly pulses is enough, and keeping the questions stable is what makes trends readable. Segment the results by team, manager and tenure."
+        }
+      }
+    ],
+    "vocab": [
+      {
+        "w": "retention",
+        "pos": "n.",
+        "ko": "인재 유지 — 직원이 회사에 남아 있는 것",
+        "en": "Keeping employees at the organisation rather than losing them to turnover.",
+        "ex": "Turnover is a lagging indicator, so <b>retention</b> problems show up long after the culture caused them."
+      },
+      {
+        "w": "lagging indicator",
+        "pos": "n.",
+        "ko": "후행지표 — 문제가 쌓인 뒤에야 나타나는 지표",
+        "en": "A measure that only reflects a problem after it has already built up.",
+        "ex": "Treat turnover as a <b>lagging indicator</b> and watch engagement instead."
+      },
+      {
+        "w": "engagement",
+        "pos": "n.",
+        "ko": "몰입도 — 일에 쏟는 에너지와 심리적 관여 정도",
+        "en": "How much energy and commitment employees invest in their work.",
+        "ex": "A sharp drop in <b>engagement</b> on one team is worth investigating before anyone resigns."
+      },
+      {
+        "w": "psychological safety",
+        "pos": "n.",
+        "ko": "심리적 안전감 — 불이익 걱정 없이 말할 수 있는 상태",
+        "en": "The belief that one can raise concerns, ask questions and admit mistakes without unfair consequences.",
+        "ex": "Without <b>psychological safety</b>, you hear about problems only in the exit interview."
+      },
+      {
+        "w": "internal mobility",
+        "pos": "n.",
+        "ko": "사내 이동 — 승진·전배 등 조직 내부의 자리 이동",
+        "en": "Movement of employees into new roles inside the same organisation.",
+        "ex": "Falling <b>internal mobility</b> often precedes a rise in resignations."
+      },
+      {
+        "w": "tenure",
+        "pos": "n.",
+        "ko": "근속 기간 — 한 조직에서 일한 햇수",
+        "en": "The length of time an employee has been with an organisation.",
+        "ex": "Cut the turnover data by manager and by <b>tenure</b> before drawing conclusions."
+      },
+      {
+        "w": "stay interview",
+        "pos": "n.",
+        "ko": "잔류 면담 — 남아 있는 직원에게 미리 묻는 면담",
+        "en": "A conversation with a current employee about what keeps them and what might make them leave.",
+        "ex": "A <b>stay interview</b> asks the exit-interview questions while you can still act on the answers."
+      },
+      {
+        "w": "pay equity",
+        "pos": "n.",
+        "ko": "보상 형평성 — 동등한 일에 동등한 보상이 가는가",
+        "en": "Fairness and consistency in how pay is set across comparable roles and people.",
+        "ex": "Review <b>pay equity</b> against market benchmarks before claiming your pay practices are fair."
+      },
+      {
+        "w": "flight risk",
+        "pos": "n.",
+        "ko": "이탈 위험군 — 곧 떠날 가능성이 높은 인력",
+        "en": "An employee judged likely to leave the organisation soon.",
+        "ex": "Identifying <b>flight risk</b> early protects business continuity."
+      }
+    ]
+  }
+]
