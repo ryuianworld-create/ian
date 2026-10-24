@@ -1,12 +1,14 @@
 // service role 클라이언트. RLS 를 우회하므로 이 모듈은 서버(api)에서만 import 한다.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { requireEnv } from "./env.js";
+import { env, requireEnv } from "./env.js";
 
 let client: SupabaseClient | null = null;
 
 export function db(): SupabaseClient {
   if (client) return client;
-  client = createClient(requireEnv("SUPABASE_URL"), requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
+  // 서비스 키는 두 이름 중 먼저 설정된 것을 쓴다 (대시보드에서 SUPABASE_SERVICE_ROLE_KEY2 로 넣은 경우 대응)
+  const serviceKey = env("SUPABASE_SERVICE_ROLE_KEY2") ?? requireEnv("SUPABASE_SERVICE_ROLE_KEY");
+  client = createClient(requireEnv("SUPABASE_URL"), serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { headers: { "x-application-name": "hr-daily-api" } },
   });
