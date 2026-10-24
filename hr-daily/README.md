@@ -4,7 +4,7 @@
 `../english-tutoring`(정적 1세대)을 백엔드/프론트 분리 구조로 다시 만든 2세대.
 
 - **web/** — Next.js 프론트 (Vercel)
-- **api/** — Hono 백엔드 + Vercel Cron (Vercel). 수집 → Claude 요약 → 메일 발송 자동화, 회원 승인
+- **api/** — Hono 백엔드 + Vercel Cron (Vercel). 수집 → Gemini 요약 → 메일 발송 자동화, 회원 승인
 - **supabase/** — Postgres 스키마·RLS (Supabase)
 
 설계 전체는 [SPEC.md](SPEC.md). 각 패키지의 실행법은 각 폴더의 README.
@@ -13,7 +13,7 @@
 
 ```
 05:30 KST  collect    소스 RSS 수집 → inbox (원문은 요약 때까지만 보관)
-06:00 KST  summarize  오늘 한 편 선정 → Claude 요약·단어장 → articles
+06:00 KST  summarize  오늘 한 편 선정 → Gemini 요약·단어장 → articles
 07:00 KST  digest     승인 회원에게 메일
 ```
 

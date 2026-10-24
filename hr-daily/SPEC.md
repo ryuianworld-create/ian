@@ -93,7 +93,7 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 | Path | 스케줄(UTC) | 역할 |
 |---|---|---|
 | GET `/cron/collect` | `30 20 * * *` (KST 05:30) | 소스 피드 수집 → index_items, inbox(raw_text 포함) |
-| GET `/cron/summarize` | `0 21 * * *` (KST 06:00) | 오늘(KST) featured_date 가 비어 있으면 inbox 에서 한 편 골라 Claude 로 요약 → articles. raw_text null 처리 |
+| GET `/cron/summarize` | `0 21 * * *` (KST 06:00) | 오늘(KST) featured_date 가 비어 있으면 inbox 에서 한 편 골라 Gemini 로 요약 → articles. raw_text null 처리 |
 | GET `/cron/digest` | `0 22 * * *` (KST 07:00) | 오늘 아티클을 approved & email_opt_in 회원에게 메일. 같은 (user, article) 는 한 번만 |
 
 크론 핸들러와 관리자 `/v1/admin/jobs/:job` 은 같은 job 함수를 호출한다. 각 실행은 `job_runs` 에 기록.
@@ -111,7 +111,7 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 
 **summarize** — 대상 날짜 = KST 오늘(또는 body 의 featured_date). 그 날짜의 article 이 이미 있으면 skip.
 - 후보 선정: `inbox.status='pending' and raw_text is not null`. `settings.paper_weekdays` 에 오늘 요일(KST, 0=일)이 포함되고 pending 논문이 있으면 논문 중 score 최상위, 아니면 전체 score 최상위.
-- Anthropic SDK(`@anthropic-ai/sdk`) `client.beta.messages.parse` 또는 `client.messages.parse` + `zodOutputFormat` 로 아래 스키마를 받는다. 모델 `ANTHROPIC_MODEL`(기본 `claude-opus-5-5`), `output_config: { effort: 'high', format }`, `max_tokens: 16000`, `betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default'` (beta 경로). `stop_reason === 'refusal'` 이면 실패 처리.
+- Google Gen AI SDK(`@google/genai`) `ai.interactions.create` 에 `response_format`(JSON Schema) 을 넘겨 아래 스키마를 받는다. 모델 `GEMINI_MODEL`(기본 `gemini-3.8-flash`), `generation_config: { max_output_tokens: 32000, thinking_level: 'high' }`, `store: false`. `status !== 'completed'` 이거나 빈 응답이면 실패 처리하고, 결과는 zod 로 재검증한다.
 - 출력 스키마: `{ category, summary:{ko,en}, findings:[{k,ko,en}] (2~4개), detail:[{h:{ko,en}, body:{ko,en}}] (4~6개 섹션, body 는 HTML <ul><li><b><i><br> 만), vocab:[{w,pos,ko,en,ex}] (8~12개) }`.
 - 프롬프트 요구사항: 한글 요약 500~800자, 영문 180~280단어. 본문에 나온 HR 전문 용어를 vocab 으로 뽑고, detail.body 안에서 그 단어가 나오는 자리를 `<span class="vw" data-w="{w}">…</span>` 로 감쌀 것(ko·en 모두). 마지막 섹션에 "HR 시사점/Takeaway for HR" 포함. 논문이면 연구 질문·방법·표본·핵심 결과·실무 시사점 구조. 원문 문장을 그대로 베끼지 말 것(요약·재서술). 기존 예시는 `../english-tutoring/docs/data/articles.json` 첫 항목 — 톤·분량·형식의 기준.
 - 후처리 검증: 모든 `data-w` 가 vocab.w 에 있어야 한다(없으면 span 을 벗긴다). vocab 8개 미만이면 실패→ status='failed', error 기록, 다음 후보로 1회 재시도.
@@ -123,7 +123,7 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 
 ## 환경변수
 
-api: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`(opt), `RESEND_API_KEY`(opt), `EMAIL_FROM`(예 `HR Daily <daily@yourdomain>`), `CRON_SECRET`, `ADMIN_EMAILS`, `WEB_URL`
+api: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`(opt, 기본 gemini-3.8-flash), `RESEND_API_KEY`(opt), `EMAIL_FROM`(예 `HR Daily <daily@yourdomain>`), `CRON_SECRET`, `ADMIN_EMAILS`, `WEB_URL`
 web: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`
 
 ## 프론트 화면
