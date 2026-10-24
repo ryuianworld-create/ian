@@ -69,48 +69,49 @@ export function LibraryView() {
   const pending = items.filter((e) => !e.article_id);
 
   return (
-    <section>
-      <div className="sec-head" style={{ marginTop: 20 }}>
-        <span className="eyebrow">{counts ? `요약 ${counts.summarized}편 · 수집 ${counts.total}건` : " "}</span>
-        <h2 className="sec">서재</h2>
+    <section className="jr jr-page">
+      <div className="jr-issue">
+        <span className="eyebrow">Library</span>
+        <span className="jr-date">{counts ? `요약 ${counts.summarized}편 · 수집 ${counts.total.toLocaleString()}건` : " "}</span>
       </div>
-
-      <div className="search">
-        <input
-          type="search"
-          placeholder="제목으로 검색"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          aria-label="서재 검색"
-          autoComplete="off"
-        />
+      <div className="jr-pagehead">
+        <h1 className="jr-h1">서재</h1>
+        <p className="jr-sub-line">학술지와 매체에서 모은 글 전체입니다. 요약된 글은 앱에서, 나머지는 원문으로 열립니다.</p>
+        <div className="jr-search">
+          <input
+            type="search"
+            placeholder="제목으로 검색 — 예: retention, AI, onboarding"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            aria-label="서재 검색"
+            autoComplete="off"
+          />
+        </div>
       </div>
 
       {error ? <div className="err" style={{ marginTop: 10 }}>{error}</div> : null}
 
       {summarized.length ? (
         <>
-          <div className="sec-head" style={{ margin: "14px 0 0" }}>
-            <span className="eyebrow">요약 완료</span>
+          <div className="jr-sechead">
+            <div>
+              <span className="eyebrow">Summarized</span>
+              <h2 className="sec">요약 완료</h2>
+            </div>
           </div>
-          <ul className="lib">
+          <ul className="jr-grid">
             {summarized.map((e) => (
               <li key={e.url}>
-                <Link href={`/a/${e.article_id}`} className="row">
-                  <span className="date">{shortDate(e.published)}</span>
-                  <span>
-                    <span className="t">{e.title}</span>
-                    <span className="m">
-                      {e.source_name}
-                      {e.kind === "paper" ? (
-                        <>
-                          <span className="dot">·</span>논문
-                        </>
-                      ) : null}
-                      <span className="dot">·</span>
-                      <span className="ok">요약 읽기 →</span>
-                    </span>
-                  </span>
+                <Link href={`/a/${e.article_id}`}>
+                  <div className="top">
+                    <span className="d">{shortDate(e.published)}</span>
+                    <span className={`kind ${e.kind}`}>{e.kind === "paper" ? "논문" : "아티클"}</span>
+                  </div>
+                  <h3>{e.title}</h3>
+                  <div className="foot">
+                    <span>{e.source_name}</span>
+                    <span className="ok">요약 읽기 →</span>
+                  </div>
                 </Link>
               </li>
             ))}
@@ -120,28 +121,22 @@ export function LibraryView() {
 
       {pending.length ? (
         <>
-          <div className="sec-head" style={{ margin: "22px 0 0" }}>
-            <span className="eyebrow">아직 요약하지 않은 글</span>
+          <div className="jr-sechead">
+            <div>
+              <span className="eyebrow">Collected</span>
+              <h2 className="sec">아직 요약하지 않은 글</h2>
+            </div>
+            <span className="jr-hint">아침마다 이 중 한 편이 요약됩니다</span>
           </div>
-          <p className="note" style={{ marginTop: 10 }}>
-            제목을 누르면 원문으로 갑니다. 아침마다 이 중 한 편이 요약됩니다.
-          </p>
-          <ul className="lib">
+          <ul className="jr-rows">
             {pending.map((e) => (
               <li key={e.url}>
-                <a className="row" href={e.url} target="_blank" rel="noopener noreferrer">
-                  <span className="date">{shortDate(e.published)}</span>
-                  <span>
-                    <span className="t">{e.title}</span>
-                    <span className="m">
-                      {e.source_name}
-                      {e.kind === "paper" ? (
-                        <>
-                          <span className="dot">·</span>논문
-                        </>
-                      ) : null}
-                    </span>
-                  </span>
+                <a href={e.url} target="_blank" rel="noopener noreferrer">
+                  <span className="d">{shortDate(e.published)}</span>
+                  <span className={`kind ${e.kind}`}>{e.kind === "paper" ? "논문" : "아티클"}</span>
+                  <span className="t">{e.title}</span>
+                  <span className="s">{e.source_name}</span>
+                  <span className="arrow">↗</span>
                 </a>
               </li>
             ))}

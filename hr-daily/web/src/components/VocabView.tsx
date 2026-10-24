@@ -1,6 +1,7 @@
 "use client";
 /* 단어장. 오늘(최신) 아티클의 단어 → 아티클 선택 가능. "외웠어요" 토글.
    로그인 시 서버 저장(api /v1/vocab/progress), 아니면 localStorage(hrp.known, 1세대와 호환). */
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
@@ -132,37 +133,54 @@ export function VocabView() {
     router.replace(`/vocab?article=${encodeURIComponent(id)}`, { scroll: false });
   };
 
+  const pct = vocab.length ? Math.round((done / vocab.length) * 100) : 0;
+
   return (
-    <section>
-      <div className="sec-head" style={{ marginTop: 20 }}>
-        <span className="eyebrow">{article ? `${article.title.slice(0, 48)} 에서` : " "}</span>
-        <h2 className="sec">단어장</h2>
+    <section className="jr jr-page jr-vocabpage">
+      <div className="jr-issue">
+        <span className="eyebrow">Vocabulary</span>
+        <span className="jr-date">{article ? `${article.featured_date} · ${article.source_name}` : " "}</span>
+      </div>
+      <div className="jr-pagehead">
+        <h1 className="jr-h1">단어장</h1>
+        <p className="jr-sub-line">
+          {article ? (
+            <>
+              <Link href={`/a/${article.id}`} className="more">
+                {article.title}
+              </Link>
+              에서 뽑은 단어입니다. 카드를 펼쳐 뜻·예문을 보고, 외웠으면 표시하세요.
+            </>
+          ) : (
+            "본문에서 뽑은 HR 용어를 그대로 외웁니다."
+          )}
+        </p>
+        {cards && cards.length > 1 ? (
+          <div className="jr-picker">
+            <label htmlFor="vocab-article">다른 호 고르기</label>
+            <select id="vocab-article" value={articleId ?? ""} onChange={(e) => pick(e.target.value)}>
+              {cards.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.featured_date} · {c.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
       </div>
 
-      {cards && cards.length > 1 ? (
-        <div className="picker">
-          <select aria-label="아티클 선택" value={articleId ?? ""} onChange={(e) => pick(e.target.value)}>
-            {cards.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.featured_date} · {c.title}
-              </option>
-            ))}
-          </select>
+      <div className="jr-strip three" aria-label="진도">
+        <div>
+          <span className="n">{vocab.length}</span>
+          <span className="l">이 호의 단어</span>
         </div>
-      ) : null}
-
-      <div className="vstats">
-        <div className="vstat">
-          <div className="n">{vocab.length}</div>
-          <div className="lbl">오늘 단어</div>
+        <div>
+          <span className="n ok">{done}</span>
+          <span className="l">외움 · {pct}%</span>
         </div>
-        <div className="vstat done">
-          <div className="n">{done}</div>
-          <div className="lbl">외움</div>
-        </div>
-        <div className="vstat">
-          <div className="n">{cumulative}</div>
-          <div className="lbl">누적</div>
+        <div>
+          <span className="n">{cumulative}</span>
+          <span className="l">누적 외운 단어</span>
         </div>
       </div>
 
@@ -173,42 +191,43 @@ export function VocabView() {
       ) : !article ? (
         <div className="note">아직 단어가 없습니다.</div>
       ) : (
-        <div>
+        <ol className="jr-words">
           {vocab.map((item, i) => {
             const k = isKnown(item.w);
             const isOpen = !!open[item.w];
             return (
-              <div key={item.w} id={`v-${i}`} className={`card${k ? " known" : ""}${isOpen ? " open" : ""}`}>
+              <li key={item.w} id={`v-${i}`} className={`${k ? "known" : ""}${isOpen ? " open" : ""}`}>
                 <button
                   type="button"
-                  className="card-head"
+                  className="head"
                   aria-expanded={isOpen}
                   onClick={() => setOpen((o) => ({ ...o, [item.w]: !isOpen }))}
                 >
-                  <span>
-                    <span className="term">{item.w}</span>
+                  <span className="num">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="term">
+                    {item.w}
                     <span className="pos">{item.pos}</span>
                   </span>
-                  <span className="chev">{k ? "✓" : "▸"}</span>
+                  <span className="state" aria-hidden="true">
+                    {k ? "✓" : isOpen ? "−" : "+"}
+                  </span>
                 </button>
+                <div className="gloss">{item.ko.split(" — ")[0]}</div>
                 {isOpen ? (
-                  <div className="card-body">
+                  <div className="body">
                     <div className="def-ko">{item.ko}</div>
                     <div className="def-en">{item.en}</div>
-                    <div className="ex">
+                    <blockquote className="ex">
                       <span dangerouslySetInnerHTML={{ __html: item.ex }} />
-                      <span className="src">
-                        {article.source_name} · {article.published}
-                      </span>
-                    </div>
-                    <div className="card-actions">
+                    </blockquote>
+                    <div className="acts">
                       <button
                         type="button"
                         className="mini say"
                         aria-label="발음 듣기"
                         onClick={() => sayWord(item.w, stripTags(item.ex))}
                       >
-                        🔊
+                        🔊 발음
                       </button>
                       <button type="button" className="mini again" onClick={() => setKnown(item.w, false)}>
                         다시 볼래요
@@ -219,10 +238,10 @@ export function VocabView() {
                     </div>
                   </div>
                 ) : null}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       )}
 
       <p className="note">
