@@ -1,16 +1,14 @@
-// Claude 요약기. Structured Outputs(zodOutputFormat) 로 SPEC 의 출력 스키마를 그대로 받는다.
-//  - beta 경로: client.beta.messages.parse + fallbacks:"default" (server-side-fallback-2026-07-01)
-//  - stop_reason === "refusal" 이면 실패 처리. temperature·prefill 은 쓰지 않는다.
+// Gemini 요약기. Interactions API 의 response_format(JSON Schema) 으로 SPEC 의 출력 스키마를 그대로 받는다.
+//  - @google/genai: ai.interactions.create({ model, input, system_instruction, response_format, generation_config })
+//  - status !== "completed" 이면 실패 처리. 응답은 zod 로 다시 검증한다(스키마 제약 일부는 서버가 무시하므로).
 //  - 후처리: body HTML 정리, data-w ↔ vocab 대조(없으면 span 을 벗김), 개수 검증(vocab 8개 미만이면 실패)
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "./env.js";
 import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
 import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
-export const DEFAULT_MODEL = "claude-opus-5-5";
-const FALLBACK_BETA = "server-side-fallback-2026-07-01";
+export const DEFAULT_MODEL = "gemini-3.8-flash"; // 무료 등급 가능. 더 높은 품질이 필요하면 GEMINI_MODEL=gemini-4-argon
 
 // ---- 출력 스키마 (SPEC「잡 상세 > summarize」). 개수 제한은 API 가 지원하지 않으므로 후처리에서 검증한다 ----
 const LangSchema = z.object({
@@ -210,51 +208,76 @@ export function postValidate(raw: SummaryOutput): { output: SummaryOutput; warni
 
 // ---- 호출 ----
 
-let anthropic: Anthropic | null = null;
-function client(): Anthropic {
-  if (!anthropic) {
-    anthropic = new Anthropic({
-      apiKey: env("ANTHROPIC_API_KEY"), // 없으면 SDK 가 명확한 인증 에러를 낸다
-      timeout: 270_000, // Vercel maxDuration 300s 안에서 끝나도록
-      maxRetries: 1,
-    });
+let genai: GoogleGenAI | null = null;
+function client(): GoogleGenAI {
+  if (!genai) {
+    const apiKey = env("GEMINI_API_KEY");
+    if (!apiKey) throw new Error("환경변수 GEMINI_API_KEY 이(가) 설정되지 않았다");
+    genai = new GoogleGenAI({ apiKey, httpOptions: { timeout: 270_000 } }); // Vercel maxDuration 300s 안에서 끝나도록
   }
-  return anthropic;
+  return genai;
 }
 
 export function modelName(): string {
-  return env("ANTHROPIC_MODEL") ?? DEFAULT_MODEL;
+  return env("GEMINI_MODEL") ?? DEFAULT_MODEL;
 }
+
+/** zod → JSON Schema. Gemini 가 받는 부분집합으로 정리한다($schema·additionalProperties 제거) */
+export function responseJsonSchema(): Record<string, unknown> {
+  const raw = z.toJSONSchema(SummarySchema, { target: "draft-2020-12" }) as Record<string, unknown>;
+  const clean = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(clean);
+    if (node && typeof node === "object") {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+        if (k === "$schema" || k === "additionalProperties" || k === "$id") continue;
+        out[k] = clean(v);
+      }
+      return out;
+    }
+    return node;
+  };
+  return clean(raw) as Record<string, unknown>;
+}
+
+type InteractionUsage = {
+  total_input_tokens?: number; total_output_tokens?: number; total_thought_tokens?: number; total_cached_tokens?: number;
+};
 
 export async function summarizeText(input: SummarizeInput, log?: (m: string) => void): Promise<SummarizeResult> {
   const model = modelName();
-  const format = zodOutputFormat(SummarySchema);
 
-  const res = await client().beta.messages.parse({
+  const res = await client().interactions.create({
     model,
-    max_tokens: 16000,
-    betas: [FALLBACK_BETA],
-    fallbacks: "default", // 분류기 거절 시 Anthropic 권장 모델로 서버측 재시도
-    system: [
-      { type: "text", text: SYSTEM_PROMPT + "\n\n" + exampleBlock(), cache_control: { type: "ephemeral" } },
-    ],
-    messages: [{ role: "user", content: userPrompt(input) }],
-    output_config: { effort: "high", format },
+    system_instruction: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
+    input: userPrompt(input),
+    response_format: { type: "text", mime_type: "application/json", schema: responseJsonSchema() },
+    generation_config: { max_output_tokens: 32000, thinking_level: "high" }, // thinking 토큰도 max_output_tokens 에 포함된다
+    store: false, // 원문을 Google 쪽에 남기지 않는다(저작권·개인정보)
   });
 
-  if (res.stop_reason === "refusal") {
-    const d = res.stop_details as { category?: string | null; explanation?: string | null } | null | undefined;
-    throw new Error(`모델이 거절함(refusal${d?.category ? `: ${d.category}` : ""})${d?.explanation ? ` — ${d.explanation}` : ""}`);
+  if (res.status !== "completed") {
+    throw new Error(`Gemini 응답 상태 ${res.status}${res.status === "incomplete" ? " (max_output_tokens 초과 가능성)" : ""}`);
   }
-  if (res.stop_reason === "max_tokens") throw new Error("출력이 max_tokens 에서 잘림");
-  if (!res.parsed_output) throw new Error(`구조화 출력 파싱 실패 (stop_reason=${res.stop_reason})`);
+  const text = res.output_text?.trim();
+  if (!text) throw new Error("Gemini 가 빈 응답을 돌려줌 (안전 필터 차단 가능성)");
 
-  const usage = res.usage;
-  const tokens_in = usage.input_tokens + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
-  const tokens_out = usage.output_tokens;
-  log?.(`  모델 ${res.model} — in ${tokens_in} / out ${tokens_out} 토큰`);
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`Gemini 출력이 JSON 이 아님: ${text.slice(0, 120)}…`);
+  }
+  const parsed = SummarySchema.safeParse(json);
+  if (!parsed.success) throw new Error(`구조화 출력 스키마 불일치: ${parsed.error.issues.slice(0, 3).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
 
-  const { output, warnings } = postValidate(res.parsed_output);
+  const usage = ((res as unknown as { usage?: InteractionUsage }).usage ?? {}) as InteractionUsage;
+  const tokens_in = (usage.total_input_tokens ?? 0) + (usage.total_cached_tokens ?? 0);
+  const tokens_out = (usage.total_output_tokens ?? 0) + (usage.total_thought_tokens ?? 0);
+  const servedModel = typeof res.model === "string" ? res.model : model;
+  log?.(`  모델 ${servedModel} — in ${tokens_in} / out ${tokens_out} 토큰 (thinking ${usage.total_thought_tokens ?? 0})`);
+
+  const { output, warnings } = postValidate(parsed.data);
   for (const w of warnings) log?.(`  ⚠ ${w}`);
-  return { output, model: res.model, tokens_in, tokens_out, warnings };
+  return { output, model: servedModel, tokens_in, tokens_out, warnings };
 }

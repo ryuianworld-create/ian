@@ -22,8 +22,8 @@ scripts/import-legacy.ts  1세대 데이터 이관
 | 변수 | 필수 | 용도 |
 |---|---|---|
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | 예 | DB·Auth 검증 |
-| `ANTHROPIC_API_KEY` | summarize 에 필요 | Claude 요약 |
-| `ANTHROPIC_MODEL` | 아니오 | 기본 `claude-opus-5-5` |
+| `GEMINI_API_KEY` | summarize 에 필요 | Gemini 요약 (Google AI Studio 에서 발급) |
+| `GEMINI_MODEL` | 아니오 | 기본 `gemini-3.8-flash` (무료 등급 가능). 품질 우선이면 `gemini-4-argon` |
 | `RESEND_API_KEY`, `EMAIL_FROM` | 아니오 | 없으면 메일은 `skipped` 로 기록 |
 | `CRON_SECRET` | 예 | `/cron/*` 보호. Vercel 이 자동으로 `Authorization: Bearer` 로 보냄 |
 | `ADMIN_EMAILS` | 예 | 쉼표 구분. 자동 admin 승격 |
@@ -56,7 +56,7 @@ articles 6편(featured_date = 발행일, 겹치면 하루씩 앞으로), index_i
 ```bash
 npm i -g vercel
 vercel link                         # 이 폴더(api)를 프로젝트 루트로
-for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY ANTHROPIC_API_KEY CRON_SECRET ADMIN_EMAILS WEB_URL RESEND_API_KEY EMAIL_FROM; do
+for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GEMINI_API_KEY CRON_SECRET ADMIN_EMAILS WEB_URL RESEND_API_KEY EMAIL_FROM; do
   vercel env add $v production
 done
 vercel --prod
