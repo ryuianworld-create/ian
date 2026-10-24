@@ -74,3 +74,6 @@ vercel --prod
 
 - 프레임워크 프리셋은 **Other** 로 둔다. Hono 프리셋은 TS 를 확장자 없는 ESM 으로 올려 런타임에 모듈을 못 찾는다.
 - `build` 스크립트를 두지 않는다. 두면 Vercel 이 정적 사이트로 간주해 `public/` 출력 폴더를 요구한다. 함수는 `api/index.ts` 하나이고 `vercel.json` 의 rewrite 로 모든 경로를 받는다.
+- 진입점은 `getRequestListener(app.fetch)`(@hono/node-server) 를 쓴다. `hono/vercel` 은 Web Request 전용이라 Vercel Node 런타임의 (req, res) 에서는 `headers.get is not a function` 으로 응답 없이 타임아웃된다.
+- 상대 import 는 반드시 `.js` 확장자를 붙인다. Vercel 은 TS 를 파일 단위 ESM 으로 올리므로 확장자가 없으면 런타임에 `ERR_MODULE_NOT_FOUND`.
+- 운영 주소: https://hr-daily-api.vercel.app (프로젝트 `hr-daily-api`, 팀 ian19-49ed). 웹: https://hr-daily-web-ian19-49ed.vercel.app
