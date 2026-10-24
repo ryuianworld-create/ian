@@ -32,7 +32,7 @@ api 가 요청마다 계산한다.
 | `approved` | 승인 | 전체 아티클, 서재, 매일 아침 메일 |
 | `admin` | `ADMIN_EMAILS` 에 포함된 이메일 또는 profiles.role='admin' | approved + 관리자 화면 |
 
-`ADMIN_EMAILS`(쉼표 구분)에 있는 이메일은 api 가 요청 처리 시 자동으로 `role='admin', status='approved'` 로 올린다(부트스트랩).
+관리자 이메일은 DB `settings.admin_emails`(JSON 배열, 기본 `["rchworld@gmail.com"]`)에 둔다. 가입 트리거가 그 이메일을 `role='admin', status='approved'` 로 만든다. api 의 `ADMIN_EMAILS` 환경변수는 선택 사항(같은 역할의 보조 경로).
 
 ## 데이터 형식 (기존 articles.json 과 호환)
 
