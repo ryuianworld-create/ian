@@ -69,3 +69,8 @@ vercel --prod
 ## 잡 수동 실행
 
 관리자 토큰으로 `POST /v1/admin/jobs/{collect|summarize|digest}` (summarize 는 `{ inbox_id?, featured_date? }`). 결과 `run.log` 에 실행 로그가 들어 있고, `GET /v1/admin/runs` 로 지난 실행을 본다.
+
+## Vercel 배포 메모
+
+- 프레임워크 프리셋은 **Other** 로 둔다. Hono 프리셋은 TS 를 확장자 없는 ESM 으로 올려 런타임에 모듈을 못 찾는다.
+- `build` 스크립트를 두지 않는다. 두면 Vercel 이 정적 사이트로 간주해 `public/` 출력 폴더를 요구한다. 함수는 `api/index.ts` 하나이고 `vercel.json` 의 rewrite 로 모든 경로를 받는다.
