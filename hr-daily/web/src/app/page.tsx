@@ -1,8 +1,8 @@
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { getServerToken } from "@/lib/supabase/server";
-import { HomeView } from "@/components/HomeView";
-import type { FeedResponse } from "@/lib/types";
+import { HomeJournal } from "@/components/HomeJournal";
+import type { Article, FeedResponse, StatsResponse } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -31,5 +31,14 @@ export default async function HomePage() {
       </section>
     );
   }
-  return <HomeView feed={feed} />;
+
+  // 통계와 오늘 글 전체(단어 미리보기용)는 실패해도 홈을 막지 않는다
+  const [stats, today] = await Promise.all([
+    api.stats().catch((): StatsResponse | null => null),
+    feed.today && !feed.today.locked
+      ? api.article(feed.today.id, token).then((r) => r.article).catch((): Article | null => null)
+      : Promise.resolve<Article | null>(null),
+  ]);
+
+  return <HomeJournal feed={feed} stats={stats} today={today} />;
 }

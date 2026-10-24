@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api } from "@/lib/api";
 import type { StatsResponse } from "@/lib/types";
+import { DesktopNav } from "./DesktopNav";
 
 // 상단 헤더: 브랜드 + DAY N(= 아티클 수) + 요약 편수·단어 수. 공개 통계라 토큰이 필요 없다.
 export async function TopBar() {
@@ -16,6 +17,7 @@ export async function TopBar() {
         <Link href="/" className="brand">
           HR 아티클 한 편 <span className="no">{stats ? `DAY ${stats.articles}` : "—"}</span>
         </Link>
+        <DesktopNav />
         <div className="streak">
           {stats ? (
             <>
