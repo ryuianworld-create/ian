@@ -44,8 +44,10 @@
     🪀 팽이 줄을 타고 TV로 · 🚽 화장실 · 🌞🌙 3분마다 낮/밤이 바뀜<br>
     🚪 현관문 밖으로 나가면 겨울의 스위스 알프스 ❄ — 설산, 전나무, 눈사람 ⛄, 썰매 🛷, 얼어붙은 호수<br>
     <span class="go">클릭해서 시작</span>
+    <div style="margin-top:12px;font-size:12px;color:#9fb0c3;line-height:1.5">※ 글자만 보이고 3D가 안 나오면 미리보기 창에서 연 거예요.<br>파일을 <b>Safari나 Chrome</b>으로 열어 주세요 (파일 우클릭 → 다음으로 열기).</div>
   </div>
 </div>
+<noscript><div style="position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;text-align:center;z-index:20">이 게임은 Safari나 Chrome 같은 브라우저에서 열어야 해요.<br>(자바스크립트가 꺼져 있거나 미리보기 창이에요)</div></noscript>
 <script>
 /**
  * @license
@@ -56,9 +58,13 @@
 
 </script>
 <script>
+function gameFail(msg){ const b=document.querySelector('#start .box'); if(b) b.innerHTML='<h1>앗, 게임을 켤 수 없어요</h1><div style="line-height:1.8">'+msg+'</div>'; document.getElementById('start').style.display='flex'; }
+if(!window.THREE) gameFail('three.min.js 파일이 index.html과 <b>같은 폴더</b>에 있어야 해요.<br>zip을 풀고 폴더 안의 index.html을 열거나, giant-house-single.html 파일을 열어 주세요.');
+</script>
+<script>
 // ===== 기본 세팅 =====
 const scene = new THREE.Scene();
-const renderer = new THREE.WebGLRenderer({antialias:true});
+let renderer; try { renderer = new THREE.WebGLRenderer({antialias:true}); } catch(e){ gameFail('이 화면에서는 3D(WebGL)를 실행할 수 없어요.<br>파일을 <b>Safari나 Chrome</b>으로 열어 주세요.'); throw e; }
 renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
