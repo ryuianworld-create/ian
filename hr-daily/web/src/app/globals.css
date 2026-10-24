@@ -909,3 +909,4 @@ a.btn{text-decoration:none}
 .jr-admin .subtabs{margin-top:0}
 .jr-admin .ulist li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .jr-admin .ulist .who .e{font-family:var(--font-body);font-size:14.5px}
+.jr-tagline,.jr-cardtitle,.jr-points{word-break:keep-all}
