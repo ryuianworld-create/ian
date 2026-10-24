@@ -841,3 +841,4 @@ a.btn{text-decoration:none}
   .jr-sechead{flex-direction:column;align-items:flex-start;gap:6px}
   .jr-sechead .sec{font-size:23px}
 }
+@media (max-width:640px){.jr-issue{flex-direction:column;align-items:flex-start;gap:4px}.jr-date{font-size:14px}}
