@@ -9,8 +9,8 @@ import type { AdminOverview, InboxItem, JobName, JobRun, Profile } from "@/lib/t
 import { useAuth } from "./AuthProvider";
 
 const JOBS: { job: JobName; label: string; desc: string }[] = [
-  { job: "collect", label: "지금 수집", desc: "소스 RSS → inbox" },
-  { job: "summarize", label: "지금 요약", desc: "오늘 한 편 선정 → Claude 요약" },
+  { job: "collect", label: "지금 수집", desc: "학술지·매체 피드 → 대기열" },
+  { job: "summarize", label: "지금 요약", desc: "오늘 한 편 선정 → Gemini 요약" },
   { job: "digest", label: "지금 메일", desc: "승인 회원에게 발송" },
 ];
 
@@ -142,48 +142,72 @@ export function AdminView() {
     return <div className="note" style={{ marginTop: 18 }}>권한을 확인하는 중입니다…</div>;
   }
 
+  const runState = (j: JobName) => {
+    const r = overview?.last_runs?.[j];
+    if (!r) return { text: "기록 없음", cls: "" };
+    if (r.ok === null) return { text: `실행 중 · ${fmt(r.started_at)}`, cls: "" };
+    return { text: `${r.ok ? "성공" : "실패"} · ${fmt(r.finished_at ?? r.started_at)}`, cls: r.ok ? "ok" : "bad" };
+  };
+
   return (
-    <>
+    <div className="jr-admin">
       {error ? <div className="err" style={{ marginTop: 14 }}>{error}</div> : null}
 
       {/* 대시보드 */}
-      <div className="grid4">
-        <Stat n={overview?.users.total} label="회원" />
-        <Stat n={overview?.users.pending} label="대기" accent />
-        <Stat n={overview?.articles} label="아티클" />
-        <Stat n={overview?.inbox_pending} label="inbox 대기" />
-      </div>
-      <div className="note" style={{ marginTop: 0 }}>
-        다음 발행일 <b>{overview?.next_featured_date ?? "—"}</b>
-        <br />
-        {(["collect", "summarize", "digest"] as JobName[]).map((j) => {
-          const r = overview?.last_runs?.[j];
-          return (
-            <span key={j} style={{ display: "block" }}>
-              {j}: {r ? `${r.ok === null ? "실행 중" : r.ok ? "성공" : "실패"} · ${fmt(r.finished_at ?? r.started_at)}` : "기록 없음"}
-            </span>
-          );
-        })}
+      <div className="jr-strip" aria-label="현황">
+        <div>
+          <span className="n">{overview?.users.total ?? "—"}</span>
+          <span className="l">회원</span>
+        </div>
+        <div>
+          <span className={`n${(overview?.users.pending ?? 0) > 0 ? " accent" : ""}`}>{overview?.users.pending ?? "—"}</span>
+          <span className="l">승인 대기</span>
+        </div>
+        <div>
+          <span className="n">{overview?.articles ?? "—"}</span>
+          <span className="l">발행 호</span>
+        </div>
+        <div>
+          <span className="n">{overview?.inbox_pending ?? "—"}</span>
+          <span className="l">요약 대기열</span>
+        </div>
       </div>
 
-      {/* 잡 실행 */}
-      <div className="sec-head" style={{ marginTop: 24 }}>
-        <span className="eyebrow">Jobs</span>
-        <h2 className="sec" style={{ fontSize: 18 }}>
-          즉시 실행
-        </h2>
+      {/* 운영 */}
+      <div className="jr-sechead">
+        <div>
+          <span className="eyebrow">Operations</span>
+          <h2 className="sec">즉시 실행</h2>
+        </div>
+        <span className="jr-hint">다음 발행일 {overview?.next_featured_date ?? "—"}</span>
       </div>
-      <div className="jobs">
-        {JOBS.map((j) => (
-          <button key={j.job} type="button" className="btn" disabled={!!running} onClick={() => runJob(j.job)} title={j.desc}>
-            {running === j.job ? "실행 중…" : j.label}
-          </button>
-        ))}
-      </div>
+      <ul className="jr-jobs">
+        {JOBS.map((j) => {
+          const st = runState(j.job);
+          return (
+            <li key={j.job}>
+              <div className="top">
+                <b>{j.label}</b>
+                <span className="desc">{j.desc}</span>
+              </div>
+              <div className={`last ${st.cls}`}>마지막 실행 · {st.text}</div>
+              <button type="button" className="btn primary" disabled={!!running} onClick={() => runJob(j.job)}>
+                {running === j.job ? "실행 중…" : j.label}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
       {lastRun ? <pre className="log">{logText(lastRun)}</pre> : null}
 
       {/* 목록 */}
-      <div className="subtabs" style={{ marginTop: 24 }}>
+      <div className="jr-sechead" style={{ marginBottom: 4 }}>
+        <div>
+          <span className="eyebrow">Records</span>
+          <h2 className="sec">회원과 대기열</h2>
+        </div>
+      </div>
+      <div className="subtabs">
         <button type="button" aria-pressed={tab === "pending"} onClick={() => setTab("pending")}>
           대기 {pending.length}
         </button>
@@ -343,17 +367,6 @@ export function AdminView() {
           <p className="note">실행 기록이 없습니다.</p>
         )
       ) : null}
-    </>
-  );
-}
-
-function Stat({ n, label, accent }: { n: number | undefined; label: string; accent?: boolean }) {
-  return (
-    <div className="vstat">
-      <div className="n" style={accent ? { color: "var(--accent)" } : undefined}>
-        {n ?? "—"}
-      </div>
-      <div className="lbl">{label}</div>
     </div>
   );
 }

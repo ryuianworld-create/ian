@@ -73,8 +73,10 @@ export function AccountView() {
     return <div className="note" style={{ marginTop: 18 }}>내 정보를 불러오는 중입니다…</div>;
   }
 
+  const statusClass = me ? (me.viewer.kind === "admin" ? "admin" : me.profile.status) : "";
+
   return (
-    <>
+    <div className="jr-account">
       {error ? (
         <div className="err" style={{ marginTop: 16 }}>
           {error}
@@ -83,56 +85,77 @@ export function AccountView() {
       ) : null}
 
       {me ? (
-        <>
-          <div className={`banner ${me.viewer.kind === "pending" ? "pending" : me.viewer.kind === "rejected" ? "rejected" : "ok"}`}>
-            <span>
-              <b>{me.profile.email}</b> · {viewerLabel(me.viewer.kind)}
-              {me.viewer.kind === "pending" ? " — 관리자 승인을 기다리고 있습니다." : ""}
-              {me.viewer.kind === "rejected" && me.profile.note ? ` — ${me.profile.note}` : ""}
-            </span>
+        <div className="jr-accgrid">
+          <section className="jr-card">
+            <span className="eyebrow">Profile</span>
+            <div className="jr-who">
+              <span className="avatar" aria-hidden="true">
+                {(me.profile.display_name || me.profile.email).slice(0, 1).toUpperCase()}
+              </span>
+              <div>
+                <div className="name">{me.profile.display_name || me.profile.email.split("@")[0]}</div>
+                <div className="mail">{me.profile.email}</div>
+              </div>
+            </div>
+            <dl className="jr-dl">
+              <dt>상태</dt>
+              <dd>
+                <span className={`pill ${statusClass}`}>{viewerLabel(me.viewer.kind)}</span>
+                {me.viewer.kind === "pending" ? <span className="hint"> 관리자 승인을 기다리고 있습니다.</span> : null}
+                {me.viewer.kind === "rejected" && me.profile.note ? <span className="hint"> {me.profile.note}</span> : null}
+              </dd>
+              <dt>가입일</dt>
+              <dd>{me.profile.created_at.slice(0, 10)}</dd>
+              {me.profile.approved_at ? (
+                <>
+                  <dt>승인일</dt>
+                  <dd>{me.profile.approved_at.slice(0, 10)}</dd>
+                </>
+              ) : null}
+              <dt>아침 메일</dt>
+              <dd>{me.profile.email_opt_in ? "받음 · 매일 07:00" : "받지 않음"}</dd>
+            </dl>
             {me.viewer.kind === "admin" ? (
-              <Link className="lnk" href="/admin">
-                관리자 →
+              <Link className="btn" href="/admin">
+                관리자 화면 →
               </Link>
             ) : me.viewer.kind === "pending" ? (
-              <Link className="lnk" href="/pending">
-                안내 →
+              <Link className="btn" href="/pending">
+                승인 안내 →
               </Link>
             ) : null}
-          </div>
+          </section>
 
-          <form className="form" onSubmit={submit}>
-            <div className="field">
-              <label htmlFor="display_name">이름</label>
-              <input id="display_name" type="text" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
-            </div>
-            <label className="check">
-              <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
-              매일 아침 7시에 그날의 아티클을 메일로 받기
-            </label>
-            {me.viewer.kind !== "approved" && me.viewer.kind !== "admin" ? (
-              <span className="help muted" style={{ fontSize: 12 }}>
-                메일은 승인된 뒤부터 발송됩니다.
-              </span>
-            ) : null}
-            {saved ? <div className="msg">저장했습니다.</div> : null}
-            <button type="submit" className="btn primary" disabled={busy}>
-              {busy ? "저장 중…" : "저장"}
-            </button>
-          </form>
-
-          <p className="page-note muted" style={{ fontSize: 12 }}>
-            가입일 {me.profile.created_at.slice(0, 10)}
-            {me.profile.approved_at ? ` · 승인일 ${me.profile.approved_at.slice(0, 10)}` : ""}
-          </p>
-        </>
+          <section className="jr-card">
+            <span className="eyebrow">Settings</span>
+            <form className="form" onSubmit={submit}>
+              <div className="field">
+                <label htmlFor="display_name">이름</label>
+                <input id="display_name" type="text" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+              </div>
+              <label className="check">
+                <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
+                매일 아침 7시에 그날의 아티클을 메일로 받기
+              </label>
+              {me.viewer.kind !== "approved" && me.viewer.kind !== "admin" ? (
+                <span className="help muted" style={{ fontSize: 12 }}>
+                  메일은 승인된 뒤부터 발송됩니다.
+                </span>
+              ) : null}
+              {saved ? <div className="msg">저장했습니다.</div> : null}
+              <button type="submit" className="btn primary" disabled={busy}>
+                {busy ? "저장 중…" : "저장"}
+              </button>
+            </form>
+          </section>
+        </div>
       ) : null}
 
-      <div style={{ marginTop: 26 }}>
-        <button type="button" className="btn danger" onClick={logout} style={{ width: "100%" }}>
+      <div className="jr-signout">
+        <button type="button" className="btn danger" onClick={logout}>
           로그아웃{email ? ` (${email})` : ""}
         </button>
       </div>
-    </>
+    </div>
   );
 }
