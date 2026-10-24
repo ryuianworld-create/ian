@@ -108,19 +108,24 @@ scene.fog = new THREE.Fog(0xcfe8ff, 300, 900);
 // ===== 방 (원룸) =====
 const floorTex = canvasTex(g=>{ g.fillStyle='#d9c29a'; g.fillRect(0,0,256,256); g.strokeStyle='#c4ab82'; g.lineWidth=3; for(let i=0;i<=256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); } }, 12);
 box(ROOM, 2, ROOM, 0,-1,0, new THREE.MeshStandardMaterial({map:floorTex, roughness:.9}), {shadow:false}); // 장판 바닥
-box(ROOM, 2, ROOM, 0,H+1,0, 0xf4f4f4, {shadow:false}); // 천장
+const ceilingMesh = box(ROOM, 2, ROOM, 0,H+1,0, 0xf4f4f4, {shadow:false}); // 천장
 const wallTex = canvasTex(g=>{ g.fillStyle='#f2ead8'; g.fillRect(0,0,256,256); g.fillStyle='#e9dfc8'; for(let y=0;y<256;y+=32) for(let x=0;x<256;x+=32) if((x+y)/32%2===0) g.fillRect(x,y,32,32); }, 8);
 const wallM = new THREE.MeshStandardMaterial({map:wallTex, roughness:.9});
-box(ROOM, H, 2, 0,H/2,-half-1, wallM, {shadow:false}); // 북
-box(ROOM/2-15, H, 2, -(ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 왼쪽)
-box(ROOM/2-15, H, 2,  (ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 오른쪽)
-box(30, H-72, 2, 0, 72+(H-72)/2, half+1, wallM, {shadow:false});          // 문 위쪽
-box(2, H, ROOM, -half-1,H/2,0, wallM, {shadow:false}); // 서
-box(2, H, ROOM,  half+1,H/2,0, wallM, {shadow:false}); // 동
+const wallN = box(ROOM, H, 2, 0,H/2,-half-1, wallM, {shadow:false}); // 북
+const wallS1 = box(ROOM/2-15, H, 2, -(ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 왼쪽)
+const wallS2 = box(ROOM/2-15, H, 2,  (ROOM/4+7.5),H/2, half+1, wallM, {shadow:false}); // 남 (현관문 오른쪽)
+const wallS3 = box(30, H-72, 2, 0, 72+(H-72)/2, half+1, wallM, {shadow:false});          // 문 위쪽
+const wallW = box(2, H, ROOM, -half-1,H/2,0, wallM, {shadow:false}); // 서
+const wallParts=[]; // 밤에만 그림자를 드리워 달빛이 창문으로만 들어오게 함
+wallParts.push(box(2, H, (half-40), half+1, H/2, -half+(half-40)/2, wallM, {shadow:false}));   // 동 (창문 북쪽)
+wallParts.push(box(2, H, (half-30), half+1, H/2,  half-(half-30)/2, wallM, {shadow:false}));   // 동 (창문 남쪽)
+wallParts.push(box(2, 45, 70, half+1, 22.5, -5, wallM, {shadow:false}));                        // 동 (창문 아래)
+wallParts.push(box(2, H-95, 70, half+1, 95+(H-95)/2, -5, wallM, {shadow:false}));              // 동 (창문 위)
 // 창문(동벽)
-const windowM = new THREE.MeshStandardMaterial({color:0x9fd3ff, emissive:0x4477aa, emissiveIntensity:.5});
-box(1, 50, 70, half-.3, 70, -5, windowM, {solid:false, shadow:false});
-box(1, 52, 3, half-.5, 70, -5, 0xffffff, {solid:false}); box(1,3,72, half-.5,70,-5, 0xffffff,{solid:false});
+const windowM = new THREE.MeshStandardMaterial({color:0xbfe3ff, transparent:true, opacity:.22, roughness:.05, metalness:.2, side:THREE.DoubleSide});
+box(.6, 50, 70, half+1, 70, -5, windowM, {solid:true, shadow:false});                           // 유리 (밖이 보임)
+box(2.6, 52, 3, half+1, 70, -5, 0xffffff, {solid:false}); box(2.6,3,72, half+1,70,-5, 0xffffff,{solid:false}); // 창살
+box(2.6, 3, 72, half+1, 45.5, -5, 0xffffff, {solid:false}); box(2.6,3,72, half+1,94.5,-5, 0xffffff,{solid:false}); box(2.6,52,3, half+1,70,-40, 0xffffff,{solid:false}); box(2.6,52,3, half+1,70,30, 0xffffff,{solid:false}); // 창틀
 // 현관문 (남벽 가운데, 열려 있음)
 const door = box(28, 70, 2, 0, 35, half-1, 0x8b5a2b, {solid:false});
 door.rotation.y = Math.PI/2.8; door.position.set(-18, 35, half+4);
@@ -142,10 +147,10 @@ const snowM = new THREE.MeshStandardMaterial({map:snowTex, roughness:.95});
 box(3000, 2, 3000, 0, -1.6, 300, snowM, {shadow:false});                // 눈 덮인 땅 (집 바닥보다 살짝 낮아서 겹치지 않음)
 // 집 지붕 (밖에서 보면 눈 쌓인 샬레)
 { const th=Math.PI/6, L=(half+12)/Math.cos(th), cy=H+2+(half+12)*Math.tan(th)/2;
-  const r1=box(ROOM+24, 3, L, 0, cy, (half+12)/2, 0xf5f8fa, {solid:false}); r1.rotation.x=th;
-  const r2=box(ROOM+24, 3, L, 0, cy, -(half+12)/2, 0xf5f8fa, {solid:false}); r2.rotation.x=-th;
-  const u1=box(ROOM+24, 1, L, 0, cy-2, (half+12)/2, 0x6d4c41, {solid:false}); u1.rotation.x=th;
-  const u2=box(ROOM+24, 1, L, 0, cy-2, -(half+12)/2, 0x6d4c41, {solid:false}); u2.rotation.x=-th;
+  const r1=box(ROOM+24, 3, L, 0, cy, (half+12)/2, 0xf5f8fa, {solid:false, shadow:false}); r1.rotation.x=th;
+  const r2=box(ROOM+24, 3, L, 0, cy, -(half+12)/2, 0xf5f8fa, {solid:false, shadow:false}); r2.rotation.x=-th;
+  const u1=box(ROOM+24, 1, L, 0, cy-2, (half+12)/2, 0x6d4c41, {solid:false, shadow:false}); u1.rotation.x=th;
+  const u2=box(ROOM+24, 1, L, 0, cy-2, -(half+12)/2, 0x6d4c41, {solid:false, shadow:false}); u2.rotation.x=-th;
   box(14, 30, 14, half-40, H+2+(half+12-40)*Math.tan(th)+10, 40, 0x8d6e63, {solid:false}); }   // 굴뚝
 box(3, 60, 3, -half-8, 30, half+20, 0xffffff, {solid:false}); box(3,60,3, half+8,30,half+20, 0xffffff,{solid:false}); // 집 모서리 기둥(눈)
 // 현관 앞 돌길
@@ -195,13 +200,26 @@ const SNOW_N=2200, snowPos=new Float32Array(SNOW_N*3), snowSpd=new Float32Array(
 for(let i=0;i<SNOW_N;i++){ snowPos[i*3]=(Math.random()-.5)*420; snowPos[i*3+1]=Math.random()*160; snowPos[i*3+2]=(Math.random()-.5)*420; snowSpd[i]=14+Math.random()*12; }
 const snowGeo=new THREE.BufferGeometry(); snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos,3));
 const snow=new THREE.Points(snowGeo, new THREE.PointsMaterial({color:0xffffff, size:1.4, transparent:true, opacity:.9, sizeAttenuation:true})); snow.visible=false; scene.add(snow);
+const snowLogic=new Float32Array(snowPos); // 실제 위치(플레이어 기준). 집 안쪽 입자는 화면 버퍼에서만 숨김
 function updateSnow(dt, now){
   snow.visible = player.z > OUT-60 && player.y<400; if(!snow.visible) return;
   snow.position.set(player.x, 0, player.z);
-  for(let i=0;i<SNOW_N;i++){ let y=snowPos[i*3+1]-snowSpd[i]*dt; snowPos[i*3]+=Math.sin(now/700+i)*4*dt; if(y<0) y+=160; snowPos[i*3+1]=y; }
+  for(let i=0;i<SNOW_N;i++){
+    let y=snowLogic[i*3+1]-snowSpd[i]*dt; snowLogic[i*3]+=Math.sin(now/700+i)*4*dt; if(y<0) y+=160; snowLogic[i*3+1]=y;
+    const wx=player.x+snowLogic[i*3], wz=player.z+snowLogic[i*3+2];
+    const inHouse = Math.abs(wx)<half+14 && wz>-half-14 && wz<OUT+2;   // 지붕 아래
+    snowPos[i*3]=snowLogic[i*3]; snowPos[i*3+1]= inHouse ? -500 : y; snowPos[i*3+2]=snowLogic[i*3+2];
+  }
   snowGeo.attributes.position.needsUpdate=true;
 }
 let outside=false;
+// 달과 별 (밤에만 보임, 안개 영향 없음)
+const MOON_DIR = new THREE.Vector3(1, 0.42, -0.05).normalize();   // 동쪽 하늘, 창문 쪽
+const moon = new THREE.Mesh(new THREE.SphereGeometry(70,24,24), new THREE.MeshBasicMaterial({color:0xfff6d5, fog:false}));
+moon.position.copy(MOON_DIR).multiplyScalar(2300); moon.visible=false; scene.add(moon);
+const starPos=new Float32Array(500*3); for(let i=0;i<500;i++){ const a=Math.random()*Math.PI*2, b=Math.random()*1.3+.15, r=2600; starPos[i*3]=Math.cos(a)*Math.cos(b)*r; starPos[i*3+1]=Math.sin(b)*r; starPos[i*3+2]=Math.sin(a)*Math.cos(b)*r; }
+const starGeo=new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+const stars=new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:6, fog:false, transparent:true, opacity:.9})); stars.visible=false; scene.add(stars);
 
 // ===== 양말 이불 (문 들어와서 왼쪽 바닥) =====
 function sock(x,z,color,rot){
@@ -575,17 +593,25 @@ function physics(e, dt){
 function inAny(list, x,y,z){ tmpV.set(x,y-PH/2,z); return list.some(c=>c.box.containsPoint(tmpV)); }
 
 // ===== 낮밤 (3분마다 바뀜) =====
-let dayT = 0; const DAY_LEN = 180;
+let dayT = 0, nightK = 0, lastDt = 0.016; const DAY_LEN = 180;
 const clockEl=document.getElementById('clock'), barEl=document.getElementById('bar');
 function updateSky(){
   const t=(dayT%(DAY_LEN*2))/DAY_LEN; // 0~1 낮, 1~2 밤
   const night = t>=1; const k = night ? 1 - Math.abs((t-1)*2-1) : 1 - Math.abs(t*2-1);
-  sun.intensity = night ? 0.05 : 0.6+0.6*k; hemi.intensity = night ? .25 : .8+.4*k;
-  lamp.intensity = night ? 2.2 : 0; fill.intensity = night ? .2 : .5;
-  const sky = night ? new THREE.Color(0x0b1026) : new THREE.Color(0xdbe9f6).lerp(new THREE.Color(0xf3d9c0), 1-k);
+  // 부드럽게 전환 (nightK: 0=낮, 1=밤)
+  nightK += ((night?1:0) - nightK) * Math.min(1, lastDt*1.5);
+  const L = (d,n) => d + (n-d)*nightK;
+  sun.intensity = L(0.6+0.6*k, 1.1); hemi.intensity = L(.8+.4*k, outside ? .3 : .11); lamp.intensity = 0; fill.intensity = L(.5, .03); // 밤: 집 안은 어둡고, 밖 눈밭은 달빛에 살짝 밝음
+  sun.color.lerpColors(new THREE.Color(0xffffff), new THREE.Color(0x9fb8ff), nightK);           // 밤엔 푸른 달빛
+  hemi.color.lerpColors(new THREE.Color(0xffffff), new THREE.Color(0x8da2c8), nightK);
+  fridgeLight.intensity = L(.9, .25);
+  const sky = new THREE.Color(0xdbe9f6).lerp(new THREE.Color(0xf3d9c0), 1-k).lerp(new THREE.Color(0x070b1c), nightK);
   scene.background = sky; scene.fog.color = sky;
-  windowM.emissive.set(night ? 0x0b1026 : 0x4477aa); windowM.color.set(night ? 0x1a2240 : 0x9fd3ff);
-  const ang = (t%1)*Math.PI; sun.position.set(Math.cos(ang)*120, 140+Math.sin(ang)*80, 60);
+  moon.visible = stars.visible = nightK>.5;
+  // 밤에는 벽과 천장이 빛을 막아서, 달빛이 동쪽 창문(과 현관문)으로만 들어옴
+  const block = nightK>.5; [ceilingMesh, wallN, wallW, wallS1, wallS2, wallS3, ...wallParts].forEach(m=>{ m.castShadow=block; });
+  if(block){ sun.position.copy(MOON_DIR).multiplyScalar(260); }                                   // 달 방향에서 비춤
+  else { const ang = (t%1)*Math.PI; sun.position.set(Math.cos(ang)*120, 140+Math.sin(ang)*80, 60); }
   clockEl.textContent = night ? '🌙 밤' : '🌞 낮';
   const left = Math.ceil(DAY_LEN - (dayT%DAY_LEN)); barEl.textContent = '(' + Math.floor(left/60) + ':' + String(left%60).padStart(2,'0') + ' 뒤 ' + (night?'🌞':'🌙') + ')';
 }
@@ -596,7 +622,7 @@ const camTarget=new THREE.Vector3();
 function loop(now){
   requestAnimationFrame(loop);
   const dt=Math.min(.05,(now-last)/1000); last=now;
-  dayT += dt; updateSky();
+  dayT += dt; lastDt = dt; updateSky();
 
   let mx=0, mz=0;
   if(keys.KeyW||keys.ArrowUp) mz-=1; if(keys.KeyS||keys.ArrowDown) mz+=1;
