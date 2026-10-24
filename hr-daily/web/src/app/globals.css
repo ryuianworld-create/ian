@@ -834,3 +834,10 @@ a.btn{text-decoration:none}
 .jr-words .ex b{color:var(--accent)}
 .jr-words .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 @media (max-width:480px){.jr-words .gloss,.jr-words .body{padding-left:18px}}
+
+/* 한국어 제목은 단어 단위로만 줄바꿈. 좁은 화면에서 섹션 헤더는 세로로 쌓는다 */
+.jr-title,.jr-h1,.jr .sec,.jr-subcard h2,.jr-grid h3,.jr-rows .t{word-break:keep-all;overflow-wrap:anywhere}
+@media (max-width:640px){
+  .jr-sechead{flex-direction:column;align-items:flex-start;gap:6px}
+  .jr-sechead .sec{font-size:23px}
+}
