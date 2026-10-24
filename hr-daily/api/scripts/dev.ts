@@ -1,10 +1,10 @@
 // 로컬 개발 서버: .env 를 읽고 8787 포트로 Hono 앱을 띄운다.
 //   npm run dev  →  http://localhost:8787/
 import { serve } from "@hono/node-server";
-import { loadDotEnv } from "../src/lib/env";
+import { loadDotEnv } from "../src/lib/env.js";
 
 loadDotEnv();
-const { default: app } = await import("../src/app");
+const { default: app } = await import("../src/app.js");
 
 const port = Number(process.env.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, (info) => {

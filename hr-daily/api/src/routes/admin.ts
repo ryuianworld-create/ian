@@ -1,13 +1,13 @@
 // /v1/admin/* — viewer.kind === 'admin' 만.
 import { Hono } from "hono";
-import { PROFILE_COLUMNS, requireAdmin, toProfile, type AppEnv } from "../lib/auth";
-import { approvedEmail, sendEmail } from "../lib/email";
-import { DATE_RE, UUID_RE, badRequest, notFound, parseLimit, readJson } from "../lib/http";
-import { addDays, isValidDate, kstToday } from "../lib/kst";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
-import { isJobName, runNamedJob } from "../jobs";
-import type { SummarizeParams } from "../jobs/summarize";
-import type { InboxStatus, JobName, Profile, UserStatus } from "../types";
+import { PROFILE_COLUMNS, requireAdmin, toProfile, type AppEnv } from "../lib/auth.js";
+import { approvedEmail, sendEmail } from "../lib/email.js";
+import { DATE_RE, UUID_RE, badRequest, notFound, parseLimit, readJson } from "../lib/http.js";
+import { addDays, isValidDate, kstToday } from "../lib/kst.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
+import { isJobName, runNamedJob } from "../jobs/index.js";
+import type { SummarizeParams } from "../jobs/summarize.js";
+import type { InboxStatus, JobName, Profile, UserStatus } from "../types.js";
 
 export const admin = new Hono<AppEnv>();
 

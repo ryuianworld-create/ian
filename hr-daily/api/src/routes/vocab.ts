@@ -1,8 +1,8 @@
 // /v1/vocab/progress — 외운 단어. 로그인 필요(승인 불문).
 import { Hono } from "hono";
-import { requireUser, type AppEnv } from "../lib/auth";
-import { badRequest, notFound, readJson } from "../lib/http";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
+import { requireUser, type AppEnv } from "../lib/auth.js";
+import { badRequest, notFound, readJson } from "../lib/http.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 
 export const vocab = new Hono<AppEnv>();
 

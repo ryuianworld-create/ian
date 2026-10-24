@@ -8,13 +8,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadDotEnv } from "../src/lib/env";
-import { addDays, kstToday, toDate } from "../src/lib/kst";
-import { computeScore } from "../src/lib/score";
-import type { DetailSection, Finding, Lang, VocabEntry } from "../src/types";
+import { loadDotEnv } from "../src/lib/env.js";
+import { addDays, kstToday, toDate } from "../src/lib/kst.js";
+import { computeScore } from "../src/lib/score.js";
+import type { DetailSection, Finding, Lang, VocabEntry } from "../src/types.js";
 
 loadDotEnv();
-const { db, unwrap } = await import("../src/lib/supabase");
+const { db, unwrap } = await import("../src/lib/supabase.js");
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const LEGACY = process.env.LEGACY_DIR ?? path.resolve(here, "../../../english-tutoring");

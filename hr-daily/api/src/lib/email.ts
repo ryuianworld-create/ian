@@ -1,8 +1,8 @@
 // Resend 로 메일 발송. RESEND_API_KEY 가 없으면 보내지 않고 'skipped' 를 돌려준다(실패 아님).
 import { Resend } from "resend";
-import { env, webUrl } from "./env";
-import { formatKoDate } from "./kst";
-import type { Article } from "../types";
+import { env, webUrl } from "./env.js";
+import { formatKoDate } from "./kst.js";
+import type { Article } from "../types.js";
 
 export type SendResult =
   | { status: "sent"; provider_id: string | null }

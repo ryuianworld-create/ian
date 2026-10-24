@@ -1,9 +1,9 @@
 // 피드 파서 점검 — DB 없이 실제 피드를 받아 파싱 결과만 출력한다.
 //   npm run probe            기본 두 피드(AIHR, Wiley HRM)
 //   npm run probe -- <url…>  임의 피드
-import { PAPER_SKIP_TITLE_RE, get, htmlToText, parseFeed } from "../src/lib/feed";
-import { toDate } from "../src/lib/kst";
-import { computeScore } from "../src/lib/score";
+import { PAPER_SKIP_TITLE_RE, get, htmlToText, parseFeed } from "../src/lib/feed.js";
+import { toDate } from "../src/lib/kst.js";
+import { computeScore } from "../src/lib/score.js";
 
 const DEFAULT = [
   { url: "https://www.aihr.com/feed/", kind: "article" as const, weight: 1.0 },

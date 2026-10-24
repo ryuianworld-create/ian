@@ -1,9 +1,9 @@
 // 잡 이름 → 실행 함수. 크론과 관리자 API 가 공유한다.
-import { collectJob } from "./collect";
-import { digestJob } from "./digest";
-import { runJob, type Log } from "./run";
-import { summarizeJob, type SummarizeParams } from "./summarize";
-import type { JobName, JobRun } from "../types";
+import { collectJob } from "./collect.js";
+import { digestJob } from "./digest.js";
+import { runJob, type Log } from "./run.js";
+import { summarizeJob, type SummarizeParams } from "./summarize.js";
+import type { JobName, JobRun } from "../types.js";
 
 export const JOB_NAMES: readonly JobName[] = ["collect", "summarize", "digest"] as const;
 

@@ -1,17 +1,17 @@
 // Hono 앱. 라우트는 /v1/* (공개·회원·관리자) 와 /cron/* (Vercel Cron). 헬스체크 GET /.
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { withAuth, type AppEnv } from "./lib/auth";
-import { webUrl } from "./lib/env";
-import { HttpError, errorBody } from "./lib/http";
-import { admin } from "./routes/admin";
-import { articles } from "./routes/articles";
-import { cron } from "./routes/cron";
-import { feed } from "./routes/feed";
-import { library } from "./routes/library";
-import { me } from "./routes/me";
-import { stats } from "./routes/stats";
-import { vocab } from "./routes/vocab";
+import { withAuth, type AppEnv } from "./lib/auth.js";
+import { webUrl } from "./lib/env.js";
+import { HttpError, errorBody } from "./lib/http.js";
+import { admin } from "./routes/admin.js";
+import { articles } from "./routes/articles.js";
+import { cron } from "./routes/cron.js";
+import { feed } from "./routes/feed.js";
+import { library } from "./routes/library.js";
+import { me } from "./routes/me.js";
+import { stats } from "./routes/stats.js";
+import { vocab } from "./routes/vocab.js";
 
 export const app = new Hono<AppEnv>();
 

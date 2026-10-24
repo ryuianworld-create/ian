@@ -1,10 +1,10 @@
 // GET /v1/feed — 아티클 목록(최신순). viewer 에 따라 free_limit 이후는 locked.
 import { Hono } from "hono";
-import { isFullAccess, type AppEnv } from "../lib/auth";
-import { CARD_COLUMNS, toCard, type CardRow } from "../lib/cards";
-import { kstToday } from "../lib/kst";
-import { freeArticleLimit } from "../lib/settings";
-import { db, unwrap } from "../lib/supabase";
+import { isFullAccess, type AppEnv } from "../lib/auth.js";
+import { CARD_COLUMNS, toCard, type CardRow } from "../lib/cards.js";
+import { kstToday } from "../lib/kst.js";
+import { freeArticleLimit } from "../lib/settings.js";
+import { db, unwrap } from "../lib/supabase.js";
 
 export const feed = new Hono<AppEnv>();
 

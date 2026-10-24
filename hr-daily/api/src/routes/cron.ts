@@ -1,8 +1,8 @@
 // /cron/:job — Vercel Cron 전용. Authorization: Bearer ${CRON_SECRET} 가 아니면 거절.
 import { Hono } from "hono";
-import { env } from "../lib/env";
-import { badRequest, fail } from "../lib/http";
-import { isJobName, runNamedJob } from "../jobs";
+import { env } from "../lib/env.js";
+import { badRequest, fail } from "../lib/http.js";
+import { isJobName, runNamedJob } from "../jobs/index.js";
 
 export const cron = new Hono();
 

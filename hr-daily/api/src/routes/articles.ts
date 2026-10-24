@@ -1,12 +1,12 @@
 // GET /v1/articles/:id — 아티클 전체. 권한 없으면 403 + preview 카드.
 import { Hono } from "hono";
-import { isFullAccess, type AppEnv } from "../lib/auth";
-import { ARTICLE_COLUMNS, toCard } from "../lib/cards";
-import { errorBody, notFound } from "../lib/http";
-import { kstToday } from "../lib/kst";
-import { freeArticleLimit } from "../lib/settings";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
-import type { Article } from "../types";
+import { isFullAccess, type AppEnv } from "../lib/auth.js";
+import { ARTICLE_COLUMNS, toCard } from "../lib/cards.js";
+import { errorBody, notFound } from "../lib/http.js";
+import { kstToday } from "../lib/kst.js";
+import { freeArticleLimit } from "../lib/settings.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
+import type { Article } from "../types.js";
 
 export const articles = new Hono<AppEnv>();
 

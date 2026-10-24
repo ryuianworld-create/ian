@@ -1,11 +1,11 @@
 // summarize — 대상 날짜(KST 오늘 또는 지정일)에 아티클이 없으면 inbox 에서 한 편 골라 Claude 로 요약한다.
 // 실패하면 그 inbox 는 failed 로 두고 다음 후보로 1회 재시도.
-import { isValidDate, kstToday, weekdayOf } from "../lib/kst";
-import { paperWeekdays } from "../lib/settings";
-import { summarizeText } from "../lib/summarizer";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
-import type { InboxRow, Kind } from "../types";
-import type { Log } from "./run";
+import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
+import { paperWeekdays } from "../lib/settings.js";
+import { summarizeText } from "../lib/summarizer.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
+import type { InboxRow, Kind } from "../types.js";
+import type { Log } from "./run.js";
 
 export type SummarizeParams = { inbox_id?: string; featured_date?: string };
 export type SummarizeResult =

@@ -1,9 +1,9 @@
 // GET/PATCH /v1/me — 내 프로필
 import { Hono } from "hono";
-import { PROFILE_COLUMNS, requireUser, toProfile, type AppEnv } from "../lib/auth";
-import { badRequest, readJson } from "../lib/http";
-import { db, unwrap } from "../lib/supabase";
-import type { Profile } from "../types";
+import { PROFILE_COLUMNS, requireUser, toProfile, type AppEnv } from "../lib/auth.js";
+import { badRequest, readJson } from "../lib/http.js";
+import { db, unwrap } from "../lib/supabase.js";
+import type { Profile } from "../types.js";
 
 export const me = new Hono<AppEnv>();
 

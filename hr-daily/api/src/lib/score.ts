@@ -1,5 +1,5 @@
 // inbox.score — SPEC 「잡 상세 > collect」 의 공식. collect 와 import-legacy 가 같은 함수를 쓴다.
-import { daysBetween, kstToday } from "./kst";
+import { daysBetween, kstToday } from "./kst.js";
 
 export const TITLE_BONUS_KEYWORDS = [
   "ai", "strategy", "strategic", "evidence", "meta-analysis", "workforce", "skills",

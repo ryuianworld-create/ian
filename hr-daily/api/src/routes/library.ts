@@ -1,10 +1,10 @@
 // GET /v1/library?cursor=&limit=50&q= — 서재(index_items 전체 + 요약 여부). 누구나.
 // cursor 는 오프셋(정수 문자열). 다음 페이지가 없으면 next_cursor=null.
 import { Hono } from "hono";
-import type { AppEnv } from "../lib/auth";
-import { badRequest, parseLimit } from "../lib/http";
-import { db, unwrap } from "../lib/supabase";
-import type { IndexItem, IndexItemRow } from "../types";
+import type { AppEnv } from "../lib/auth.js";
+import { badRequest, parseLimit } from "../lib/http.js";
+import { db, unwrap } from "../lib/supabase.js";
+import type { IndexItem, IndexItemRow } from "../types.js";
 
 export const library = new Hono<AppEnv>();
 

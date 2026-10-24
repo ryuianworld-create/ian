@@ -1,5 +1,5 @@
 // articles 행 → ArticleCard (SPEC). locked 면 summary/findings 를 뺀다.
-import type { ArticleCard, ArticleRow } from "../types";
+import type { ArticleCard, ArticleRow } from "../types.js";
 
 export const CARD_COLUMNS = "id,source_name,kind,title,url,published,category,featured_date,summary,findings,vocab";
 export const ARTICLE_COLUMNS =

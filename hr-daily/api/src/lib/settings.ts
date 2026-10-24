@@ -1,5 +1,5 @@
 // settings 테이블 읽기. 함수 인스턴스 안에서 60초 캐시(크론·요청마다 다시 읽지 않도록).
-import { db, unwrapMaybe } from "./supabase";
+import { db, unwrapMaybe } from "./supabase.js";
 
 type Cached = { value: unknown; at: number };
 const cache = new Map<string, Cached>();

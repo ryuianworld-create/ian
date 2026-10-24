@@ -1,8 +1,8 @@
 // GET /v1/stats — 공개 통계. 60초 캐시.
 import { Hono } from "hono";
-import type { AppEnv } from "../lib/auth";
-import { kstToday } from "../lib/kst";
-import { db, unwrap } from "../lib/supabase";
+import type { AppEnv } from "../lib/auth.js";
+import { kstToday } from "../lib/kst.js";
+import { db, unwrap } from "../lib/supabase.js";
 
 export const stats = new Hono<AppEnv>();
 

@@ -3,12 +3,12 @@
 import {
   LOGIN_WALL_RE, PAPER_SKIP_TITLE_RE, cleanUrl, extractPageText, get, htmlToText, parseFeed, sleep, slugOf,
   type FeedItem,
-} from "../lib/feed";
-import { toDate } from "../lib/kst";
-import { computeScore } from "../lib/score";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
-import type { InboxRow, SourceRow } from "../types";
-import type { Log } from "./run";
+} from "../lib/feed.js";
+import { toDate } from "../lib/kst.js";
+import { computeScore } from "../lib/score.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
+import type { InboxRow, SourceRow } from "../types.js";
+import type { Log } from "./run.js";
 
 const POLITE_DELAY_MS = 2000;
 const MAX_NEW_PER_SOURCE = 10;

@@ -1,7 +1,7 @@
 // 잡 실행 래퍼. job_runs 에 시작 행을 넣고, 로그 줄을 모아, 끝나면 ok/finished_at/log 를 기록한다.
 // 크론 핸들러와 관리자 "지금 실행" 이 모두 이 함수를 통해 잡을 돌린다.
-import { db, unwrap } from "../lib/supabase";
-import type { JobName, JobRun } from "../types";
+import { db, unwrap } from "../lib/supabase.js";
+import type { JobName, JobRun } from "../types.js";
 
 export type Log = (msg: string) => void;
 

@@ -1,6 +1,6 @@
 // service role 클라이언트. RLS 를 우회하므로 이 모듈은 서버(api)에서만 import 한다.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { requireEnv } from "./env";
+import { requireEnv } from "./env.js";
 
 let client: SupabaseClient | null = null;
 

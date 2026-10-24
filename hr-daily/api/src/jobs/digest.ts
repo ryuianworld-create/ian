@@ -1,9 +1,9 @@
 // digest — 오늘(KST) 아티클(없으면 최신)을 approved & email_opt_in 회원에게 보낸다. 같은 (user, article) 은 한 번만.
-import { digestEmail, emailEnabled, sendEmail } from "../lib/email";
-import { kstToday } from "../lib/kst";
-import { db, unwrap, unwrapMaybe } from "../lib/supabase";
-import type { Article, ArticleRow } from "../types";
-import type { Log } from "./run";
+import { digestEmail, emailEnabled, sendEmail } from "../lib/email.js";
+import { kstToday } from "../lib/kst.js";
+import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
+import type { Article, ArticleRow } from "../types.js";
+import type { Log } from "./run.js";
 
 export type DigestResult = {
   article_id: string | null;

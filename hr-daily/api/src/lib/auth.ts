@@ -2,10 +2,10 @@
 //  - Bearer 토큰 → supabase.auth.getUser(token) 으로 검증
 //  - profiles 행을 읽고(없으면 만들고), ADMIN_EMAILS 면 admin/approved 로 부트스트랩
 import type { Context, MiddlewareHandler } from "hono";
-import { adminEmails } from "./env";
-import { forbidden, unauthorized } from "./http";
-import { db, unwrapMaybe } from "./supabase";
-import type { Profile, ProfileRow, Viewer, ViewerKind } from "../types";
+import { adminEmails } from "./env.js";
+import { forbidden, unauthorized } from "./http.js";
+import { db, unwrapMaybe } from "./supabase.js";
+import type { Profile, ProfileRow, Viewer, ViewerKind } from "../types.js";
 
 export type AuthContext = {
   viewer: Viewer;

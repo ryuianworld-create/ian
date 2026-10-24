@@ -5,9 +5,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
-import { env } from "./env";
-import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example";
-import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types";
+import { env } from "./env.js";
+import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
+import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
 export const DEFAULT_MODEL = "claude-opus-5-5";
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
