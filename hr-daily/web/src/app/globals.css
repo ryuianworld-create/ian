@@ -993,6 +993,10 @@ a.btn{text-decoration:none}
 .jr-lead.l-ko::first-letter{color:var(--ink)}
 .jr-stats .k{color:var(--ink)}
 .jr-stats li{border-top:3px solid var(--brand)}
+.jr-stats[data-n="4"]{grid-template-columns:repeat(2,1fr)}
+.jr-stats[data-n="2"]{grid-template-columns:repeat(2,1fr)}
+.jr-stats .k.long{font-size:22px;line-height:1.15;letter-spacing:-.01em;text-wrap:balance}
+@media (max-width:560px){.jr-stats[data-n="4"],.jr-stats[data-n="2"]{grid-template-columns:1fr}.jr-stats .k.long{font-size:18px;min-width:0}}
 .jr-steps li{border-top-color:var(--brand)}
 .jr-strip .n{color:var(--ink)}
 .jr-subcard{background:linear-gradient(135deg,var(--accent-soft),var(--surface));border-color:color-mix(in srgb,var(--brand) 60%,transparent)}

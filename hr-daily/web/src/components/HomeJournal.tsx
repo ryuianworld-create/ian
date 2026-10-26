@@ -70,8 +70,8 @@ export function HomeJournal({ feed, stats, today }: Props) {
                 <ul className="jr-stats" aria-label="핵심 수치">
                   {card.findings.slice(0, 3).map((f, i) => (
                     <li key={i}>
-                      <span className="k l-ko">{f.k.ko}</span>
-                      <span className="k l-en">{f.k.en}</span>
+                      <span className={`k l-ko${f.k.ko.length > 6 ? " long" : ""}`}>{f.k.ko}</span>
+                      <span className={`k l-en${f.k.en.length > 8 ? " long" : ""}`}>{f.k.en}</span>
                       <span className="v l-ko">{stripTags(f.ko)}</span>
                       <span className="v l-en">{stripTags(f.en)}</span>
                     </li>

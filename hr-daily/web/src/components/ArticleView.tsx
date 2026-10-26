@@ -84,11 +84,11 @@ export function ArticleView({ article }: { article: Article }) {
           <p className="jr-lead l-en">{stripTags(article.summary.en)}</p>
 
           {article.findings.length ? (
-            <ul className="jr-stats" aria-label="핵심 수치">
+            <ul className="jr-stats" aria-label="핵심 수치" data-n={Math.min(article.findings.length, 4)}>
               {article.findings.slice(0, 4).map((f, i) => (
                 <li key={i}>
-                  <span className="k l-ko">{f.k.ko}</span>
-                  <span className="k l-en">{f.k.en}</span>
+                  <span className={`k l-ko${f.k.ko.length > 6 ? " long" : ""}`}>{f.k.ko}</span>
+                  <span className={`k l-en${f.k.en.length > 8 ? " long" : ""}`}>{f.k.en}</span>
                   <span className="v l-ko">{stripTags(f.ko)}</span>
                   <span className="v l-en">{stripTags(f.en)}</span>
                 </li>
