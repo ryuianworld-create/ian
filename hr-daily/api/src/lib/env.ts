@@ -23,8 +23,13 @@ export function adminEmails(): Set<string> {
   );
 }
 
+/** WEB_URL 은 쉼표로 여러 오리진을 둘 수 있다(도메인 전환 기간). 첫 번째가 대표 주소(메일 링크 등). */
+export function webUrls(): string[] {
+  const raw = env("WEB_URL") ?? "http://localhost:3000";
+  return raw.split(",").map((s) => s.trim().replace(/\/+$/, "")).filter(Boolean);
+}
 export function webUrl(): string {
-  return (env("WEB_URL") ?? "http://localhost:3000").replace(/\/+$/, "");
+  return webUrls()[0] ?? "http://localhost:3000";
 }
 
 /**

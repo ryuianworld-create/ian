@@ -2,7 +2,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { withAuth, type AppEnv } from "./lib/auth.js";
-import { webUrl } from "./lib/env.js";
+import { webUrls } from "./lib/env.js";
 import { HttpError, errorBody } from "./lib/http.js";
 import { admin } from "./routes/admin.js";
 import { articles } from "./routes/articles.js";
@@ -20,7 +20,7 @@ app.use(
   "*",
   cors({
     origin: (origin) => {
-      const allowed = new Set([webUrl(), "http://localhost:3000", "http://127.0.0.1:3000"]);
+      const allowed = new Set([...webUrls(), "http://localhost:3000", "http://127.0.0.1:3000"]);
       return allowed.has(origin) ? origin : null;
     },
     allowHeaders: ["Authorization", "Content-Type"],
