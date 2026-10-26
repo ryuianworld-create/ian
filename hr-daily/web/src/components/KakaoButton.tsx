@@ -15,7 +15,12 @@ export function KakaoButton({ next, label = "카카오로 계속하기" }: { nex
     const origin = window.location.origin;
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "kakao",
-      options: { redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}` },
+      options: {
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        // Supabase 기본값은 profile_image 까지 요청한다. 카카오 앱 동의항목에 없는 scope 를 보내면 KOE205 가 나므로
+        // 닉네임·이메일만 요청한다.
+        scopes: "profile_nickname account_email",
+      },
     });
     if (err) {
       setError(err.message);
