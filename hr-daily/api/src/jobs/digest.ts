@@ -1,4 +1,5 @@
 // digest — 오늘(KST) 아티클(없으면 최신)을 approved & email_opt_in 회원에게 보낸다. 같은 (user, article) 은 한 번만.
+import { normalizeFindings } from "../lib/cards.js";
 import { digestEmail, emailEnabled, sendEmail } from "../lib/email.js";
 import { kstToday } from "../lib/kst.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
@@ -53,7 +54,7 @@ export async function digestJob(log: Log): Promise<DigestResult> {
   if (!targets.length) return result;
 
   if (!emailEnabled()) log("RESEND_API_KEY 가 없어 발송하지 않고 skipped 로 기록한다");
-  const mail = digestEmail(article as Article);
+  const mail = digestEmail({ ...(article as Article), findings: normalizeFindings(article.findings) });
 
   for (const r of targets) {
     const res = await sendEmail({ to: r.email, subject: mail.subject, html: mail.html });

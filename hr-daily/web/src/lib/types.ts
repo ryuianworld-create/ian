@@ -1,7 +1,7 @@
 // SPEC.md 「데이터 형식」·「API 계약」에서 복사한 타입. 백엔드와의 단일 계약이다.
 
 export type Lang = { ko: string; en: string };
-export type Finding = { k: string; ko: string; en: string }; // k: "64%", "$1.6M" 같은 핵심 수치
+export type Finding = { k: Lang; ko: string; en: string }; // k: "64%" 같은 수치는 ko=en, 글자 라벨은 언어별
 export type DetailSection = { h: Lang; body: Lang }; // body 는 HTML. <span class="vw" data-w="...">
 export type VocabEntry = { w: string; pos: string; ko: string; en: string; ex: string }; // ex 는 HTML
 

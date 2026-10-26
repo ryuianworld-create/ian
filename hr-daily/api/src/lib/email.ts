@@ -80,7 +80,7 @@ export function digestEmail(article: Article): { subject: string; html: string }
     ? `<h3 style="margin:24px 0 8px;font-size:14px;color:${C.ink2};">핵심 수치</h3>
 <table role="presentation" cellpadding="0" cellspacing="0" width="100%">${article.findings
         .map(
-          (f) => `<tr><td style="padding:8px 0;border-top:1px solid ${C.line};vertical-align:top;width:88px;font-family:${C.mono};font-size:15px;color:${C.accent};font-weight:600;">${esc(f.k)}</td><td style="padding:8px 0;border-top:1px solid ${C.line};font-size:14px;line-height:1.6;color:${C.ink2};">${esc(f.ko)}</td></tr>`,
+          (f) => `<tr><td style="padding:8px 0;border-top:1px solid ${C.line};vertical-align:top;width:88px;font-family:${C.mono};font-size:15px;color:${C.accent};font-weight:600;">${esc(f.k.ko)}</td><td style="padding:8px 0;border-top:1px solid ${C.line};font-size:14px;line-height:1.6;color:${C.ink2};">${esc(f.ko)}</td></tr>`,
         )
         .join("")}</table>`
     : "";

@@ -1,7 +1,7 @@
 // GET /v1/articles/:id — 아티클 전체. 권한 없으면 403 + preview 카드.
 import { Hono } from "hono";
 import { isFullAccess, type AppEnv } from "../lib/auth.js";
-import { ARTICLE_COLUMNS, toCard } from "../lib/cards.js";
+import { ARTICLE_COLUMNS, normalizeFindings, toCard } from "../lib/cards.js";
 import { errorBody, notFound } from "../lib/http.js";
 import { kstToday } from "../lib/kst.js";
 import { freeArticleLimit } from "../lib/settings.js";
@@ -15,11 +15,12 @@ articles.get("/:id", async (c) => {
   if (!id || id.length > 120) throw notFound("아티클을 찾을 수 없습니다");
   const { viewer } = c.get("auth");
 
-  const article = unwrapMaybe(
+  const row = unwrapMaybe(
     await db().from("articles").select(ARTICLE_COLUMNS).eq("id", id).maybeSingle<Article>(),
     "articles.byId",
   );
-  if (!article) throw notFound("아티클을 찾을 수 없습니다");
+  if (!row) throw notFound("아티클을 찾을 수 없습니다");
+  const article: Article = { ...row, findings: normalizeFindings(row.findings) };
   const today = kstToday();
   if (article.featured_date > today && viewer.kind !== "admin") throw notFound("아티클을 찾을 수 없습니다");
 

@@ -87,7 +87,8 @@ export function ArticleView({ article }: { article: Article }) {
             <ul className="jr-stats" aria-label="핵심 수치">
               {article.findings.slice(0, 4).map((f, i) => (
                 <li key={i}>
-                  <span className="k">{f.k}</span>
+                  <span className="k l-ko">{f.k.ko}</span>
+                  <span className="k l-en">{f.k.en}</span>
                   <span className="v l-ko">{stripTags(f.ko)}</span>
                   <span className="v l-en">{stripTags(f.en)}</span>
                 </li>

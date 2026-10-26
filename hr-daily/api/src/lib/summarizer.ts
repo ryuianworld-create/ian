@@ -22,7 +22,9 @@ export const SummarySchema = z.object({
   findings: z
     .array(
       z.object({
-        k: z.string().describe('Key figure or short label, e.g. "64%", "$1.6M", "n=1,204"'),
+        k: LangSchema.describe(
+          'Key figure or short label. For a number, ko and en are identical ("64%", "$1.6M", "n=1,204"). For a text label, ko is at most 8 Korean characters and en at most 3 English words with the same meaning.',
+        ),
         ko: z.string().describe("One or two Korean sentences explaining the figure"),
         en: z.string().describe("One or two English sentences explaining the figure"),
       }),
@@ -78,7 +80,7 @@ const SYSTEM_PROMPT = `You write the daily issue of "dailyHR": a Korean HR profe
 Produce a JSON object matching the provided schema. Requirements:
 
 1. summary.ko: 500–800 Korean characters (공백 포함), 자연스러운 한국어 해요체가 아닌 서술체(~다). summary.en: 180–280 words. Both must stand alone: what the piece argues, the key evidence, and what it means for HR.
-2. findings: 2–4 items. k is the number or short label as it appears ("64%", "$1.6M", "n=1,204", "9단계"). If the text has no numbers, use short labels for the central claims.
+2. findings: 2–4 items. k.ko / k.en is the number or short label. For numbers, both are the same string as it appears ("64%", "$1.6M", "n=1,204"); for text labels, k.ko is Korean (≤ 8 chars) and k.en is English (≤ 3 words) with the same meaning — never mix languages in one label. If the text has no numbers, use short labels for the central claims.
 3. detail: 4–6 sections, each with ko and en versions of the same content. body is HTML using ONLY <ul>, <li>, <b>, <i>, <br> and the vocabulary span described below. No <p>, no headings, no links. Use <ul><li> for lists and <b> for emphasis, like the example.
    - For an article: follow the structure of the argument (why it matters → the core idea → how to apply → pitfalls → takeaway).
    - For a paper (kind=paper): 연구 질문 → 방법·표본 → 핵심 결과 → 실무 시사점 (research question, method & sample, key results, implications for practice), then the takeaway.
@@ -189,8 +191,11 @@ export function postValidate(raw: SummaryOutput): { output: SummaryOutput; warni
   if (detail.length < 4) warnings.push(`detail 이 ${detail.length}개 (4개 미만)`);
 
   const findings: Finding[] = raw.findings
-    .map((f) => ({ k: f.k.trim(), ko: f.ko.trim(), en: f.en.trim() }))
-    .filter((f) => f.k && (f.ko || f.en));
+    .map((f) => {
+      const kko = f.k.ko.trim(), ken = f.k.en.trim();
+      return { k: { ko: kko || ken, en: ken || kko }, ko: f.ko.trim(), en: f.en.trim() };
+    })
+    .filter((f) => f.k.ko && (f.ko || f.en));
   if (findings.length > 4) { warnings.push(`findings ${findings.length}개 → 4개로 자름`); findings.length = 4; }
   if (findings.length < 2) warnings.push(`findings 가 ${findings.length}개 (2개 미만)`);
 

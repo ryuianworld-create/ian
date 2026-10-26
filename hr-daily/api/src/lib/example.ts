@@ -13,12 +13,12 @@ export const EXAMPLE_OUTPUT = {
   },
   "findings": [
     {
-      "k": "64%",
+      "k": { "ko": "64%", "en": "64%" },
       "ko": "지난 2년 사이 HR 운영 모델을 바꾼 조직의 비율. 바꾸긴 했지만 역할 정리는 따라오지 못했다.",
       "en": "Share of HR functions that changed their operating model in the past two years — structures moved, responsibilities didn't."
     },
     {
-      "k": "19%",
+      "k": { "ko": "19%", "en": "19%" },
       "ko": "CoE·HRBP·공유서비스 사이의 책임 구분이 명확하다고 답한 조직. 나머지는 전략 업무와 운영 업무가 역할을 가로질러 섞여 있다.",
       "en": "Organisations reporting a clear division of responsibilities between CoEs, HRBPs and shared services. Everywhere else, strategic and operational work stays mixed across roles."
     }

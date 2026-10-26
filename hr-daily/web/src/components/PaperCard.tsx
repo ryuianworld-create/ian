@@ -46,7 +46,8 @@ export function PaperCard({ card, lang, onLang, detailAction, children }: Props)
               <ul className="findings">
                 {findings.map((f, i) => (
                   <li key={i}>
-                    <span className="k">{f.k}</span>
+                    <span className="k l-ko">{f.k.ko}</span>
+                    <span className="k l-en">{f.k.en}</span>
                     <span className="v l-ko" dangerouslySetInnerHTML={{ __html: f.ko }} />
                     <span className="v l-en" dangerouslySetInnerHTML={{ __html: f.en }} />
                   </li>

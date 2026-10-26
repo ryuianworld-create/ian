@@ -7,7 +7,7 @@ export type InboxStatus = "pending" | "done" | "skipped" | "failed";
 export type JobName = "collect" | "summarize" | "digest";
 
 export type Lang = { ko: string; en: string };
-export type Finding = { k: string; ko: string; en: string };
+export type Finding = { k: Lang; ko: string; en: string }; // k: "64%" 같은 수치는 ko=en, 글자 라벨은 번역
 export type DetailSection = { h: Lang; body: Lang };
 export type VocabEntry = { w: string; pos: string; ko: string; en: string; ex: string };
 
