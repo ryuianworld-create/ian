@@ -259,7 +259,7 @@ export function HomeJournal({ feed, stats, today }: Props) {
 
       <footer className="jr-foot">
         <div>
-          <b>dailyHR</b> · 하루 한 편, HR 아티클·논문
+          <b>DailyHR</b> · 하루 한 편, HR 아티클·논문
         </div>
         <div className="small">
           원문은 저장하지 않습니다. 요약·단어 정의·예문은 직접 작성한 것이며 각 글에 원문 링크를 붙입니다.

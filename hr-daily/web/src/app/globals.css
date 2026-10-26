@@ -1003,3 +1003,15 @@ a.btn{text-decoration:none}
 .dnav a[aria-current="page"]{color:var(--ink);background:var(--accent-soft)}
 .jr-grid li a:hover{border-color:var(--brand)}
 .jr-who .avatar{background:var(--brand);color:var(--brand-ink)}
+
+/* 워드마크 글자체: Poppins 800, Daily 남색 + HR 금빛 (사용자 로고 시안) */
+.wm-word{font-family:var(--font-poppins),"Poppins","Montserrat",var(--font-body);font-weight:800;letter-spacing:-.015em;color:#1B2240}
+.wm-word b{font-weight:800;color:#E4B33A}
+:root:not([data-theme="dark"]) .wm-word b{color:#E4B33A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wm-word{color:#F3F4F6}:root:not([data-theme="light"]) .wm-word b{color:#F2C94C}}
+:root[data-theme="dark"] .wm-word{color:#F3F4F6}
+:root[data-theme="dark"] .wm-word b{color:#F2C94C}
+.wm-mark{border-radius:22%;display:block}
+.wm-sm .wm-word{font-size:21px}
+.wm-md .wm-word{font-size:27px}
+.wm-lg .wm-word{font-size:38px}

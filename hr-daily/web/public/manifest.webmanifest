@@ -1,6 +1,6 @@
 {
-  "name": "dailyHR — 하루 한 편, HR 아티클·논문",
-  "short_name": "dailyHR",
+  "name": "DailyHR — 하루 한 편, HR 아티클·논문",
+  "short_name": "DailyHR",
   "description": "매일 HR 아티클·논문 한 편을 한글·영문 요약으로 읽고, 본문에서 나온 단어를 외웁니다.",
   "lang": "ko",
   "start_url": "/",
