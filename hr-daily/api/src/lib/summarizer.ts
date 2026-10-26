@@ -73,7 +73,7 @@ export type SummarizeResult = {
 
 // ---- 프롬프트 ----
 
-const SYSTEM_PROMPT = `You write the daily issue of "HR Daily": a Korean HR professional reads one HR article or academic paper a day, in Korean and in English, and learns the HR vocabulary in it.
+const SYSTEM_PROMPT = `You write the daily issue of "dailyHR": a Korean HR professional reads one HR article or academic paper a day, in Korean and in English, and learns the HR vocabulary in it.
 
 Produce a JSON object matching the provided schema. Requirements:
 
@@ -105,7 +105,7 @@ function userPrompt(input: SummarizeInput): string {
   ]
     .filter(Boolean)
     .join("\n");
-  return `Summarize the following ${input.kind === "paper" ? "academic paper (abstract/text)" : "article"} for HR Daily.\n\n<meta>\n${meta}\n</meta>\n\n<text>\n${input.raw_text}\n</text>`;
+  return `Summarize the following ${input.kind === "paper" ? "academic paper (abstract/text)" : "article"} for dailyHR.\n\n<meta>\n${meta}\n</meta>\n\n<text>\n${input.raw_text}\n</text>`;
 }
 
 // ---- 후처리 ----

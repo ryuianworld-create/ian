@@ -922,3 +922,84 @@ a.btn{text-decoration:none}
 :root:not([data-theme="light"]) .btn.kakao{color:#191919}
 .or{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:2px 0}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ============================================================
+   dailyHR 팔레트 — 크림 배경 · 남색 잉크 · 옐로 포인트 (제미나이 시안 참조)
+   ============================================================ */
+:root{
+  --paper:#FFFCF2; --surface:#FFFFFF; --surface-2:#FFF6D6;
+  --ink:#0F172A; --ink-2:#3B4453; --muted:#6B7280;
+  --line:#ECE6D2; --line-2:#DBD2B4;
+  --brand:#FFD60A; --brand-strong:#F2C200; --brand-ink:#0B1222;
+  --accent:#A16207; --accent-soft:#FFF1B8;
+  --slate:#1E3A8A; --ok:#15803D; --ok-soft:#DCFCE7;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 30px -18px rgba(15,23,42,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1222; --surface:#121A2E; --surface-2:#1A2440;
+    --ink:#F3F4F6; --ink-2:#C7CCD6; --muted:#8B93A5;
+    --line:#26325A; --line-2:#334270;
+    --brand:#FFD60A; --brand-strong:#FFE14D; --brand-ink:#0B1222;
+    --accent:#FFD966; --accent-soft:#3A3416;
+    --slate:#93C5FD; --ok:#86EFAC; --ok-soft:#14301F;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1222; --surface:#121A2E; --surface-2:#1A2440;
+  --ink:#F3F4F6; --ink-2:#C7CCD6; --muted:#8B93A5;
+  --line:#26325A; --line-2:#334270;
+  --brand:#FFD60A; --brand-strong:#FFE14D; --brand-ink:#0B1222;
+  --accent:#FFD966; --accent-soft:#3A3416;
+  --slate:#93C5FD; --ok:#86EFAC; --ok-soft:#14301F;
+}
+
+/* 주 버튼 = 옐로 알약 + 남색 글자 */
+:root .btn.primary,
+:root:not([data-theme="light"]) .btn.primary,
+:root:not([data-theme="dark"]) .btn.primary{
+  background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600;border-radius:999px;
+}
+.btn.primary:hover{filter:brightness(.97)}
+.btn{border-radius:999px}
+.jr-actions .btn{border-radius:999px}
+/* 인증 폼의 제출 버튼은 남색으로 — 바로 위 카카오 버튼(노랑)과 구분 */
+.jr-card .form .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper);border-radius:12px}
+.jr-card .form .btn.primary:hover{filter:brightness(1.15)}
+.readbar .play{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* 워드마크 */
+.wm{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.wm-text{display:flex;flex-direction:column;line-height:1}
+.wm-word{font-family:var(--font-display);font-weight:600;letter-spacing:-.02em}
+.wm-word b{color:var(--brand-strong);font-weight:700}
+:root:not([data-theme="dark"]) .wm-word b{color:#D9AC00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wm-word b{color:var(--brand)}}
+.wm-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);margin-top:5px}
+.wm-sm .wm-word{font-size:20px}
+.wm-md .wm-word{font-size:26px}
+.wm-lg .wm-word{font-size:36px}
+.topbar .brand{display:flex;align-items:center;gap:10px}
+
+/* 제목 강조 밑줄(노란 마커) */
+.jr-hero .jr-title a{
+  background-image:linear-gradient(transparent 62%,color-mix(in srgb,var(--brand) 70%,transparent) 62%);
+  background-repeat:no-repeat;background-size:100% 100%;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;
+}
+.jr-hero .jr-title a:hover{color:var(--ink)}
+.jr-issue{border-bottom-color:var(--ink)}
+.jr-lead.l-ko::first-letter{color:var(--ink)}
+.jr-stats .k{color:var(--ink)}
+.jr-stats li{border-top:3px solid var(--brand)}
+.jr-steps li{border-top-color:var(--brand)}
+.jr-strip .n{color:var(--ink)}
+.jr-subcard{background:linear-gradient(135deg,var(--accent-soft),var(--surface));border-color:color-mix(in srgb,var(--brand) 60%,transparent)}
+.jr .kind.article{color:#7A5A00;border-color:color-mix(in srgb,var(--brand) 70%,transparent);background:var(--accent-soft)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .jr .kind.article{color:var(--brand)}}
+.brand .no{color:var(--brand-ink);background:var(--brand);border-color:var(--brand)}
+.tabbar a.tab[aria-selected="true"],.tabbar .tab[aria-selected="true"]{color:var(--ink)}
+.dnav a[aria-current="page"]{color:var(--ink);background:var(--accent-soft)}
+.jr-grid li a:hover{border-color:var(--brand)}
+.jr-who .avatar{background:var(--brand);color:var(--brand-ink)}

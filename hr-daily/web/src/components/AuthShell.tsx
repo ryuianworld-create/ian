@@ -1,6 +1,6 @@
 // 로그인·가입·승인 대기 공통 셸. 왼쪽은 서비스 소개, 오른쪽은 카드.
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { Brand } from "./Brand";
 
 type Props = { eyebrow: string; title: string; intro?: ReactNode; children: ReactNode };
 
@@ -8,9 +8,7 @@ export function AuthShell({ eyebrow, title, intro, children }: Props) {
   return (
     <div className="jr jr-auth">
       <aside className="jr-pitch">
-        <Link href="/" className="jr-wordmark">
-          HR Daily
-        </Link>
+        <Brand size="lg" />
         <p className="jr-tagline">하루 한 편, HR 아티클·논문을 한글과 영어로.</p>
         <ul className="jr-points">
           <li>

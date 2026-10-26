@@ -33,13 +33,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "HR 아티클 한 편", template: "%s · HR 아티클 한 편" },
+  title: { default: "dailyHR — 하루 한 편, HR 아티클·논문", template: "%s · dailyHR" },
   description:
     "매일 HR 아티클·논문 한 편을 한글·영문 요약으로 읽고, 본문에서 나온 단어를 그대로 단어장으로 넘겨 외우는 모바일 웹.",
-  applicationName: "HR Daily",
+  applicationName: "dailyHR",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon-180.png", apple: "/icon-180.png" },
-  appleWebApp: { capable: true, title: "HR 아티클", statusBarStyle: "default" },
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-180.png", sizes: "180x180" }], apple: "/icon-180.png" },
+  appleWebApp: { capable: true, title: "dailyHR", statusBarStyle: "default" },
   formatDetection: { telephone: false },
   // Next 15 는 appleWebApp.capable 을 mobile-web-app-capable 로만 내보내므로 iOS 용 태그를 직접 추가한다.
   other: { "apple-mobile-web-app-capable": "yes" },
@@ -50,8 +50,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F7F6F2" },
-    { media: "(prefers-color-scheme: dark)", color: "#131418" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFCF2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B1222" },
   ],
 };
 
