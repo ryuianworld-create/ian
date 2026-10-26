@@ -1,5 +1,6 @@
 "use client";
-// 디자인 B 홈 — 밝은 페이퍼 배경·흰 라운드 카드·따뜻한 노랑(#FFC800)·Pretendard 의 랜딩 톤 (제미나이 시안 참조).
+// 홈 — 밝은 페이퍼 배경·흰 라운드 카드·따뜻한 노랑(#FFC800)·Pretendard 의 랜딩 톤 (제미나이 시안 참조, 2026-10-27 확정).
+// 이전 저널 톤 홈(HomeJournal)은 git 태그 design-a-journal 에 있다.
 // 시안의 목업 콘텐츠(가짜 수치·후기·알림톡)는 쓰지 않고, 피드·통계·오늘 글의 실제 데이터만 보여준다.
 import Link from "next/link";
 import { useState } from "react";

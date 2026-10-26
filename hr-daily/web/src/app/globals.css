@@ -1021,8 +1021,9 @@ a.btn{text-decoration:none}
 .wm-lg .wm-word{font-size:38px}
 
 /* ============================================================
-   디자인 B (랜딩 톤) — 제미나이 시안 참조: 페이퍼 배경 · 흰 라운드 카드 · 따뜻한 노랑 #FFC800 · Pretendard
-   html[data-design="b"] 일 때만 적용. 유틸리티는 Tailwind v4 (아래 @theme 토큰).
+   확정 디자인 (랜딩 톤, 2026-10-27) — 제미나이 시안 참조: 페이퍼 배경 · 흰 라운드 카드 · 따뜻한 노랑 #FFC800 · Pretendard
+   layout.tsx 가 <html data-design="b"> 를 항상 내보낸다. 유틸리티는 Tailwind v4 (아래 @theme 토큰).
+   이전 저널 톤(A)은 git 태그 design-a-journal 참고.
    ============================================================ */
 @theme {
   --color-brand: #FFC800;
@@ -1109,21 +1110,3 @@ html:root[data-design="b"] .jr .tag{font-family:var(--font-body);font-weight:700
 .ld .banner{margin:14px 0 0;border-radius:18px}
 .ld .btn.kakao{border-radius:16px;font-weight:800;padding:13px 16px}
 .ld .kakao-wrap .err{margin-top:6px}
-
-/* A/B 전환 스위치 */
-.ld-switch{
-  position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60;
-  display:flex;align-items:center;gap:4px;padding:4px 6px 4px 10px;border-radius:999px;
-  background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line-2);
-  box-shadow:0 8px 24px -12px rgba(15,23,42,.35);backdrop-filter:blur(8px);
-  font-family:var(--font-body);font-size:11px;font-weight:700;color:var(--muted);
-}
-@media (min-width:900px){.ld-switch{bottom:18px}}
-.ld-switch .lbl{margin-right:2px}
-.ld-switch a{
-  width:26px;height:26px;border-radius:999px;display:grid;place-items:center;
-  text-decoration:none;color:var(--ink-2);font-weight:800;font-size:12px;
-}
-.ld-switch a:hover{background:var(--surface-2)}
-.ld-switch a[aria-current="true"]{background:var(--ink);color:var(--paper)}
-html:root[data-design="b"] .ld-switch a[aria-current="true"]{background:#FFC800;color:#0F172A}
