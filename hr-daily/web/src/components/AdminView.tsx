@@ -11,7 +11,7 @@ import { useAuth } from "./AuthProvider";
 const JOBS: { job: JobName; label: string; desc: string }[] = [
   { job: "collect", label: "지금 수집", desc: "학술지·매체 피드 → 대기열" },
   { job: "summarize", label: "지금 요약", desc: "오늘 한 편 선정 → Gemini 요약" },
-  { job: "digest", label: "지금 메일", desc: "승인 회원에게 발송" },
+  { job: "digest", label: "지금 발송", desc: "승인 회원에게 이메일·카카오톡 발송" },
 ];
 
 function fmt(ts: string | null | undefined) {

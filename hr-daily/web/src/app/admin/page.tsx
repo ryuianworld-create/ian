@@ -11,7 +11,7 @@ export default function AdminPage() {
       </div>
       <div className="jr-pagehead">
         <h1 className="jr-h1">관리자</h1>
-        <p className="jr-sub-line">가입 승인, 수집·요약·메일 즉시 실행, 대기열과 실행 기록을 봅니다.</p>
+        <p className="jr-sub-line">가입 승인, 수집·요약·발송 즉시 실행, 대기열과 실행 기록을 봅니다.</p>
       </div>
       <AdminView />
     </div>
