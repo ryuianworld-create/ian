@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
+import { KakaoButton } from "./KakaoButton";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
@@ -24,8 +25,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => params.get("error"));
   const [info, setInfo] = useState<string | null>(null);
+  const nextParam = params.get("next");
+  const nextPath = nextParam && nextParam.startsWith("/") ? nextParam : "/";
 
   if (!configured || !supabase) {
     return (
@@ -80,6 +83,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <form className="form" onSubmit={submit}>
+      <KakaoButton next={mode === "signup" ? "/pending" : nextPath} label={mode === "signup" ? "카카오로 3초 만에 가입" : "카카오로 로그인"} />
+      <div className="or" role="separator">
+        <span>또는 이메일로</span>
+      </div>
       {mode === "signup" ? (
         <div className="field">
           <label htmlFor="name">이름 (선택)</label>

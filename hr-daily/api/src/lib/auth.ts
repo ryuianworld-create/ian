@@ -68,8 +68,11 @@ export async function computeAuth(c: Context): Promise<AuthContext> {
     "profiles.select",
   );
   if (!profile) {
-    const display =
-      (user.user_metadata as Record<string, unknown> | undefined)?.display_name;
+    // OAuth(카카오 등) 는 display_name 대신 name / nickname / preferred_username 을 준다
+    const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+    const display = ["display_name", "name", "nickname", "full_name", "preferred_username"]
+      .map((k) => meta[k])
+      .find((v): v is string => typeof v === "string" && v.trim() !== "");
     profile = unwrapMaybe(
       await supa
         .from("profiles")
@@ -77,7 +80,7 @@ export async function computeAuth(c: Context): Promise<AuthContext> {
           {
             id: user.id,
             email,
-            display_name: typeof display === "string" && display ? display : email.split("@")[0] ?? null,
+            display_name: display ?? (email ? email.split("@")[0] : null) ?? "회원",
           },
           { onConflict: "id" },
         )
