@@ -32,10 +32,23 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error || !data.session) return fail(error?.message ?? "세션을 만들지 못했습니다.");
 
-  // 승인 대기 회원은 안내 화면으로. (api 가 이 요청에서 profiles 행을 만들어 준다)
+  const session = data.session;
   let dest = next;
   try {
-    const me = await api.me(data.session.access_token);
+    // 1) 가입 폼에서 고른 수신 채널 (?pref=email,kakao | none)
+    const pref = url.searchParams.get("pref");
+    if (pref !== null) {
+      const set = new Set(pref.split(",").map((s) => s.trim()));
+      await api.updateMe({ email_opt_in: set.has("email"), kakao_opt_in: set.has("kakao") }, session.access_token).catch(() => undefined);
+    }
+    // 2) 카카오 공급자 토큰을 API 에 맡긴다 (카카오톡 "나에게 보내기"). 실패해도 로그인은 진행한다.
+    if (session.provider_token && session.provider_refresh_token) {
+      await api
+        .kakaoLink({ provider_token: session.provider_token, provider_refresh_token: session.provider_refresh_token }, session.access_token)
+        .catch(() => undefined);
+    }
+    // 3) 승인 대기 회원은 안내 화면으로. (api 가 이 요청에서 profiles 행을 만들어 준다)
+    const me = await api.me(session.access_token);
     if (me.viewer.kind === "pending") dest = "/pending";
   } catch {
     // api 가 잠시 안 되더라도 로그인 자체는 성공시킨다

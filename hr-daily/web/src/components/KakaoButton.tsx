@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 
-export function KakaoButton({ next, label = "카카오로 계속하기" }: { next: string; label?: string }) {
+type Props = {
+  next: string;
+  label?: string;
+  /** 가입 폼에서 고른 수신 채널. 콜백이 프로필에 반영한다. 예: "email,kakao" */
+  pref?: string;
+};
+
+export function KakaoButton({ next, label = "카카오로 계속하기", pref }: Props) {
   const { supabase } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,10 +23,10 @@ export function KakaoButton({ next, label = "카카오로 계속하기" }: { nex
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "kakao",
       options: {
-        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-        // Supabase 기본값은 profile_image 까지 요청한다. 카카오 앱 동의항목에 없는 scope 를 보내면 KOE205 가 나므로
-        // 닉네임·이메일만 요청한다.
-        scopes: "profile_nickname account_email",
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}${pref ? `&pref=${encodeURIComponent(pref)}` : ""}`,
+        // 닉네임·이메일(필수) + 카카오톡 메시지 전송(선택, 아침 아티클을 "나와의 채팅"으로 받기).
+        // 카카오 앱 동의항목에 없는 scope 를 보내면 KOE205 가 나므로 콘솔 설정과 맞춰야 한다.
+        scopes: "profile_nickname account_email talk_message",
       },
     });
     if (err) {

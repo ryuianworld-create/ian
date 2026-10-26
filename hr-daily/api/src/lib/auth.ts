@@ -17,7 +17,7 @@ export type AuthContext = {
 export type AppEnv = { Variables: { auth: AuthContext } };
 
 export const PROFILE_COLUMNS =
-  "id,email,display_name,status,role,email_opt_in,created_at,approved_at,note";
+  "id,email,display_name,status,role,email_opt_in,kakao_opt_in,created_at,approved_at,note";
 
 export const ANON: AuthContext = { viewer: { kind: "anon" }, userId: null, profile: null, tokenError: null };
 
@@ -38,6 +38,7 @@ export function toProfile(row: ProfileRow | Profile): Profile {
     status: row.status,
     role: row.role,
     email_opt_in: row.email_opt_in,
+    kakao_opt_in: row.kakao_opt_in ?? false,
     created_at: row.created_at,
     approved_at: row.approved_at,
     note: row.note,

@@ -9,6 +9,7 @@ import type {
   JobName,
   JobRun,
   LibraryResponse,
+  KakaoStatus,
   MeResponse,
   Profile,
   ProfileStatus,
@@ -93,9 +94,14 @@ export const api = {
     return request<MeResponse>("/v1/me", { token });
   },
 
-  updateMe(patch: { display_name?: string; email_opt_in?: boolean }, token: Token): Promise<{ profile: Profile }> {
+  updateMe(patch: { display_name?: string; email_opt_in?: boolean; kakao_opt_in?: boolean }, token: Token): Promise<{ profile: Profile; kakao?: KakaoStatus }> {
     if (isMock) return Promise.resolve().then(() => mock.unauthorized());
-    return request<{ profile: Profile }>("/v1/me", { method: "PATCH", token, body: patch });
+    return request<{ profile: Profile; kakao?: KakaoStatus }>("/v1/me", { method: "PATCH", token, body: patch });
+  },
+  /** 카카오 로그인 직후 공급자 토큰을 API 에 맡긴다 (카카오톡 나에게 보내기용) */
+  kakaoLink(tokens: { provider_token: string; provider_refresh_token: string }, token: Token): Promise<{ kakao: KakaoStatus }> {
+    if (isMock) return Promise.resolve({ kakao: { linked: false, talk_message: false, last_error: null, linked_at: null } });
+    return request<{ kakao: KakaoStatus }>("/v1/me/kakao/link", { method: "POST", token, body: tokens });
   },
 
   // article_id 를 생략하면 전체 외운 단어(누적)를 돌려준다고 가정한다.

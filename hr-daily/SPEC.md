@@ -56,7 +56,7 @@ type ArticleCard = Pick<Article, 'id'|'source_name'|'kind'|'title'|'url'|'publis
 type Viewer = { kind: 'anon'|'pending'|'rejected'|'approved'|'admin'; email?: string; display_name?: string };
 
 type Profile = { id: string; email: string; display_name: string|null; status: 'pending'|'approved'|'rejected';
-                 role: 'user'|'admin'; email_opt_in: boolean; created_at: string; approved_at: string|null; note: string|null };
+                 role: 'user'|'admin'; email_opt_in: boolean; kakao_opt_in: boolean; created_at: string; approved_at: string|null; note: string|null };
 
 type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; title: string; published: string|null; article_id: string|null };
 ```
@@ -72,8 +72,10 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 | GET | `/v1/feed` | 아티클 목록(최신순). viewer 에 따라 locked 처리 | `{ today: ArticleCard\|null, items: ArticleCard[], free_limit: number, viewer: Viewer, total: number }` — `today` 는 items[0] |
 | GET | `/v1/articles/:id` | 아티클 전체 | `{ article: Article, viewer }`. 권한 없으면 403 `code: 'signup_required' \| 'approval_pending' \| 'rejected'` + `{ preview: ArticleCard }` |
 | GET | `/v1/library?cursor=&limit=50&q=` | 서재(전체 글 목록, 요약 여부 포함). 누구나 | `{ items: IndexItem[], next_cursor: string\|null, summarized_count: number, total: number }` |
-| GET | `/v1/me` | 내 프로필 | `{ profile: Profile, viewer }` / 401 |
-| PATCH | `/v1/me` | `{ display_name?, email_opt_in? }` | `{ profile }` |
+| GET | `/v1/me` | 내 프로필 | `{ profile: Profile, viewer, kakao: {linked, talk_message, last_error, linked_at} }` / 401 |
+| PATCH | `/v1/me` | `{ display_name?, email_opt_in?, kakao_opt_in? }` | `{ profile, kakao }` |
+| POST | `/v1/me/kakao/link` | `{ provider_token, provider_refresh_token }` — 카카오 로그인 직후 웹 콜백이 호출. 카카오에 토큰·동의 scope 를 확인해 `kakao_links` 에 저장 | `{ kakao }` |
+| DELETE | `/v1/me/kakao/link` | 카카오 연결 해제 (kakao_opt_in 도 끔) | `{ kakao }` |
 | GET | `/v1/vocab/progress?article_id=` | 외운 단어 | `{ learned: string[] }` (로그인 필요, 승인 불문) |
 | PUT | `/v1/vocab/progress` | `{ article_id, word, learned }` | `{ ok: true }` |
 | GET | `/v1/stats` | 공개 통계 | `{ articles: number, vocab: number, index: number, latest_date: string\|null }` |
@@ -94,7 +96,7 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 |---|---|---|
 | GET `/cron/collect` | `30 20 * * *` (KST 05:30) | 소스 피드 수집 → index_items, inbox(raw_text 포함) |
 | GET `/cron/summarize` | `0 21 * * *` (KST 06:00) | 오늘(KST) featured_date 가 비어 있으면 inbox 에서 한 편 골라 Gemini 로 요약 → articles. raw_text null 처리 |
-| GET `/cron/digest` | `0 22 * * *` (KST 07:00) | 오늘 아티클을 approved & email_opt_in 회원에게 메일. 같은 (user, article) 는 한 번만 |
+| GET `/cron/digest` | `0 22 * * *` (KST 07:00) | 오늘 아티클을 approved 회원에게 이메일(email_opt_in)·카카오톡(kakao_opt_in, 나에게 보내기)으로. 같은 (user, article, channel) 은 한 번만 |
 
 크론 핸들러와 관리자 `/v1/admin/jobs/:job` 은 같은 job 함수를 호출한다. 각 실행은 `job_runs` 에 기록.
 
@@ -118,6 +120,8 @@ type IndexItem = { url: string; source_name: string; kind: 'article'|'paper'; ti
 - 성공: `articles` insert(featured_date, model, tokens), inbox `status='done', raw_text=null, processed_at`.
 
 **digest** — 대상 = 오늘(KST) featured_date 의 article(없으면 최신). 수신자 = `profiles.status='approved' and email_opt_in`. `email_log`(kind='digest', status='sent') 에 없는 사람만. Resend(`resend` npm) 로 발송. 제목: `[HR Daily] {title}`. 본문(HTML): 출처·날짜, 한글 요약, 핵심 수치, 단어 목록(단어 + 한글 뜻), "앱에서 읽기" 버튼(`${WEB_URL}/a/${id}`), 수신 거부 안내(`${WEB_URL}/account`). 결과를 email_log 에 기록. `RESEND_API_KEY` 가 없으면 전부 `skipped` 로 기록하고 실패로 치지 않는다.
+
+**digest — 카카오톡 채널** — 수신자 = `status='approved' and kakao_opt_in`. 카카오 로그인 때 받은 토큰(`kakao_links`, service role 만 접근)으로 카카오 "나에게 보내기"(`POST /v2/api/talk/memo/default/send`, feed 템플릿: 제목·요약 발췌·핵심 수치 2개·단어 수·읽기 버튼)를 사용자의 "나와의 채팅"으로 보낸다. 액세스 토큰이 만료됐으면 `refresh_token` 으로 재발급(`KAKAO_REST_API_KEY` + `KAKAO_CLIENT_SECRET`). 토큰이 죽었거나(401/-401) 동의가 없으면(-402) `kakao_links.talk_message=false` 로 내리고 `failed` 기록 — 내 정보 화면이 "카카오 연결하기" 를 보여준다. `email_log.channel='kakao'`. 알림톡/친구톡이 아니므로 사업자 등록·비용이 없고, 카카오로 로그인한 회원만 선택할 수 있다.
 
 **approve 메일** — 승인 시 1통: "승인되었습니다. 매일 아침 7시에 그날의 아티클을 보내드립니다" + 앱 링크.
 

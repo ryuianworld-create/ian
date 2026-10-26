@@ -42,10 +42,14 @@ export type Profile = {
   status: UserStatus;
   role: UserRole;
   email_opt_in: boolean;
+  kakao_opt_in: boolean;
   created_at: string;
   approved_at: string | null;
   note: string | null;
 };
+
+/** 카카오 로그인 토큰 연결 상태 (GET /v1/me) */
+export type KakaoStatus = { linked: boolean; talk_message: boolean; last_error: string | null; linked_at: string | null };
 
 export type IndexItem = {
   url: string;
@@ -116,10 +120,25 @@ export type ArticleRow = Article & {
 
 export type ProfileRow = Profile & { approved_by: string | null };
 
+export type KakaoLinkRow = {
+  user_id: string;
+  access_token: string | null;
+  access_expires_at: string | null;
+  refresh_token: string;
+  refresh_expires_at: string | null;
+  talk_message: boolean;
+  scopes: string | null;
+  linked_at: string;
+  updated_at: string;
+  last_error: string | null;
+  last_error_at: string | null;
+};
+
 export type EmailLogRow = {
   id: number;
   user_id: string | null;
   article_id: string | null;
+  channel: "email" | "kakao";
   kind: "digest" | "approved" | "rejected";
   status: "sent" | "failed" | "skipped";
   provider_id: string | null;

@@ -1110,3 +1110,13 @@ html:root[data-design="b"] .jr .tag{font-family:var(--font-body);font-weight:700
 .ld .banner{margin:14px 0 0;border-radius:18px}
 .ld .btn.kakao{border-radius:16px;font-weight:800;padding:13px 16px}
 .ld .kakao-wrap .err{margin-top:6px}
+
+/* 수신 채널 선택 (가입 폼·내 정보) */
+.form .channels{border:1px solid var(--line);border-radius:16px;padding:12px 14px 10px;margin:0 0 4px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}
+.form .channels legend{padding:0 6px;font-size:13px;font-weight:800;color:var(--ink)}
+.form .channels .check{margin:0}
+.form .check .help{font-weight:500;color:var(--muted);font-size:12px;margin-left:4px}
+.form .help.muted{font-size:12px;color:var(--muted)}
+.form .help.ok{color:var(--ok)}
+.kakao-relink{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px dashed var(--line-2);border-radius:14px;background:var(--surface)}
+.kakao-relink .help{font-size:12.5px;color:var(--ink-2);line-height:1.5}

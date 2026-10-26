@@ -24,6 +24,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [chEmail, setChEmail] = useState(true);
+  const [chKakao, setChKakao] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(() => params.get("error"));
   const [info, setInfo] = useState<string | null>(null);
@@ -55,7 +57,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           email,
           password,
           options: {
-            data: { display_name: name.trim() || undefined },
+            // 수신 채널 선택은 가입 트리거가 profiles 로 옮긴다. 이메일 가입은 카카오 토큰이 없으니 카카오톡 채널은 끈다.
+            data: { display_name: name.trim() || undefined, email_opt_in: chEmail, kakao_opt_in: false },
             emailRedirectTo: SITE_URL ? `${SITE_URL}/pending` : undefined,
           },
         });
@@ -83,7 +86,25 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <form className="form" onSubmit={submit}>
-      <KakaoButton next={mode === "signup" ? "/pending" : nextPath} label={mode === "signup" ? "카카오로 3초 만에 가입" : "카카오로 로그인"} />
+      {mode === "signup" ? (
+        <fieldset className="channels">
+          <legend>매일 아침 7시, 어디로 받을까요?</legend>
+          <label className="check">
+            <input type="checkbox" checked={chEmail} onChange={(e) => setChEmail(e.target.checked)} />
+            이메일로 받기
+          </label>
+          <label className="check">
+            <input type="checkbox" checked={chKakao} onChange={(e) => setChKakao(e.target.checked)} />
+            카카오톡으로 받기 <span className="help">카카오로 가입할 때만 · 내 &quot;나와의 채팅&quot;으로 옵니다</span>
+          </label>
+          <span className="help muted">나중에 내 정보에서 언제든 바꿀 수 있습니다.</span>
+        </fieldset>
+      ) : null}
+      <KakaoButton
+        next={mode === "signup" ? "/pending" : nextPath}
+        pref={mode === "signup" ? [chEmail ? "email" : "", chKakao ? "kakao" : ""].filter(Boolean).join(",") || "none" : undefined}
+        label={mode === "signup" ? "카카오로 3초 만에 가입" : "카카오로 로그인"}
+      />
       <div className="or" role="separator">
         <span>또는 이메일로</span>
       </div>

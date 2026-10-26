@@ -44,10 +44,13 @@ export type Profile = {
   status: ProfileStatus;
   role: "user" | "admin";
   email_opt_in: boolean;
+  kakao_opt_in: boolean;
   created_at: string;
   approved_at: string | null;
   note: string | null;
 };
+
+export type KakaoStatus = { linked: boolean; talk_message: boolean; last_error: string | null; linked_at: string | null };
 
 export type IndexItem = {
   url: string;
@@ -78,7 +81,7 @@ export type LibraryResponse = {
   total: number;
 };
 
-export type MeResponse = { profile: Profile; viewer: Viewer };
+export type MeResponse = { profile: Profile; viewer: Viewer; kakao?: KakaoStatus };
 export type ProgressResponse = { learned: string[] };
 export type StatsResponse = {
   articles: number;

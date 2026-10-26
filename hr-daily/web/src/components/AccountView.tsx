@@ -7,6 +7,7 @@ import { errorMessage } from "@/lib/errors";
 import { viewerLabel } from "@/lib/format";
 import type { MeResponse } from "@/lib/types";
 import { useAuth } from "./AuthProvider";
+import { KakaoButton } from "./KakaoButton";
 
 export function AccountView() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export function AccountView() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [name, setName] = useState("");
   const [optIn, setOptIn] = useState(true);
+  const [kakaoIn, setKakaoIn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -32,6 +34,7 @@ export function AccountView() {
         setMe(m);
         setName(m.profile.display_name ?? "");
         setOptIn(m.profile.email_opt_in);
+        setKakaoIn(m.profile.kakao_opt_in);
       })
       .catch((e) => alive && setError(errorMessage(e)));
     return () => {
@@ -46,8 +49,8 @@ export function AccountView() {
     setError(null);
     setSaved(false);
     try {
-      const { profile } = await api.updateMe({ display_name: name.trim(), email_opt_in: optIn }, token);
-      setMe((m) => (m ? { ...m, profile } : m));
+      const { profile, kakao } = await api.updateMe({ display_name: name.trim(), email_opt_in: optIn, kakao_opt_in: kakaoIn }, token);
+      setMe((m) => (m ? { ...m, profile, kakao: kakao ?? m.kakao } : m));
       setSaved(true);
     } catch (err) {
       setError(errorMessage(err));
@@ -112,8 +115,11 @@ export function AccountView() {
                   <dd>{me.profile.approved_at.slice(0, 10)}</dd>
                 </>
               ) : null}
-              <dt>아침 메일</dt>
-              <dd>{me.profile.email_opt_in ? "받음 · 매일 07:00" : "받지 않음"}</dd>
+              <dt>아침 알림</dt>
+              <dd>
+                {[me.profile.email_opt_in ? "이메일" : null, me.profile.kakao_opt_in ? "카카오톡" : null].filter(Boolean).join(" · ") || "받지 않음"}
+                {me.profile.email_opt_in || me.profile.kakao_opt_in ? " · 매일 07:00" : ""}
+              </dd>
             </dl>
             {me.viewer.kind === "admin" ? (
               <Link className="btn" href="/admin">
@@ -133,13 +139,33 @@ export function AccountView() {
                 <label htmlFor="display_name">이름</label>
                 <input id="display_name" type="text" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
               </div>
+              <span className="help" style={{ fontWeight: 600 }}>매일 아침 7시, 그날의 아티클을</span>
               <label className="check">
                 <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
-                매일 아침 7시에 그날의 아티클을 메일로 받기
+                이메일로 받기 <span className="help">({me.profile.email})</span>
               </label>
+              <label className="check">
+                <input type="checkbox" checked={kakaoIn} onChange={(e) => setKakaoIn(e.target.checked)} />
+                카카오톡으로 받기 <span className="help">내 &quot;나와의 채팅&quot; 방으로</span>
+              </label>
+              {kakaoIn && !(me.kakao?.linked && me.kakao?.talk_message) ? (
+                <div className="kakao-relink">
+                  <span className="help">
+                    {me.kakao?.linked
+                      ? "카카오톡 메시지 전송 동의가 없거나 연결이 끊겼습니다. 카카오로 다시 로그인하면서 동의하면 바로 보낼 수 있습니다."
+                      : "카카오톡으로 받으려면 카카오 계정을 연결해야 합니다. 아래 버튼으로 카카오 로그인(메시지 전송 동의)을 한 번 해주세요."}
+                  </span>
+                  <KakaoButton next="/account" label="카카오 연결하기" />
+                </div>
+              ) : null}
+              {kakaoIn && me.kakao?.linked && me.kakao.talk_message ? (
+                <span className="help ok" style={{ fontSize: 12 }}>
+                  카카오톡 연결됨{me.kakao.last_error ? ` · 마지막 발송 오류: ${me.kakao.last_error}` : ""}
+                </span>
+              ) : null}
               {me.viewer.kind !== "approved" && me.viewer.kind !== "admin" ? (
                 <span className="help muted" style={{ fontSize: 12 }}>
-                  메일은 승인된 뒤부터 발송됩니다.
+                  알림은 승인된 뒤부터 발송됩니다.
                 </span>
               ) : null}
               {saved ? <div className="msg">저장했습니다.</div> : null}
