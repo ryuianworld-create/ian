@@ -5,7 +5,25 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseEnv } from "./env";
 
 const PROTECTED = ["/account", "/admin"];
 
+// 대표 도메인(NEXT_PUBLIC_SITE_URL)이 설정돼 있고 요청 호스트가 *.vercel.app 이면 대표 도메인으로 보낸다
+const SITE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "").host;
+  } catch {
+    return "";
+  }
+})();
+
 export async function updateSession(request: NextRequest) {
+  const host = request.headers.get("host") ?? "";
+  if (SITE_HOST && host.endsWith(".vercel.app") && host !== SITE_HOST) {
+    const url = request.nextUrl.clone();
+    url.protocol = "https:";
+    url.host = SITE_HOST;
+    url.port = "";
+    return NextResponse.redirect(url, 308);
+  }
+
   let response = NextResponse.next({ request });
   if (!hasSupabaseEnv) return response;
 
