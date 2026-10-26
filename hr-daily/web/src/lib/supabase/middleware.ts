@@ -2,6 +2,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseEnv } from "./env";
+import { DESIGN_COOKIE } from "@/lib/design-cookie";
 
 const PROTECTED = ["/account", "/admin"];
 
@@ -22,6 +23,16 @@ export async function updateSession(request: NextRequest) {
     url.host = SITE_HOST;
     url.port = "";
     return NextResponse.redirect(url, 308);
+  }
+
+  // 디자인 A/B 비교: ?design=a|b 를 쿠키로 옮기고 깨끗한 URL 로 돌려보낸다
+  const design = request.nextUrl.searchParams.get("design");
+  if (design === "a" || design === "b") {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete("design");
+    const res = NextResponse.redirect(url);
+    res.cookies.set(DESIGN_COOKIE, design, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    return res;
   }
 
   let response = NextResponse.next({ request });

@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { TopBar } from "@/components/TopBar";
 import { TabBar } from "@/components/TabBar";
+import { DesignSwitch } from "@/components/DesignSwitch";
+import { getDesign } from "@/lib/design";
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
@@ -61,14 +63,30 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const design = await getDesign();
   return (
-    <html lang="ko" className={`${newsreader.variable} ${notoSansKr.variable} ${plexMono.variable} ${poppins.variable}`}>
+    <html
+      lang="ko"
+      data-design={design}
+      className={`${newsreader.variable} ${notoSansKr.variable} ${plexMono.variable} ${poppins.variable}`}
+    >
+      <head>
+        {design === "b" ? (
+          // 디자인 B 는 Pretendard (가변 폰트, 동적 서브셋). next/font 에 없어 CDN 스타일시트로 싣는다.
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
       <body>
         <AuthProvider>
           <TopBar />
           <div className="wrap">{children}</div>
           <TabBar />
+          <DesignSwitch design={design} />
         </AuthProvider>
       </body>
     </html>
