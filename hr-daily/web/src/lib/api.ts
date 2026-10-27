@@ -98,6 +98,15 @@ export const api = {
     if (isMock) return Promise.resolve().then(() => mock.unauthorized());
     return request<{ profile: Profile; kakao?: KakaoStatus }>("/v1/me", { method: "PATCH", token, body: patch });
   },
+  /** 웹 푸시 구독 저장 / 해제 */
+  pushSubscribe(sub: { endpoint: string; keys: { p256dh: string; auth: string }; user_agent?: string }, token: Token): Promise<{ push: { devices: number } }> {
+    if (isMock) return Promise.resolve({ push: { devices: 1 } });
+    return request<{ push: { devices: number } }>("/v1/me/push", { method: "POST", token, body: sub });
+  },
+  pushUnsubscribe(endpoint: string, token: Token): Promise<{ push: { devices: number } }> {
+    if (isMock) return Promise.resolve({ push: { devices: 0 } });
+    return request<{ push: { devices: number } }>("/v1/me/push", { method: "DELETE", token, body: { endpoint } });
+  },
   /** 카카오 로그인 직후 공급자 토큰을 API 에 맡긴다 (카카오톡 나에게 보내기용) */
   kakaoLink(tokens: { provider_token: string; provider_refresh_token: string }, token: Token): Promise<{ kakao: KakaoStatus }> {
     if (isMock) return Promise.resolve({ kakao: { linked: false, talk_message: false, last_error: null, linked_at: null } });

@@ -81,7 +81,7 @@ export type LibraryResponse = {
   total: number;
 };
 
-export type MeResponse = { profile: Profile; viewer: Viewer; kakao?: KakaoStatus };
+export type MeResponse = { profile: Profile; viewer: Viewer; kakao?: KakaoStatus; push?: { devices: number } };
 export type ProgressResponse = { learned: string[] };
 export type StatsResponse = {
   articles: number;

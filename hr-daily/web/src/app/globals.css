@@ -1122,3 +1122,12 @@ html:root[data-design="b"] .jr .tag{font-family:var(--font-body);font-weight:700
 .kakao-relink .help{font-size:12.5px;color:var(--ink-2);line-height:1.5}
 .form .channels .check{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
 .form .channels .check .help{flex-basis:100%;margin-left:26px;line-height:1.4}
+
+/* 새 글 알림(웹 푸시) 카드 */
+.push-card{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+.push-card.compact{margin-top:0;background:rgba(255,255,255,.8);border-color:#FEF3C7}
+.push-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.push-title{font-weight:800;font-size:14px;color:var(--ink)}
+.push-state{font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px;background:#E2E8F0;color:#475569}
+.push-state.on{background:#D1FAE5;color:#065F46}
+.push-card .btn{align-self:flex-start}

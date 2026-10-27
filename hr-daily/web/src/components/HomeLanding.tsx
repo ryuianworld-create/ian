@@ -8,6 +8,7 @@ import type { Article, ArticleCard, FeedResponse, StatsResponse } from "@/lib/ty
 import { SOURCES, longDateKo, longDateEn } from "@/lib/journal";
 import { shortDate, stripTags } from "@/lib/format";
 import { KakaoButton } from "./KakaoButton";
+import { PushToggle } from "./PushToggle";
 import { ViewerBanner } from "./ViewerBanner";
 import { LangToggle, useLang } from "./useLang";
 
@@ -193,6 +194,8 @@ export function HomeLanding({ feed, stats, today }: Props) {
                   </span>
                 </div>
               </div>
+
+              {!anon ? <PushToggle compact /> : null}
 
               {/* 미니 배지 */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">

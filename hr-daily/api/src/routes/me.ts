@@ -1,4 +1,4 @@
-// GET/PATCH /v1/me — 내 프로필 · POST/DELETE /v1/me/kakao/link — 카카오 로그인 토큰 연결(카카오톡 나에게 보내기)
+// GET/PATCH /v1/me — 내 프로필 · POST/DELETE /v1/me/kakao/link — 카카오 토큰 연결 · POST/DELETE /v1/me/push — 웹 푸시 구독
 import { Hono } from "hono";
 import { PROFILE_COLUMNS, requireUser, toProfile, type AppEnv } from "../lib/auth.js";
 import { badRequest, readJson } from "../lib/http.js";
@@ -25,9 +25,44 @@ async function kakaoStatus(userId: string): Promise<KakaoStatus> {
   };
 }
 
+async function pushStatus(userId: string): Promise<{ devices: number }> {
+  const r = await db().from("push_subscriptions").select("id", { count: "exact", head: true }).eq("user_id", userId).is("disabled_at", null);
+  return { devices: r.error ? 0 : (r.count ?? 0) };
+}
+
 me.get("/", async (c) => {
   const a = requireUser(c);
-  return c.json({ profile: toProfile(a.profile), viewer: a.viewer, kakao: await kakaoStatus(a.userId) });
+  const [kakao, push] = await Promise.all([kakaoStatus(a.userId), pushStatus(a.userId)]);
+  return c.json({ profile: toProfile(a.profile), viewer: a.viewer, kakao, push });
+});
+
+/** 웹 푸시 구독 저장. body: { endpoint, keys: { p256dh, auth }, user_agent? } */
+me.post("/push", async (c) => {
+  const a = requireUser(c);
+  const body = await readJson(c);
+  const endpoint = body.endpoint;
+  const keys = (body.keys ?? {}) as { p256dh?: unknown; auth?: unknown };
+  if (typeof endpoint !== "string" || !/^https:\/\//.test(endpoint) || endpoint.length > 2000) throw badRequest("endpoint 가 올바르지 않습니다");
+  if (typeof keys.p256dh !== "string" || typeof keys.auth !== "string" || !keys.p256dh || !keys.auth) throw badRequest("keys.p256dh / keys.auth 가 필요합니다");
+  const ua = typeof body.user_agent === "string" ? body.user_agent.slice(0, 300) : null;
+  const now = new Date().toISOString();
+  const { error } = await db().from("push_subscriptions").upsert(
+    { user_id: a.userId, endpoint, p256dh: keys.p256dh, auth: keys.auth, user_agent: ua, last_seen_at: now, last_error: null, last_error_at: null, disabled_at: null },
+    { onConflict: "endpoint" },
+  );
+  if (error) throw new Error(`push_subscriptions.upsert: ${error.message}`);
+  return c.json({ push: await pushStatus(a.userId) });
+});
+
+/** 웹 푸시 구독 해제. body: { endpoint } (없으면 내 구독 전부) */
+me.delete("/push", async (c) => {
+  const a = requireUser(c);
+  const body = await readJson(c).catch(() => ({}) as Record<string, unknown>);
+  let q = db().from("push_subscriptions").delete().eq("user_id", a.userId);
+  if (typeof body.endpoint === "string" && body.endpoint) q = q.eq("endpoint", body.endpoint);
+  const { error } = await q;
+  if (error) throw new Error(`push_subscriptions.delete: ${error.message}`);
+  return c.json({ push: await pushStatus(a.userId) });
 });
 
 me.patch("/", async (c) => {

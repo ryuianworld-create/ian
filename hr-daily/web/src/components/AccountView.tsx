@@ -8,6 +8,7 @@ import { viewerLabel } from "@/lib/format";
 import type { MeResponse } from "@/lib/types";
 import { useAuth } from "./AuthProvider";
 import { KakaoButton } from "./KakaoButton";
+import { PushToggle } from "./PushToggle";
 
 export function AccountView() {
   const router = useRouter();
@@ -173,6 +174,7 @@ export function AccountView() {
                 {busy ? "저장 중…" : "저장"}
               </button>
             </form>
+            <PushToggle />
           </section>
         </div>
       ) : null}

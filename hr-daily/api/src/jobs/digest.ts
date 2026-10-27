@@ -5,9 +5,10 @@ import { normalizeFindings } from "../lib/cards.js";
 import { digestEmail, emailEnabled, sendEmail } from "../lib/email.js";
 import { webUrl } from "../lib/env.js";
 import { KakaoError, digestTemplate, kakaoEnabled, refreshAccessToken, sendMemo } from "../lib/kakao.js";
+import { digestPushPayload, pushEnabled, sendPush } from "../lib/push.js";
 import { kstToday } from "../lib/kst.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
-import type { Article, ArticleRow, KakaoLinkRow } from "../types.js";
+import type { Article, ArticleRow, KakaoLinkRow, PushSubscriptionRow } from "../types.js";
 import type { Log } from "./run.js";
 
 export type DigestResult = {
@@ -18,11 +19,12 @@ export type DigestResult = {
   failed: number;
   skipped: number;
   kakao: { recipients: number; sent: number; failed: number; skipped: number };
+  push: { recipients: number; sent: number; failed: number; skipped: number };
 };
 
 type Recipient = { id: string; email: string; display_name: string | null; email_opt_in: boolean; kakao_opt_in: boolean };
 type Status = "sent" | "failed" | "skipped";
-type Channel = "email" | "kakao";
+type Channel = "email" | "kakao" | "push";
 
 const ARTICLE_COLUMNS = "id,source_id,source_name,kind,title,url,published,category,featured_date,summary,findings,detail,vocab";
 const ACCESS_SKEW_MS = 60_000;
@@ -48,6 +50,7 @@ export async function digestJob(log: Log): Promise<DigestResult> {
     failed: 0,
     skipped: 0,
     kakao: { recipients: 0, sent: 0, failed: 0, skipped: 0 },
+    push: { recipients: 0, sent: 0, failed: 0, skipped: 0 },
   };
   if (!row) {
     log("보낼 아티클이 없다");
@@ -169,6 +172,52 @@ export async function digestJob(log: Log): Promise<DigestResult> {
       log(`  ${mark(status)} 카카오톡 ${who}${err ? ` (${err})` : ""}`);
     }
     log(`카카오톡 발송 ${result.kakao.sent} · 실패 ${result.kakao.failed} · 건너뜀 ${result.kakao.skipped}`);
+  }
+
+  // ---- 웹 푸시 (홈 화면 앱·브라우저). 오늘 글은 누구나 읽을 수 있으므로 거절 회원만 제외한다 ----
+  const subs = unwrap(
+    await db().from("push_subscriptions").select("*, profiles!inner(status)").is("disabled_at", null).neq("profiles.status", "rejected"),
+    "push_subscriptions.select",
+  ) as (PushSubscriptionRow & { profiles: { status: string } })[];
+  const pushByUser = new Map<string, PushSubscriptionRow[]>();
+  for (const s of subs) {
+    if (done.has(`push:${s.user_id}`)) continue;
+    const list = pushByUser.get(s.user_id) ?? [];
+    list.push(s);
+    pushByUser.set(s.user_id, list);
+  }
+  result.push.recipients = pushByUser.size;
+  if (pushByUser.size) {
+    log(`푸시 대상 ${pushByUser.size}명 · 기기 ${[...pushByUser.values()].reduce((n, l) => n + l.length, 0)}대`);
+    if (!pushEnabled()) log("VAPID 키가 없어 푸시는 skipped 로 기록한다");
+    const countRes = await db().from("articles").select("id", { count: "exact", head: true }).lte("featured_date", today);
+    const payload = digestPushPayload(article, { webUrl: webUrl(), issueNo: countRes.error ? null : (countRes.count ?? null) });
+    for (const [userId, list] of pushByUser) {
+      let status: Status = "skipped";
+      const errs: string[] = [];
+      if (pushEnabled()) {
+        let okCount = 0;
+        for (const s of list) {
+          const r = await sendPush({ endpoint: s.endpoint, p256dh: s.p256dh, auth: s.auth }, payload);
+          if (r.ok) {
+            okCount++;
+            await db().from("push_subscriptions").update({ last_seen_at: new Date().toISOString(), last_error: null, last_error_at: null }).eq("id", s.id);
+          } else {
+            errs.push(`${r.status}: ${r.message}`);
+            await db()
+              .from("push_subscriptions")
+              .update({ last_error: `${r.status}: ${r.message}`.slice(0, 300), last_error_at: new Date().toISOString(), ...(r.gone ? { disabled_at: new Date().toISOString() } : {}) })
+              .eq("id", s.id);
+          }
+        }
+        status = okCount > 0 ? "sent" : "failed";
+      }
+      result.push[status]++;
+      const err = status === "sent" ? null : status === "skipped" ? "VAPID 키 없음" : errs.join(" | ");
+      await record(userId, "push", status, null, err);
+      log(`  ${mark(status)} 푸시 ${userId.slice(0, 8)}… (${list.length}대)${err ? ` (${err})` : ""}`);
+    }
+    log(`푸시 발송 ${result.push.sent} · 실패 ${result.push.failed} · 건너뜀 ${result.push.skipped}`);
   }
 
   return result;

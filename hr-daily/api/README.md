@@ -25,6 +25,7 @@ scripts/import-legacy.ts  1세대 데이터 이관
 | `GEMINI_API_KEY` | summarize 에 필요 | Gemini 요약 (Google AI Studio 에서 발급) |
 | `GEMINI_MODEL` | 아니오 | 기본 `gemini-3.8-flash` (무료 등급 가능). 품질 우선이면 `gemini-4-argon` |
 | `RESEND_API_KEY`, `EMAIL_FROM` | 아니오 | 없으면 메일은 `skipped` 로 기록 |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | 아니오 | 웹 푸시(홈 화면 앱 알림). `npx web-push generate-vapid-keys` 로 생성. 공개키는 web 의 `NEXT_PUBLIC_VAPID_PUBLIC_KEY` 와 같아야 함. 없으면 푸시는 `skipped` |
 | `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET` | 아니오 | 카카오톡 "나에게 보내기" 채널. REST API 키(=OAuth client_id)와 카카오 로그인 클라이언트 시크릿(콘솔 → 플랫폼 키 → 대표 REST 키 수정). 없으면 카카오톡은 `skipped` 로 기록 |
 | `CRON_SECRET` | 예 | `/cron/*` 보호. Vercel 이 자동으로 `Authorization: Bearer` 로 보냄 |
 | `ADMIN_EMAILS` | 예 | 쉼표 구분. 자동 admin 승격 |

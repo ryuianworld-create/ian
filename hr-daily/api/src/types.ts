@@ -48,6 +48,21 @@ export type Profile = {
   note: string | null;
 };
 
+/** 웹 푸시 구독 행 */
+export type PushSubscriptionRow = {
+  id: number;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string | null;
+  created_at: string;
+  last_seen_at: string;
+  last_error: string | null;
+  last_error_at: string | null;
+  disabled_at: string | null;
+};
+
 /** 카카오 로그인 토큰 연결 상태 (GET /v1/me) */
 export type KakaoStatus = { linked: boolean; talk_message: boolean; last_error: string | null; linked_at: string | null };
 
@@ -138,7 +153,7 @@ export type EmailLogRow = {
   id: number;
   user_id: string | null;
   article_id: string | null;
-  channel: "email" | "kakao";
+  channel: "email" | "kakao" | "push";
   kind: "digest" | "approved" | "rejected";
   status: "sent" | "failed" | "skipped";
   provider_id: string | null;
