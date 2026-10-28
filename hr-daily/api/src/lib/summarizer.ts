@@ -249,17 +249,36 @@ type InteractionUsage = {
   total_input_tokens?: number; total_output_tokens?: number; total_thought_tokens?: number; total_cached_tokens?: number;
 };
 
-export async function summarizeText(input: SummarizeInput, log?: (m: string) => void): Promise<SummarizeResult> {
-  const model = modelName();
+export class SummarizeTimeout extends Error {
+  constructor(ms: number) {
+    super(`Gemini 응답 ${Math.round(ms / 1000)}초 초과 — 중단`);
+    this.name = "SummarizeTimeout";
+  }
+}
 
-  const res = await client().interactions.create({
+/** p 가 ms 안에 끝나지 않으면 SummarizeTimeout 으로 거부한다. (끝나지 않은 요청은 그대로 버린다) */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const t = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new SummarizeTimeout(ms)), ms);
+  });
+  return Promise.race([p, t]).finally(() => clearTimeout(timer)) as Promise<T>;
+}
+
+export type SummarizeOptions = { timeoutMs?: number };
+
+export async function summarizeText(input: SummarizeInput, log?: (m: string) => void, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
+  const model = modelName();
+  const timeoutMs = opts.timeoutMs ?? 240_000;
+
+  const res = await withTimeout(client().interactions.create({
     model,
     system_instruction: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
     input: userPrompt(input),
     response_format: { type: "text", mime_type: "application/json", schema: responseJsonSchema() },
     generation_config: { max_output_tokens: 32000, thinking_level: "high" }, // thinking 토큰도 max_output_tokens 에 포함된다
     store: false, // 원문을 Google 쪽에 남기지 않는다(저작권·개인정보)
-  });
+  }), timeoutMs);
 
   if (res.status !== "completed") {
     throw new Error(`Gemini 응답 상태 ${res.status}${res.status === "incomplete" ? " (max_output_tokens 초과 가능성)" : ""}`);

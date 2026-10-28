@@ -14,16 +14,32 @@ export async function runJob<T>(
   fn: (log: Log) => Promise<T>,
 ): Promise<{ run: JobRun; result: T | null; error: string | null }> {
   const lines: string[] = [];
+  let runId: number | null = null;
+  let flushTimer: ReturnType<typeof setTimeout> | null = null;
+  let flushing: Promise<void> = Promise.resolve();
+  // 진행 중 로그를 3초 간격으로 저장한다. 함수가 시간 제한으로 죽어도 어디까지 갔는지 남는다.
+  const flush = () => {
+    flushTimer = null;
+    if (runId === null) return;
+    const id = runId;
+    const snapshot = [...lines];
+    flushing = flushing.then(async () => {
+      const { error } = await db().from("job_runs").update({ log: snapshot }).eq("id", id);
+      if (error) console.error("job_runs.flush", error.message);
+    });
+  };
   const log: Log = (msg) => {
     const line = `${timeFmt.format(new Date())} ${msg}`;
     lines.push(line);
     console.log(`[${job}] ${line}`);
+    if (!flushTimer) flushTimer = setTimeout(flush, 3000);
   };
 
   const started = unwrap(
     await db().from("job_runs").insert({ job }).select("id,started_at").single<{ id: number; started_at: string }>(),
     "job_runs.insert",
   );
+  runId = started.id;
 
   let ok = false;
   let result: T | null = null;
@@ -37,6 +53,9 @@ export async function runJob<T>(
     console.error(e);
   }
 
+  if (flushTimer) clearTimeout(flushTimer);
+  flushTimer = null;
+  await flushing;
   const finished_at = new Date().toISOString();
   // 로그가 너무 길면 앞부분만 남긴다(jsonb 크기 보호)
   const logToSave = lines.length > 500 ? [...lines.slice(0, 480), `… (${lines.length - 480} lines omitted)`, ...lines.slice(-20)] : lines;

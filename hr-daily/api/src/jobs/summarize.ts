@@ -1,8 +1,10 @@
 // summarize — 대상 날짜(KST 오늘 또는 지정일)에 아티클이 없으면 inbox 에서 한 편 골라 Claude 로 요약한다.
 // 실패하면 그 inbox 는 failed 로 두고 다음 후보로 1회 재시도.
+// 시간 예산(기본 280초, Vercel maxDuration 300초 안)을 지켜서 함수가 통째로 죽어 로그·상태가 안 남는 일을 막는다.
 import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
 import { paperWeekdays } from "../lib/settings.js";
 import { summarizeText } from "../lib/summarizer.js";
+import { env } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { InboxRow, Kind } from "../types.js";
 import type { Log } from "./run.js";
@@ -50,7 +52,17 @@ async function uniqueArticleId(base: string): Promise<string> {
   throw new Error(`article id 를 만들 수 없다: ${base}`);
 }
 
+/** 잡 전체 시간 예산(ms). SUMMARIZE_BUDGET_MS 로 조정. 로컬 실행 등 제한이 없으면 크게 잡는다 */
+function budgetMs(): number {
+  const n = Number(env("SUMMARIZE_BUDGET_MS"));
+  return Number.isFinite(n) && n > 0 ? n : 280_000;
+}
+const MIN_ATTEMPT_MS = 90_000; // 이보다 적게 남으면 새 시도를 시작하지 않는다
+const MAX_ATTEMPT_MS = 240_000;
+
 export async function summarizeJob(log: Log, params: SummarizeParams = {}): Promise<SummarizeResult> {
+  const startedAt = Date.now();
+  const deadline = startedAt + budgetMs();
   const featured_date = params.featured_date ?? kstToday();
   if (!isValidDate(featured_date)) throw new Error(`featured_date 가 올바르지 않다: ${featured_date}`);
   log(`대상 날짜 ${featured_date}${params.inbox_id ? `, 지정 inbox ${params.inbox_id}` : ""}`);
@@ -87,8 +99,14 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
       log(tried.length ? "다음 후보가 없다" : "요약할 pending 글이 없다");
       break;
     }
+    const remaining = deadline - Date.now();
+    if (remaining < MIN_ATTEMPT_MS) {
+      log(`남은 시간 ${Math.round(remaining / 1000)}초 — 추가 시도 없이 종료`);
+      break;
+    }
     tried.push(cand.id);
-    log(`[${attempt}/${MAX_ATTEMPTS}] ${cand.kind} · ${cand.source_name} · ${cand.title} (score ${cand.score}, ${cand.chars ?? 0}자)`);
+    const timeoutMs = Math.min(MAX_ATTEMPT_MS, remaining - 10_000);
+    log(`[${attempt}/${MAX_ATTEMPTS}] ${cand.kind} · ${cand.source_name} · ${cand.title} (score ${cand.score}, ${cand.chars ?? 0}자, 제한 ${Math.round(timeoutMs / 1000)}초)`);
 
     try {
       const r = await summarizeText(
@@ -97,6 +115,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
           published: cand.published, category: cand.category, raw_text: cand.raw_text ?? "",
         },
         log,
+        { timeoutMs },
       );
 
       const article_id = await uniqueArticleId(cand.id);

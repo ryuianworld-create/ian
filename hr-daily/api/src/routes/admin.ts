@@ -25,12 +25,17 @@ async function countWhere(table: string, eq: Record<string, string> = {}): Promi
   return r.count ?? 0;
 }
 
+const STALE_RUN_MS = 10 * 60 * 1000;
+
+/** 마지막 실행. 10분 넘게 finished_at 이 없으면(함수가 시간 제한으로 죽은 경우) 실패로 표시한다 */
 async function lastRun(job: JobName) {
-  return unwrapMaybe(
+  const r = unwrapMaybe(
     await db().from("job_runs").select("started_at,finished_at,ok").eq("job", job).order("started_at", { ascending: false }).limit(1)
       .maybeSingle<{ started_at: string; finished_at: string | null; ok: boolean | null }>(),
     `job_runs.last(${job})`,
   );
+  if (r && r.finished_at === null && Date.now() - new Date(r.started_at).getTime() > STALE_RUN_MS) return { ...r, ok: false, stale: true };
+  return r;
 }
 
 // 다음에 채워질 featured_date: 오늘부터 아티클이 없는 첫 날짜
