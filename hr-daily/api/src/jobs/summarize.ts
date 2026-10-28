@@ -3,7 +3,7 @@
 // 시간 예산(기본 280초, Vercel maxDuration 300초 안)을 지켜서 함수가 통째로 죽어 로그·상태가 안 남는 일을 막는다.
 import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
 import { paperWeekdays } from "../lib/settings.js";
-import { summarizeText } from "../lib/summarizer.js";
+import { TransientSummarizeError, summarizeText } from "../lib/summarizer.js";
 import { env } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { InboxRow, Kind } from "../types.js";
@@ -81,6 +81,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
   log(`요일 ${weekday} → ${preferPaper ? "논문 우선" : "전체 점수순"}`);
 
   const tried: string[] = [];
+  let transient = false;
   const MAX_ATTEMPTS = params.inbox_id ? 1 : 2; // 지정 글이면 재시도 없음, 아니면 다음 후보로 1회
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -155,11 +156,22 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
       return { status: "done", featured_date, article_id, inbox_id: cand.id, model: r.model };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      log(`  ✗ 실패: ${msg}`);
-      await db().from("inbox").update({ status: "failed", error: msg.slice(0, 1000), processed_at: new Date().toISOString() }).eq("id", cand.id);
+      if (e instanceof TransientSummarizeError) {
+        // 모델 쪽 일시 오류: 후보 글은 pending 으로 남겨 다음 실행에서 다시 쓴다
+        transient = true;
+        log(`  ✗ 일시 오류(후보 유지): ${msg}`);
+        await db().from("inbox").update({ error: msg.slice(0, 1000) }).eq("id", cand.id);
+        if (attempt < MAX_ATTEMPTS && deadline - Date.now() > MIN_ATTEMPT_MS + 20_000) {
+          log("  20초 뒤 다음 후보로 재시도");
+          await new Promise((r) => setTimeout(r, 20_000));
+        }
+      } else {
+        log(`  ✗ 실패: ${msg}`);
+        await db().from("inbox").update({ status: "failed", error: msg.slice(0, 1000), processed_at: new Date().toISOString() }).eq("id", cand.id);
+      }
     }
   }
 
-  if (tried.length) throw new Error(`요약 실패 (시도: ${tried.join(", ")})`);
+  if (tried.length) throw new Error(`요약 실패${transient ? " (모델 일시 오류 — 후보는 유지됨)" : ""} (시도: ${tried.join(", ")})`);
   return { status: "skipped", reason: "no pending candidates", featured_date };
 }

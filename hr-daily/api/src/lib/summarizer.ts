@@ -9,6 +9,7 @@ import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
 import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
 export const DEFAULT_MODEL = "gemini-3.8-flash"; // 무료 등급 가능. 더 높은 품질이 필요하면 GEMINI_MODEL=gemini-4-argon
+export const DEFAULT_FALLBACK_MODEL = "gemini-4-argon"; // 기본 모델이 과부하(503)·한도(429)면 한 번 더 시도할 모델. GEMINI_FALLBACK_MODEL 로 변경, "" 이면 끔
 
 // ---- 출력 스키마 (SPEC「잡 상세 > summarize」). 개수 제한은 API 가 지원하지 않으므로 후처리에서 검증한다 ----
 const LangSchema = z.object({
@@ -227,6 +228,27 @@ export function modelName(): string {
   return env("GEMINI_MODEL") ?? DEFAULT_MODEL;
 }
 
+export function fallbackModelName(): string | null {
+  const v = env("GEMINI_FALLBACK_MODEL");
+  const name = v === undefined ? DEFAULT_FALLBACK_MODEL : v.trim();
+  return name && name !== modelName() ? name : null;
+}
+
+/** 서버 과부하·요청 한도 같은 일시 오류인가 (후보 글의 잘못이 아니므로 failed 로 두지 않는다) */
+export function isTransientError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  const status = (e as { status?: number; code?: number } | null)?.status ?? (e as { code?: number } | null)?.code;
+  if (status === 429 || status === 503 || status === 500 || status === 502 || status === 504) return true;
+  return /^(429|50[0234])\b|high demand|overloaded|UNAVAILABLE|RESOURCE_EXHAUSTED|rate limit|ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg) || e instanceof SummarizeTimeout;
+}
+
+export class TransientSummarizeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TransientSummarizeError";
+  }
+}
+
 /** zod → JSON Schema. Gemini 가 받는 부분집합으로 정리한다($schema·additionalProperties 제거) */
 export function responseJsonSchema(): Record<string, unknown> {
   const raw = z.toJSONSchema(SummarySchema, { target: "draft-2020-12" }) as Record<string, unknown>;
@@ -267,9 +289,31 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 
 export type SummarizeOptions = { timeoutMs?: number };
 
+/** 기본 모델로 시도하고, 일시 오류면 예비 모델로 한 번 더. 둘 다 일시 오류면 TransientSummarizeError */
 export async function summarizeText(input: SummarizeInput, log?: (m: string) => void, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
-  const model = modelName();
-  const timeoutMs = opts.timeoutMs ?? 240_000;
+  const started = Date.now();
+  const total = opts.timeoutMs ?? 240_000;
+  try {
+    return await summarizeWith(modelName(), input, log, { timeoutMs: total });
+  } catch (e) {
+    if (!isTransientError(e)) throw e;
+    const fallback = fallbackModelName();
+    const remaining = total - (Date.now() - started);
+    const msg = e instanceof Error ? e.message : String(e);
+    if (!fallback || remaining < 60_000) throw new TransientSummarizeError(msg);
+    log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → 예비 모델 ${fallback} 로 재시도 (남은 ${Math.round(remaining / 1000)}초)`);
+    try {
+      return await summarizeWith(fallback, input, log, { timeoutMs: remaining - 5_000 });
+    } catch (e2) {
+      const m2 = e2 instanceof Error ? e2.message : String(e2);
+      if (isTransientError(e2)) throw new TransientSummarizeError(`${msg} / 예비(${fallback}): ${m2}`);
+      throw e2;
+    }
+  }
+}
+
+async function summarizeWith(model: string, input: SummarizeInput, log: ((m: string) => void) | undefined, opts: { timeoutMs: number }): Promise<SummarizeResult> {
+  const timeoutMs = opts.timeoutMs;
 
   const res = await withTimeout(client().interactions.create({
     model,
