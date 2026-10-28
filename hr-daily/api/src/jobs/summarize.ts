@@ -9,7 +9,7 @@ import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { InboxRow, Kind } from "../types.js";
 import type { Log } from "./run.js";
 
-export type SummarizeParams = { inbox_id?: string; featured_date?: string };
+export type SummarizeParams = { inbox_id?: string; featured_date?: string; budgetMs?: number };
 export type SummarizeResult =
   | { status: "skipped"; reason: string; featured_date: string }
   | { status: "done"; featured_date: string; article_id: string; inbox_id: string; model: string }
@@ -62,7 +62,7 @@ const MAX_ATTEMPT_MS = 240_000;
 
 export async function summarizeJob(log: Log, params: SummarizeParams = {}): Promise<SummarizeResult> {
   const startedAt = Date.now();
-  const deadline = startedAt + budgetMs();
+  const deadline = startedAt + (params.budgetMs ?? budgetMs());
   const featured_date = params.featured_date ?? kstToday();
   if (!isValidDate(featured_date)) throw new Error(`featured_date 가 올바르지 않다: ${featured_date}`);
   log(`대상 날짜 ${featured_date}${params.inbox_id ? `, 지정 inbox ${params.inbox_id}` : ""}`);

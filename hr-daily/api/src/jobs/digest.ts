@@ -1,6 +1,7 @@
 // digest — 오늘(KST) 아티클(없으면 최신)을 approved 회원에게 보낸다.
 // 채널: 이메일(email_opt_in, Resend) · 카카오톡(kakao_opt_in, 카카오 로그인 "나에게 보내기").
 // 같은 (user, article, channel) 은 한 번만 (email_log 의 부분 유니크 인덱스).
+// 오늘 아티클이 없으면(06:17 요약 잡이 실패한 날) 먼저 요약을 한 번 더 시도하고, 그래도 없으면 최신 글을 보낸다.
 import { normalizeFindings } from "../lib/cards.js";
 import { digestEmail, emailEnabled, sendEmail } from "../lib/email.js";
 import { webUrl } from "../lib/env.js";
@@ -10,6 +11,7 @@ import { kstToday } from "../lib/kst.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { Article, ArticleRow, KakaoLinkRow, PushSubscriptionRow } from "../types.js";
 import type { Log } from "./run.js";
+import { summarizeJob } from "./summarize.js";
 
 export type DigestResult = {
   article_id: string | null;
@@ -35,6 +37,21 @@ export async function digestJob(log: Log): Promise<DigestResult> {
     await db().from("articles").select(ARTICLE_COLUMNS).eq("featured_date", today).maybeSingle<ArticleRow>(),
     "articles.today",
   );
+  if (!row) {
+    // 요약 잡이 실패한 날: 발송 전에 한 번 더 요약을 시도한다 (예산 230초, 발송 시간은 남겨 둔다)
+    log(`오늘(${today}) 아티클이 없다 — 요약을 다시 시도한다`);
+    try {
+      const r = await summarizeJob((m) => log(`  [summarize] ${m}`), { featured_date: today, budgetMs: 230_000 });
+      if (r.status === "done") {
+        row = unwrapMaybe(
+          await db().from("articles").select(ARTICLE_COLUMNS).eq("featured_date", today).maybeSingle<ArticleRow>(),
+          "articles.today.retry",
+        );
+      }
+    } catch (e) {
+      log(`  [summarize] ✗ ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
   if (!row) {
     row = unwrapMaybe(
       await db().from("articles").select(ARTICLE_COLUMNS).order("featured_date", { ascending: false }).limit(1).maybeSingle<ArticleRow>(),
