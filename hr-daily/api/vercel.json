@@ -10,6 +10,7 @@
   "crons": [
     { "path": "/cron/collect",   "schedule": "30 20 * * *" },
     { "path": "/cron/summarize", "schedule": "0 21 * * *" },
+    { "path": "/cron/summarize-retry", "schedule": "40 21 * * *" },
     { "path": "/cron/digest",    "schedule": "0 22 * * *" }
   ]
 }

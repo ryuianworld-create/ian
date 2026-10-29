@@ -235,6 +235,12 @@ export function modelName(): string {
   return env("GEMINI_MODEL") ?? DEFAULT_MODEL;
 }
 
+/** 추론 깊이. 기본 medium (high 는 4분을 넘기는 일이 잦아 Vercel 300초 제한에 걸린다). GEMINI_THINKING 으로 변경 */
+export function thinkingLevel(): "low" | "medium" | "high" {
+  const v = (env("GEMINI_THINKING") ?? "medium").toLowerCase();
+  return v === "low" || v === "high" ? v : "medium";
+}
+
 export function fallbackModelName(): string | null {
   const v = env("GEMINI_FALLBACK_MODEL");
   const name = v === undefined ? DEFAULT_FALLBACK_MODEL : v.trim();
@@ -300,14 +306,16 @@ export type SummarizeOptions = { timeoutMs?: number };
 export async function summarizeText(input: SummarizeInput, log?: (m: string) => void, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
   const started = Date.now();
   const total = opts.timeoutMs ?? 240_000;
+  const fallback = fallbackModelName();
+  // 예비 모델이 있으면 기본 모델에는 전체 시간의 60% 만 준다. 응답이 늦으면 남은 40% 로 예비 모델을 돌린다.
+  const primaryMs = fallback ? Math.round(total * 0.6) : total;
   try {
-    return await summarizeWith(modelName(), input, log, { timeoutMs: total });
+    return await summarizeWith(modelName(), input, log, { timeoutMs: primaryMs });
   } catch (e) {
     if (!isTransientError(e)) throw e;
-    const fallback = fallbackModelName();
     const remaining = total - (Date.now() - started);
     const msg = e instanceof Error ? e.message : String(e);
-    if (!fallback || remaining < 60_000) throw new TransientSummarizeError(msg);
+    if (!fallback || remaining < 45_000) throw new TransientSummarizeError(msg);
     log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → 예비 모델 ${fallback} 로 재시도 (남은 ${Math.round(remaining / 1000)}초)`);
     try {
       return await summarizeWith(fallback, input, log, { timeoutMs: remaining - 5_000 });
@@ -327,7 +335,7 @@ async function summarizeWith(model: string, input: SummarizeInput, log: ((m: str
     system_instruction: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
     input: userPrompt(input),
     response_format: { type: "text", mime_type: "application/json", schema: responseJsonSchema() },
-    generation_config: { max_output_tokens: 32000, thinking_level: "high" }, // thinking 토큰도 max_output_tokens 에 포함된다
+    generation_config: { max_output_tokens: 32000, thinking_level: thinkingLevel() }, // thinking 토큰도 max_output_tokens 에 포함된다
     store: false, // 원문을 Google 쪽에 남기지 않는다(저작권·개인정보)
   }), timeoutMs);
 

@@ -22,8 +22,11 @@ cron.use("*", async (c, next) => {
   await next();
 });
 
+// summarize-retry: 06:17 요약이 실패한 날을 위한 두 번째 시도(06:40). 같은 잡이며 이미 글이 있으면 건너뛴다.
+const ALIASES: Record<string, string> = { "summarize-retry": "summarize" };
+
 cron.on(["GET", "POST"], "/:job", async (c) => {
-  const job = c.req.param("job");
+  const job = ALIASES[c.req.param("job")] ?? c.req.param("job");
   if (!isJobName(job)) throw badRequest("job 은 collect|summarize|digest 중 하나여야 합니다");
   const { run, result, error } = await runNamedJob(job);
   return c.json({ run, result, error }, run.ok ? 200 : 500);
