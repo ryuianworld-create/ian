@@ -5,7 +5,7 @@ const DUTY_ANCHOR = "2026-10-27"; // 이 날이 TA팀 당번. 하루씩 TEAM_ORD
 
 export type TeamInfo = { id: Team; team: string; cat: string; role: string; color: string; soft: string; avatar: string };
 export const TEAMS: Record<Team, TeamInfo> = {
-  ta: { id: "ta", team: "TA팀", cat: "냥헌터 사원", role: "인재 소싱·영입 담당", color: "#F2A65A", soft: "#FDEBD6", avatar: "/cats/ta.png" },
+  ta: { id: "ta", team: "TA팀", cat: "에옹이 사원", role: "인재 소싱·영입 담당", color: "#F2A65A", soft: "#FDEBD6", avatar: "/cats/ta.png" },
   ops: { id: "ops", team: "HR운영팀", cat: "츄르정 사원", role: "조직 운영·규정 담당", color: "#8E3B4C", soft: "#F3DEE3", avatar: "/cats/ops.png" },
   strategy: { id: "strategy", team: "HR전략팀", cat: "캣브레인 사원", role: "근태·전략 기획 담당", color: "#3C5A8A", soft: "#DDE6F3", avatar: "/cats/strategy.png" },
   culture: { id: "culture", team: "인재성장문화팀", cat: "꾹꾹이 사원", role: "조직문화·성장 담당", color: "#6B8E4E", soft: "#E3EDDA", avatar: "/cats/culture.png" },

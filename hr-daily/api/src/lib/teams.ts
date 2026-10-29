@@ -1,5 +1,5 @@
 // HR 팀 분류와 고양이 당번. 하루씩 돌아가며 한 팀(고양이)이 당번이 되어 그날의 글을 고르고 보낸다.
-//  ta=TA팀 냥헌터 · ops=HR운영팀 츄르정 · strategy=HR전략팀 캣브레인 · culture=인재성장문화팀 꾹꾹이
+//  ta=TA팀 에옹이 · ops=HR운영팀 츄르정 · strategy=HR전략팀 캣브레인 · culture=인재성장문화팀 꾹꾹이
 import { daysBetween } from "./kst.js";
 
 export type Team = "ta" | "ops" | "strategy" | "culture";
@@ -8,7 +8,7 @@ export const DUTY_ANCHOR = "2026-10-27"; // 이 날이 TA팀 당번. 이후 하�
 
 export type TeamInfo = { id: Team; team: string; cat: string; role: string; color: string; avatar: string };
 export const TEAMS: Record<Team, TeamInfo> = {
-  ta: { id: "ta", team: "TA팀", cat: "냥헌터 사원", role: "인재 소싱·영입 담당", color: "#F2A65A", avatar: "/cats/ta.png" },
+  ta: { id: "ta", team: "TA팀", cat: "에옹이 사원", role: "인재 소싱·영입 담당", color: "#F2A65A", avatar: "/cats/ta.png" },
   ops: { id: "ops", team: "HR운영팀", cat: "츄르정 사원", role: "조직 운영·규정 담당", color: "#8E3B4C", avatar: "/cats/ops.png" },
   strategy: { id: "strategy", team: "HR전략팀", cat: "캣브레인 사원", role: "근태·전략 기획 담당", color: "#3C5A8A", avatar: "/cats/strategy.png" },
   culture: { id: "culture", team: "인재성장문화팀", cat: "꾹꾹이 사원", role: "조직문화·성장 담당", color: "#6B8E4E", avatar: "/cats/culture.png" },
