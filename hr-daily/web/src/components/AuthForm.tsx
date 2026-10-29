@@ -65,7 +65,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         if (err) throw err;
         if (!data.session) {
           // 이메일 확인이 켜진 프로젝트: 세션이 없으므로 안내만 한다
-          setInfo("확인 메일을 보냈습니다. 메일의 링크를 누르면 가입이 완료되고 승인 대기 상태가 됩니다.");
+          setInfo(
+            "확인 메일을 보냈습니다. 메일의 링크를 누르면 가입이 완료되고 승인 대기 상태가 됩니다. 몇 분 안에 오지 않으면 스팸함을 확인해 주세요. 회사 메일은 보안 정책으로 차단되는 경우가 있어 개인 메일이나 카카오 가입을 권합니다.",
+          );
           return;
         }
         router.push("/pending");
@@ -125,6 +127,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           autoComplete="email"
           inputMode="email"
         />
+        {mode === "signup" ? (
+          <span className="help">
+            회사 메일은 확인 메일이 보안 정책으로 차단될 수 있습니다. 개인 메일(Gmail·네이버 등)이나 위의 카카오 가입을 권합니다.
+          </span>
+        ) : null}
       </div>
       <div className="field">
         <label htmlFor="password">비밀번호</label>
