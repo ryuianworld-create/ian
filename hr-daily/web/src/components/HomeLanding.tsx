@@ -549,7 +549,9 @@ export function HomeLanding({ feed, stats }: Props) {
               </div>
               <p className="m-0 leading-relaxed">하루 한 편, HR 아티클·논문을 한글과 영어로 읽는 아침 루틴.</p>
               <p className="m-0 leading-relaxed text-slate-500">
-                원문은 저장하지 않습니다. 요약·단어 정의·예문은 직접 작성한 것이며 각 글에 원문 링크를 붙입니다.
+                원문은 저장하지 않습니다. 요약·단어 정의·예문은 직접 작성한 것이며 각 글에 원문 링크를 붙입니다. 수집하는
+                논문·아티클은 공개된 자료만 다루며, AI가 읽고 학습에 필요한 HR 용어와 요약으로 다시 쓰기 때문에 저작권 문제가
+                생기지 않습니다.
               </p>
             </div>
             <div>
