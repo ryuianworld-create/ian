@@ -4,7 +4,7 @@
 // 시안의 목업 콘텐츠(가짜 수치·후기·알림톡)는 쓰지 않고, 피드·통계·오늘 글의 실제 데이터만 보여준다.
 import Link from "next/link";
 import { useState } from "react";
-import type { Article, ArticleCard, FeedResponse, StatsResponse } from "@/lib/types";
+import type { ArticleCard, FeedResponse, StatsResponse } from "@/lib/types";
 import { SOURCES, longDateKo, longDateEn } from "@/lib/journal";
 import { shortDate, stripTags } from "@/lib/format";
 import { KakaoButton } from "./KakaoButton";
@@ -12,7 +12,7 @@ import { PushToggle } from "./PushToggle";
 import { ViewerBanner } from "./ViewerBanner";
 import { LangToggle, useLang } from "./useLang";
 
-type Props = { feed: FeedResponse; stats: StatsResponse | null; today: Article | null };
+type Props = { feed: FeedResponse; stats: StatsResponse | null };
 type Filter = "all" | "paper" | "article";
 
 function excerpt(html: string, n: number): string {
@@ -71,7 +71,7 @@ const Icon = {
   ),
 };
 
-export function HomeLanding({ feed, stats, today }: Props) {
+export function HomeLanding({ feed, stats }: Props) {
   const [lang, setLang] = useLang();
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -82,7 +82,7 @@ export function HomeLanding({ feed, stats, today }: Props) {
   const anon = viewer.kind === "anon";
   const full = viewer.kind === "approved" || viewer.kind === "admin";
   const issueNo = stats?.articles ?? feed.total;
-  const vocabCount = today?.vocab.length ?? card?.vocab_count ?? 0;
+  const vocabCount = card?.vocab_count ?? 0;
   const findings = (card?.findings ?? []).slice(0, 2);
 
   return (
