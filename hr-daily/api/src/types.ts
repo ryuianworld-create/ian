@@ -1,6 +1,8 @@
 // SPEC.md 「데이터 형식」 과 0001_init.sql 의 행 타입. 프론트와 공유하는 응답 모양의 단일 진실.
 
 export type Kind = "article" | "paper";
+export type { Team } from "./lib/teams.js";
+import type { Team as TeamId } from "./lib/teams.js";
 export type UserStatus = "pending" | "approved" | "rejected";
 export type UserRole = "user" | "admin";
 export type InboxStatus = "pending" | "done" | "skipped" | "failed";
@@ -20,6 +22,7 @@ export type Article = {
   url: string;
   published: string | null;
   category: string | null;
+  team: TeamId | null;
   featured_date: string;
   summary: Lang;
   findings: Finding[];
@@ -29,7 +32,7 @@ export type Article = {
 
 export type ArticleCard = Pick<
   Article,
-  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "featured_date"
+  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "team" | "featured_date"
 > & { summary?: Lang; findings?: Finding[]; vocab_count: number; locked: boolean };
 
 export type ViewerKind = "anon" | "pending" | "rejected" | "approved" | "admin";

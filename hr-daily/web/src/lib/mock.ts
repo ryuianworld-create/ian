@@ -28,6 +28,7 @@ function toCard(a: Article, locked: boolean): ArticleCard {
     url: a.url,
     published: a.published,
     category: a.category,
+    team: a.team ?? null,
     featured_date: a.featured_date,
     vocab_count: a.vocab.length,
     locked,

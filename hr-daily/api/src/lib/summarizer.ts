@@ -6,6 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "./env.js";
 import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
+import { TEAM_ORDER, isTeam, type Team } from "./teams.js";
 import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
 export const DEFAULT_MODEL = "gemini-3.8-flash"; // 무료 등급 가능. 더 높은 품질이 필요하면 GEMINI_MODEL=gemini-4-argon
@@ -19,6 +20,9 @@ const LangSchema = z.object({
 
 export const SummarySchema = z.object({
   category: z.string().describe('Short English topic label, e.g. "HR Strategy", "Talent Acquisition", "Organizational Behavior"'),
+  team: z
+    .enum(["ta", "ops", "strategy", "culture"])
+    .describe('Which HR team owns this topic: "ta" talent acquisition · "ops" HR operations/comp & benefits/policy/compliance/HR systems · "strategy" HR strategy/workforce planning/people analytics/operating model/attendance/AI & future of work · "culture" learning & development/leadership/engagement/wellbeing/DEI/retention/organizational culture'),
   summary: LangSchema.describe("ko: 500-800 Korean characters. en: 180-280 words. Plain text, no HTML."),
   findings: z
     .array(
@@ -54,7 +58,7 @@ export const SummarySchema = z.object({
     .describe("8 to 12 HR/management terms that actually appear in the text"),
 });
 
-export type SummaryOutput = z.infer<typeof SummarySchema>;
+export type SummaryOutput = Omit<z.infer<typeof SummarySchema>, "team"> & { team: Team | null };
 
 export type SummarizeInput = {
   title: string;
@@ -90,6 +94,7 @@ Produce a JSON object matching the provided schema. Requirements:
 5. Vocabulary spans: inside detail.body (BOTH ko and en), wrap the place where each vocab term occurs as <span class="vw" data-w="{w}">{text as it appears}</span>, with data-w exactly equal to vocab.w. In the Korean body, use the English term itself at that spot (e.g. 'HR <span class="vw" data-w="operating model">operating model</span>은 …'). Every vocab term should appear in at least one span; do not create spans for words that are not in vocab. Wrap each occurrence at most once per section.
 6. Summarize and restate in your own words. Do not copy sentences from the source verbatim. Do not invent numbers that are not in the text. Keep company and author names as they are.
 7. category: a short English topic label (2–3 words).
+8. team: the HR team that owns the topic — "ta" (talent acquisition: recruiting, sourcing, interviewing, employer branding, onboarding), "ops" (HR operations: compensation & benefits, payroll, policies, labor law & compliance, HR systems/HCM, leave), "strategy" (HR strategy: workforce planning, people analytics, HR operating model, productivity & attendance, AI and the future of work), "culture" (people growth & culture: learning & development, leadership, engagement, wellbeing, DEI, retention, organizational behavior). Pick exactly one.
 
 Match the tone, depth and length of the example below. The example is trimmed (one section, two vocab entries) — your output must have the full counts above.`;
 
@@ -209,7 +214,9 @@ export function postValidate(raw: SummaryOutput): { output: SummaryOutput; warni
   const allBody = detail.map((d) => d.body.ko + d.body.en).join(" ");
   for (const v of vocab) if (!allBody.includes(`data-w="${v.w}"`)) warnings.push(`본문에 span 없는 단어: ${v.w}`);
 
-  return { output: { category: raw.category.trim(), summary, findings, detail, vocab }, warnings };
+  const team: Team | null = isTeam(raw.team) ? raw.team : null;
+  if (!team) warnings.push(`team 값이 올바르지 않음: ${String(raw.team)} (허용: ${TEAM_ORDER.join(", ")})`);
+  return { output: { category: raw.category.trim(), team, summary, findings, detail, vocab }, warnings };
 }
 
 // ---- 호출 ----

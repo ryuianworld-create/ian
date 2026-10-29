@@ -4,6 +4,7 @@
 import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
 import { paperWeekdays } from "../lib/settings.js";
 import { TransientSummarizeError, summarizeText } from "../lib/summarizer.js";
+import { TEAMS, classifyTeam, dutyTeam, type Team } from "../lib/teams.js";
 import { env } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { InboxRow, Kind } from "../types.js";
@@ -18,10 +19,10 @@ export type SummarizeResult =
 type Candidate = Pick<InboxRow, "id" | "source_id" | "source_name" | "kind" | "title" | "url" | "category" | "published" | "raw_text" | "chars" | "score">;
 const CANDIDATE_COLUMNS = "id,source_id,source_name,kind,title,url,category,published,raw_text,chars,score";
 
-async function pickCandidate(opts: { preferPaper: boolean; exclude: string[] }): Promise<Candidate | null> {
-  // 상위 몇 건을 받아 제외 목록(실패한 후보)은 메모리에서 거른다
-  const top = async (kind?: Kind): Promise<Candidate | null> => {
-    const rows = unwrap(
+/** 후보 선택: (논문 우선 요일이면 논문 중에서) 당번 팀 주제의 글을 먼저, 없으면 점수순 1위 */
+async function pickCandidate(opts: { preferPaper: boolean; duty: Team; exclude: string[] }): Promise<{ cand: Candidate; teamMatch: boolean } | null> {
+  const top = async (kind?: Kind): Promise<Candidate[]> =>
+    unwrap(
       await db()
         .from("inbox")
         .select(CANDIDATE_COLUMNS)
@@ -29,16 +30,20 @@ async function pickCandidate(opts: { preferPaper: boolean; exclude: string[] }):
         .not("raw_text", "is", null)
         .order("score", { ascending: false })
         .order("collected_at", { ascending: false })
-        .limit(opts.exclude.length + 3),
+        .limit(opts.exclude.length + 15),
       `inbox.pick(${kind ?? "any"})`,
     ) as Candidate[];
-    return rows.find((r) => !opts.exclude.includes(r.id)) ?? null;
+  const choose = (rows: Candidate[]) => {
+    const ok = rows.filter((r) => !opts.exclude.includes(r.id));
+    const match = ok.find((r) => classifyTeam(r.title, r.category) === opts.duty);
+    if (match) return { cand: match, teamMatch: true };
+    return ok[0] ? { cand: ok[0], teamMatch: false } : null;
   };
   if (opts.preferPaper) {
-    const paper = await top("paper");
+    const paper = choose(await top("paper"));
     if (paper) return paper;
   }
-  return top();
+  return choose(await top());
 }
 
 /** articles.id 가 겹치면 -2, -3 … 을 붙인다 (legacy 와 같은 slug 가 다시 수집된 경우 등) */
@@ -78,7 +83,8 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
 
   const weekday = weekdayOf(featured_date);
   const preferPaper = (await paperWeekdays()).includes(weekday);
-  log(`요일 ${weekday} → ${preferPaper ? "논문 우선" : "전체 점수순"}`);
+  const duty = dutyTeam(featured_date);
+  log(`요일 ${weekday} → ${preferPaper ? "논문 우선" : "전체 점수순"} · 당번 ${TEAMS[duty].cat} (${TEAMS[duty].team}) 주제 우선`);
 
   const tried: string[] = [];
   let transient = false;
@@ -94,7 +100,9 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
       if (!cand) throw new Error(`inbox ${params.inbox_id} 가 없다`);
       if (!cand.raw_text) throw new Error(`inbox ${params.inbox_id} 에 raw_text 가 없다(이미 처리됨)`);
     } else {
-      cand = await pickCandidate({ preferPaper, exclude: tried });
+      const picked = await pickCandidate({ preferPaper, duty, exclude: tried });
+      cand = picked?.cand ?? null;
+      if (picked) log(picked.teamMatch ? `  당번 팀(${TEAMS[duty].team}) 주제의 글을 골랐다` : `  당번 팀 주제의 글이 없어 점수순 1위를 고른다`);
     }
     if (!cand) {
       log(tried.length ? "다음 후보가 없다" : "요약할 pending 글이 없다");
@@ -132,6 +140,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
             url: cand.url,
             published: cand.published,
             category: r.output.category || cand.category,
+            team: r.output.team ?? classifyTeam(cand.title, cand.category),
             summary: r.output.summary,
             findings: r.output.findings,
             detail: r.output.detail,
@@ -152,7 +161,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
         .eq("id", cand.id);
       if (error) log(`  ⚠ inbox 상태 갱신 실패: ${error.message}`);
 
-      log(`✓ 저장: articles/${article_id} (${featured_date}), 단어 ${r.output.vocab.length}개`);
+      log(`✓ 저장: articles/${article_id} (${featured_date}), 팀 ${r.output.team ? TEAMS[r.output.team].team : "미분류"}, 단어 ${r.output.vocab.length}개`);
       return { status: "done", featured_date, article_id, inbox_id: cand.id, model: r.model };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

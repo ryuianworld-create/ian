@@ -1,6 +1,7 @@
 // 웹 푸시 (VAPID). 홈 화면에 추가한 웹앱·브라우저로 "새 글" 알림을 보낸다. 구독은 push_subscriptions (service role 전용).
 import webpush from "web-push";
 import { env, requireEnv } from "./env.js";
+import { TEAMS, type Team } from "./teams.js";
 import type { Article } from "../types.js";
 
 export type PushKeys = { endpoint: string; p256dh: string; auth: string };
@@ -39,11 +40,12 @@ const strip = (html: string) => html.replace(/<[^>]+>/g, "").replace(/\s+/g, " "
 const cut = (s: string, n: number) => (s.length > n ? `${s.slice(0, n).trimEnd()}…` : s);
 
 /** 아침 아티클 알림 본문. 서비스 워커(web/public/sw.js)가 그대로 표시한다. */
-export function digestPushPayload(article: Article, opts: { webUrl: string; issueNo: number | null }): Record<string, unknown> {
+export function digestPushPayload(article: Article, opts: { webUrl: string; issueNo: number | null; duty?: Team }): Record<string, unknown> {
   const kind = article.kind === "paper" ? "논문" : "아티클";
   const no = opts.issueNo ? `No. ${opts.issueNo} · ` : "";
+  const d = opts.duty ? TEAMS[opts.duty] : null;
   return {
-    title: `${no}오늘의 HR ${kind}`,
+    title: d ? `${no}${d.cat}의 오늘의 HR ${kind}` : `${no}오늘의 HR ${kind}`,
     body: `${cut(article.title, 80)}\n${cut(strip(article.summary.ko), 90)}`,
     url: `${opts.webUrl}/a/${encodeURIComponent(article.id)}`,
     tag: `digest-${article.featured_date}`,

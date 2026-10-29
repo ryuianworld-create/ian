@@ -1,6 +1,7 @@
 // 카카오 REST API — 카카오 로그인 토큰 확인·갱신, "나에게 보내기"(카카오톡 메시지 API, talk_message 동의 필요).
 // 비즈니스 채널·알림톡이 아니다: 사용자가 카카오 로그인 때 동의한 자기 자신의 "나와의 채팅" 방으로만 보낼 수 있다.
 import { env } from "./env.js";
+import { TEAMS, type Team } from "./teams.js";
 import type { Article } from "../types.js";
 
 const KAUTH = "https://kauth.kakao.com";
@@ -98,16 +99,17 @@ const strip = (html: string) => html.replace(/<[^>]+>/g, "").replace(/\s+/g, " "
 const cut = (s: string, n: number) => (s.length > n ? `${s.slice(0, n).trimEnd()}…` : s);
 
 /** 아침 아티클 피드 메시지 (카카오 feed 템플릿) */
-export function digestTemplate(article: Article, opts: { webUrl: string; issueNo: number | null }): Record<string, unknown> {
+export function digestTemplate(article: Article, opts: { webUrl: string; issueNo: number | null; duty?: Team }): Record<string, unknown> {
   const url = `${opts.webUrl}/a/${encodeURIComponent(article.id)}`;
   const kind = article.kind === "paper" ? "논문" : "아티클";
   const no = opts.issueNo ? `No. ${opts.issueNo} · ` : "";
+  const d = opts.duty ? TEAMS[opts.duty] : null;
   const findings = article.findings
     .slice(0, 2)
     .map((f) => `${f.k.ko} ${cut(strip(f.ko), 40)}`)
     .join("\n");
   const description = cut(
-    [`${no}${kind} · ${article.source_name}`, cut(strip(article.summary.ko), 110), findings, `단어 ${article.vocab.length}개`]
+    [`${no}${kind} · ${article.source_name}`, d ? `오늘 당번 ${d.cat} (${d.team})` : "", cut(strip(article.summary.ko), 100), findings, `단어 ${article.vocab.length}개`]
       .filter(Boolean)
       .join("\n"),
     200,

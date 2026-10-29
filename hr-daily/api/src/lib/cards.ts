@@ -1,13 +1,13 @@
 // articles 행 → ArticleCard (SPEC). locked 면 summary/findings 를 뺀다.
 import type { ArticleCard, ArticleRow, Finding, Lang } from "../types.js";
 
-export const CARD_COLUMNS = "id,source_name,kind,title,url,published,category,featured_date,summary,findings,vocab";
+export const CARD_COLUMNS = "id,source_name,kind,title,url,published,category,team,featured_date,summary,findings,vocab";
 export const ARTICLE_COLUMNS =
-  "id,source_id,source_name,kind,title,url,published,category,featured_date,summary,findings,detail,vocab";
+  "id,source_id,source_name,kind,title,url,published,category,team,featured_date,summary,findings,detail,vocab";
 
 export type CardRow = Pick<
   ArticleRow,
-  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "featured_date" | "summary" | "findings" | "vocab"
+  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "team" | "featured_date" | "summary" | "findings" | "vocab"
 >;
 
 export function toCard(row: CardRow, locked: boolean): ArticleCard {
@@ -19,6 +19,7 @@ export function toCard(row: CardRow, locked: boolean): ArticleCard {
     url: row.url,
     published: row.published,
     category: row.category,
+    team: row.team ?? null,
     featured_date: row.featured_date,
     vocab_count: Array.isArray(row.vocab) ? row.vocab.length : 0,
     locked,

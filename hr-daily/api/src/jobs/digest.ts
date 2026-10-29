@@ -8,6 +8,7 @@ import { webUrl } from "../lib/env.js";
 import { KakaoError, digestTemplate, kakaoEnabled, refreshAccessToken, sendMemo } from "../lib/kakao.js";
 import { digestPushPayload, pushEnabled, sendPush } from "../lib/push.js";
 import { kstToday } from "../lib/kst.js";
+import { TEAMS, dutyTeam } from "../lib/teams.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { Article, ArticleRow, KakaoLinkRow, PushSubscriptionRow } from "../types.js";
 import type { Log } from "./run.js";
@@ -28,7 +29,7 @@ type Recipient = { id: string; email: string; display_name: string | null; email
 type Status = "sent" | "failed" | "skipped";
 type Channel = "email" | "kakao" | "push";
 
-const ARTICLE_COLUMNS = "id,source_id,source_name,kind,title,url,published,category,featured_date,summary,findings,detail,vocab";
+const ARTICLE_COLUMNS = "id,source_id,source_name,kind,title,url,published,category,team,featured_date,summary,findings,detail,vocab";
 const ACCESS_SKEW_MS = 60_000;
 
 export async function digestJob(log: Log): Promise<DigestResult> {
@@ -74,7 +75,9 @@ export async function digestJob(log: Log): Promise<DigestResult> {
     return empty;
   }
   const article: Article = { ...(row as Article), findings: normalizeFindings(row.findings) };
-  log(`아티클: ${article.title} (${article.featured_date})`);
+  const duty = dutyTeam(today);
+  log(`아티클: ${article.title} (${article.featured_date})${article.team ? ` · ${TEAMS[article.team].team}` : ""}`);
+  log(`오늘 당번: ${TEAMS[duty].cat} (${TEAMS[duty].team})`);
 
   const recipients = unwrap(
     await db()
@@ -121,9 +124,9 @@ export async function digestJob(log: Log): Promise<DigestResult> {
   // ---- 이메일 ----
   if (emailTargets.length) {
     if (!emailEnabled()) log("RESEND_API_KEY 가 없어 메일은 skipped 로 기록한다");
-    const mail = digestEmail(article);
+    const mail = digestEmail(article, duty);
     for (const r of emailTargets) {
-      const res = await sendEmail({ to: r.email, subject: mail.subject, html: mail.html });
+      const res = await sendEmail({ to: r.email, subject: mail.subject, html: mail.html, fromName: mail.fromName });
       result[res.status]++;
       await record(r.id, "email", res.status, res.status === "sent" ? res.provider_id : null, res.status === "sent" ? null : res.error);
       log(`  ${mark(res.status)} 메일 ${r.email}${res.status !== "sent" ? ` (${res.error})` : ""}`);
@@ -136,7 +139,7 @@ export async function digestJob(log: Log): Promise<DigestResult> {
     if (!kakaoEnabled()) log("KAKAO_REST_API_KEY 가 없어 카카오톡은 skipped 로 기록한다");
     const countRes = await db().from("articles").select("id", { count: "exact", head: true }).lte("featured_date", today);
     const issueNo = countRes.error ? null : (countRes.count ?? null);
-    const template = digestTemplate(article, { webUrl: webUrl(), issueNo });
+    const template = digestTemplate(article, { webUrl: webUrl(), issueNo, duty });
     const links = unwrap(
       await db()
         .from("kakao_links")
@@ -208,7 +211,7 @@ export async function digestJob(log: Log): Promise<DigestResult> {
     log(`푸시 대상 ${pushByUser.size}명 · 기기 ${[...pushByUser.values()].reduce((n, l) => n + l.length, 0)}대`);
     if (!pushEnabled()) log("VAPID 키가 없어 푸시는 skipped 로 기록한다");
     const countRes = await db().from("articles").select("id", { count: "exact", head: true }).lte("featured_date", today);
-    const payload = digestPushPayload(article, { webUrl: webUrl(), issueNo: countRes.error ? null : (countRes.count ?? null) });
+    const payload = digestPushPayload(article, { webUrl: webUrl(), issueNo: countRes.error ? null : (countRes.count ?? null), duty });
     for (const [userId, list] of pushByUser) {
       let status: Status = "skipped";
       const errs: string[] = [];

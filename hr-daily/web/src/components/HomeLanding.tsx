@@ -7,17 +7,28 @@ import { useState } from "react";
 import type { ArticleCard, FeedResponse, StatsResponse } from "@/lib/types";
 import { SOURCES, longDateKo, longDateEn } from "@/lib/journal";
 import { shortDate, stripTags } from "@/lib/format";
+import { TEAMS, TEAM_ORDER, dutyTeam, isTeam, type Team } from "@/lib/teams";
 import { KakaoButton } from "./KakaoButton";
 import { PushToggle } from "./PushToggle";
 import { ViewerBanner } from "./ViewerBanner";
 import { LangToggle, useLang } from "./useLang";
 
 type Props = { feed: FeedResponse; stats: StatsResponse | null };
-type Filter = "all" | "paper" | "article";
+type Filter = "all" | "paper" | "article" | Team;
 
 function excerpt(html: string, n: number): string {
   const t = stripTags(html).replace(/\s+/g, " ").trim();
   return t.length > n ? `${t.slice(0, n).trimEnd()}…` : t;
+}
+
+export function TeamPill({ team, cat = false }: { team: Team; cat?: boolean }) {
+  const t = TEAMS[team];
+  return (
+    <span className="inline-block text-[11px] font-black px-3 py-1 rounded-full whitespace-nowrap" style={{ background: t.soft, color: t.color }}>
+      {t.team}
+      {cat ? ` · ${t.cat}` : ""}
+    </span>
+  );
 }
 
 function KindPill({ kind }: { kind: ArticleCard["kind"] }) {
@@ -77,7 +88,8 @@ export function HomeLanding({ feed, stats }: Props) {
 
   const card = feed.today;
   const past = feed.items.filter((it) => it.id !== card?.id);
-  const shown = past.filter((a) => filter === "all" || a.kind === filter);
+  const shown = past.filter((a) => filter === "all" || a.kind === filter || a.team === filter);
+  const duty: Team = feed.duty?.team ?? dutyTeam(card?.featured_date ?? new Date().toISOString().slice(0, 10));
   const viewer = feed.viewer;
   const anon = viewer.kind === "anon";
   const full = viewer.kind === "approved" || viewer.kind === "admin";
@@ -342,6 +354,48 @@ export function HomeLanding({ feed, stats }: Props) {
       </section>
 
       {/* ================= 지난 호 ================= */}
+      {/* 고양이 당번: 네 팀이 하루씩 돌아가며 그날의 글을 고른다 */}
+      <section id="teams" className="py-14 lg:py-20 bg-white border-b border-amber-200/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <span className="text-xs font-black text-amber-900 bg-amber-100 px-3.5 py-1 rounded-full uppercase tracking-wider">HR Team</span>
+            <h2 className="m-0 text-2xl sm:text-4xl font-black text-ink mt-3">하루씩 돌아가며 맡아요</h2>
+            <p className="m-0 text-sm text-slate-600 mt-2 leading-relaxed">
+              네 팀의 고양이 사원이 하루씩 당번을 맡아 자기 분야의 논문·아티클을 골라 아침 7시에 보냅니다. 카드를 누르면 그 팀의 지난 호만 모아 봅니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {TEAM_ORDER.map((id) => {
+              const t = TEAMS[id];
+              const onDuty = id === duty;
+              return (
+                <button
+                  type="button"
+                  key={id}
+                  onClick={() => {
+                    setFilter(filter === id ? "all" : id);
+                    document.getElementById("articles")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className={`team-card${onDuty ? " on" : ""}${filter === id ? " active" : ""}`}
+                  style={{ borderColor: t.color }}
+                  aria-pressed={filter === id}
+                >
+                  <span className="team-head" style={{ background: t.color }}>
+                    {t.team}
+                  </span>
+                  <span className="team-body">
+                    <img src={t.avatar} alt={t.cat} width={240} height={186} className="team-avatar" loading="lazy" />
+                    <b>{t.cat}</b>
+                    <span className="team-role">{t.role}</span>
+                    {onDuty ? <em className="team-duty">오늘 당번</em> : <em className="team-duty off">&nbsp;</em>}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section id="articles" className="py-16 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
@@ -358,6 +412,7 @@ export function HomeLanding({ feed, stats }: Props) {
                 ["all", "전체보기"],
                 ["paper", "논문"],
                 ["article", "아티클"],
+                ...TEAM_ORDER.map((id) => [id, TEAMS[id].team] as const),
               ] as const
             ).map(([k, l]) => (
               <button
@@ -386,7 +441,10 @@ export function HomeLanding({ feed, stats }: Props) {
               >
                 <div>
                   <div className="flex items-center justify-between mb-4 gap-2">
-                    <KindPill kind={a.kind} />
+                    <span className="flex items-center gap-1.5 flex-wrap">
+                      <KindPill kind={a.kind} />
+                      {isTeam(a.team) ? <TeamPill team={a.team} /> : null}
+                    </span>
                     <span className="text-xs text-slate-500 font-bold flex items-center gap-1">{shortDate(a.featured_date)}</span>
                   </div>
                   <h3 className="m-0 text-base font-black text-ink group-hover:text-amber-800 transition leading-snug line-clamp-3">{a.title}</h3>

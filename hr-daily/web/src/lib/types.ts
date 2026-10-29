@@ -7,6 +7,9 @@ export type VocabEntry = { w: string; pos: string; ko: string; en: string; ex: s
 
 export type ArticleKind = "article" | "paper";
 
+import type { Team } from "./teams";
+export type { Team };
+
 export type Article = {
   id: string;
   source_id: string;
@@ -16,6 +19,7 @@ export type Article = {
   url: string;
   published: string | null;
   category: string | null;
+  team: Team | null;
   featured_date: string; // YYYY-MM-DD (KST)
   summary: Lang;
   findings: Finding[];
@@ -25,7 +29,7 @@ export type Article = {
 
 export type ArticleCard = Pick<
   Article,
-  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "featured_date"
+  "id" | "source_name" | "kind" | "title" | "url" | "published" | "category" | "team" | "featured_date"
 > & {
   summary?: Lang;
   findings?: Finding[];
@@ -68,6 +72,7 @@ export type FeedResponse = {
   free_limit: number;
   viewer: Viewer;
   total: number;
+  duty?: { date: string; team: Team };
 };
 
 export type ArticleResponse = { article: Article; viewer: Viewer };

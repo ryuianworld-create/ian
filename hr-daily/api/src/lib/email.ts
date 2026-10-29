@@ -2,6 +2,7 @@
 import { Resend } from "resend";
 import { env, webUrl } from "./env.js";
 import { formatKoDate } from "./kst.js";
+import { TEAMS, type Team } from "./teams.js";
 import type { Article } from "../types.js";
 
 export type SendResult =
@@ -15,10 +16,13 @@ export function emailEnabled(): boolean {
   return Boolean(env("RESEND_API_KEY"));
 }
 
-export async function sendEmail(opts: { to: string; subject: string; html: string; text?: string }): Promise<SendResult> {
+export async function sendEmail(opts: { to: string; subject: string; html: string; text?: string; fromName?: string }): Promise<SendResult> {
   const key = env("RESEND_API_KEY");
   if (!key) return { status: "skipped", error: "RESEND_API_KEY not set" };
-  const from = env("EMAIL_FROM") ?? "dailyHR <onboarding@resend.dev>";
+  const configured = env("EMAIL_FROM") ?? "dailyHR <onboarding@resend.dev>";
+  // fromName 이 있으면 표시 이름만 바꾼다 (주소는 EMAIL_FROM 그대로)
+  const address = (configured.match(/<([^>]+)>/)?.[1] ?? configured).trim();
+  const from = opts.fromName ? `${opts.fromName.replace(/[<>"]/g, "")} <${address}>` : configured;
   try {
     resend ??= new Resend(key);
     const { data, error } = await resend.emails.send({
@@ -70,11 +74,20 @@ function button(href: string, label: string): string {
   return `<a href="${esc(href)}" style="display:inline-block;padding:12px 20px;background:${C.brand};color:#0B1222;text-decoration:none;border-radius:999px;font-weight:600;font-size:14px;">${esc(label)}</a>`;
 }
 
-/** digest 메일: 출처·날짜, 한글 요약, 핵심 수치, 단어 목록, 앱에서 읽기, 수신 거부 안내 */
-export function digestEmail(article: Article): { subject: string; html: string } {
+/** digest 메일: 당번 고양이, 출처·날짜, 한글 요약, 핵심 수치, 단어 목록, 앱에서 읽기, 수신 거부 안내 */
+export function digestEmail(article: Article, duty?: Team): { subject: string; html: string; fromName?: string } {
   const base = webUrl();
   const readUrl = `${base}/a/${encodeURIComponent(article.id)}`;
   const kindLabel = article.kind === "paper" ? "논문" : "아티클";
+  const d = duty ? TEAMS[duty] : null;
+  const at = article.team ? TEAMS[article.team] : null;
+  const dutyBlock = d
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border:1px solid ${C.line};border-radius:12px;background:${C.paper};"><tr>
+<td style="padding:10px 0 10px 12px;width:60px;vertical-align:middle;"><img src="${base}${d.avatar}" width="56" height="43" alt="${esc(d.cat)}" style="display:block;border-radius:10px;border:2px solid ${d.color};"></td>
+<td style="padding:10px 12px;vertical-align:middle;"><div style="font-size:11px;letter-spacing:.04em;color:${d.color};font-weight:700;">오늘 당번 · ${esc(d.team)}</div>
+<div style="font-size:14px;color:${C.ink};font-weight:700;margin-top:2px;">${esc(d.cat)}이 고른 오늘의 ${kindLabel}</div>
+<div style="font-size:12px;color:${C.muted};">${esc(d.role)}</div></td></tr></table>`
+    : "";
 
   const findings = article.findings.length
     ? `<h3 style="margin:24px 0 8px;font-size:14px;color:${C.ink2};">핵심 수치</h3>
@@ -95,7 +108,7 @@ export function digestEmail(article: Article): { subject: string; html: string }
     : "";
 
   const inner = `
-<div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(article.source_name)} · ${kindLabel}${article.published ? ` · ${esc(article.published)}` : ""}</div>
+${dutyBlock}<div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(article.source_name)} · ${kindLabel}${at ? ` · <span style="color:${at.color};font-weight:700;">${esc(at.team)}</span>` : ""}${article.published ? ` · ${esc(article.published)}` : ""}</div>
 <h1 style="margin:8px 0 4px;font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.3;font-weight:600;">${esc(article.title)}</h1>
 <div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(formatKoDate(article.featured_date))}</div>
 <p style="margin:20px 0 0;font-size:15px;line-height:1.8;color:${C.ink};">${esc(article.summary.ko)}</p>
@@ -107,7 +120,7 @@ ${vocab}
   const footer = `매일 아침 7시(KST)에 그날의 HR 아티클·논문 한 편을 보내드립니다.<br>
 더 받고 싶지 않으면 <a href="${esc(base)}/account" style="color:${C.accent};">내 정보</a>에서 "매일 메일 받기"를 끄면 됩니다.`;
 
-  return { subject: `[dailyHR] ${article.title}`, html: layout(`[dailyHR] ${article.title}`, inner, footer) };
+  return { subject: `[dailyHR] ${article.title}`, html: layout(`[dailyHR] ${article.title}`, inner, footer), fromName: d ? `${d.cat} · dailyHR` : undefined };
 }
 
 /** 승인 안내 메일 */
