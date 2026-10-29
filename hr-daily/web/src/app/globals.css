@@ -1131,3 +1131,8 @@ html:root[data-design="b"] .jr .tag{font-family:var(--font-body);font-weight:700
 .push-state{font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px;background:#E2E8F0;color:#475569}
 .push-state.on{background:#D1FAE5;color:#065F46}
 .push-card .btn{align-self:flex-start}
+
+/* 관리자 푸시 테스트 */
+.jr-pushtest{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;padding:12px 14px;border:1px dashed var(--line);border-radius:14px}
+.jr-pushtest b{display:block;font-size:14px}
+.jr-pushtest .desc{font-size:12px;color:#64748b}

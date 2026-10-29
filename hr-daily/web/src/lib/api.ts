@@ -15,8 +15,7 @@ import type {
   ProfileStatus,
   ProgressResponse,
   StatsResponse,
-  ApiErrorBody,
-} from "./types";
+  ApiErrorBody, PushTestDevice } from "./types";
 import { ApiError } from "./errors";
 import { mock } from "./mock";
 
@@ -168,6 +167,10 @@ export const api = {
     ): Promise<{ run: JobRun }> {
       if (isMock) return Promise.resolve().then(() => mock.unauthorized());
       return request<{ run: JobRun }>(`/v1/admin/jobs/${job}`, { method: "POST", token, body: body ?? {} });
+    },
+    pushTest(token: Token): Promise<{ devices: PushTestDevice[] }> {
+      if (isMock) return Promise.resolve().then(() => mock.unauthorized());
+      return request<{ devices: PushTestDevice[] }>("/v1/admin/push/test", { method: "POST", token, body: {} });
     },
     runs(token: Token, job?: JobName, limit = 20): Promise<{ runs: JobRun[] }> {
       if (isMock) return Promise.resolve().then(() => mock.unauthorized());

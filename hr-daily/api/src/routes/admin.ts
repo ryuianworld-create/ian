@@ -4,10 +4,12 @@ import { PROFILE_COLUMNS, requireAdmin, toProfile, type AppEnv } from "../lib/au
 import { approvedEmail, sendEmail } from "../lib/email.js";
 import { DATE_RE, UUID_RE, badRequest, notFound, parseLimit, readJson } from "../lib/http.js";
 import { addDays, isValidDate, kstToday } from "../lib/kst.js";
+import { pushEnabled, sendPush } from "../lib/push.js";
+import { webUrl } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import { isJobName, runNamedJob } from "../jobs/index.js";
 import type { SummarizeParams } from "../jobs/summarize.js";
-import type { InboxStatus, JobName, Profile, UserStatus } from "../types.js";
+import type { InboxStatus, JobName, Profile, PushSubscriptionRow, UserStatus } from "../types.js";
 
 export const admin = new Hono<AppEnv>();
 
@@ -167,6 +169,40 @@ admin.post("/jobs/:job", async (c) => {
   }
   const { run, result, error } = await runNamedJob(job, params);
   return c.json({ run, result, error }, run.ok ? 200 : 500);
+});
+
+/** 내(관리자) 기기 전부에 테스트 푸시를 보낸다. 기기별로 푸시 서버 응답을 돌려준다 */
+admin.post("/push/test", async (c) => {
+  const a = requireAdmin(c);
+  if (!pushEnabled()) throw badRequest("VAPID 키가 설정되지 않아 푸시를 보낼 수 없습니다");
+  const subs = unwrap(
+    await db().from("push_subscriptions").select("*").eq("user_id", a.userId).is("disabled_at", null).order("id"),
+    "push_subscriptions.mine",
+  ) as PushSubscriptionRow[];
+  const now = new Date();
+  const payload = {
+    title: "DailyHR 테스트 알림",
+    body: `${now.toLocaleString("ko-KR", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit" })} 에 보낸 테스트입니다. 이 알림이 보이면 이 기기의 푸시는 정상입니다.`,
+    url: `${webUrl()}/account`,
+    tag: `test-${now.getTime()}`,
+    icon: `${webUrl()}/icon-180.png`,
+  };
+  const devices = [];
+  for (const s of subs) {
+    const r = await sendPush({ endpoint: s.endpoint, p256dh: s.p256dh, auth: s.auth }, payload, 10 * 60);
+    const host = new URL(s.endpoint).host;
+    const device = /iPhone|iPad/.test(s.user_agent ?? "") ? "iPhone/iPad" : /Android/.test(s.user_agent ?? "") ? "Android" : /Windows/.test(s.user_agent ?? "") ? "Windows PC" : /Macintosh/.test(s.user_agent ?? "") ? "Mac" : "기타";
+    if (r.ok) {
+      await db().from("push_subscriptions").update({ last_seen_at: now.toISOString(), last_error: null, last_error_at: null }).eq("id", s.id);
+    } else {
+      await db()
+        .from("push_subscriptions")
+        .update({ last_error: `${r.status}: ${r.message}`.slice(0, 300), last_error_at: now.toISOString(), ...(r.gone ? { disabled_at: now.toISOString() } : {}) })
+        .eq("id", s.id);
+    }
+    devices.push({ id: s.id, device, host, created_at: s.created_at, ok: r.ok, status: r.ok ? 201 : r.status, message: r.ok ? "푸시 서버가 받았습니다" : r.message, gone: r.ok ? false : r.gone });
+  }
+  return c.json({ devices });
 });
 
 admin.get("/runs", async (c) => {

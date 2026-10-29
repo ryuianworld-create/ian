@@ -43,6 +43,8 @@ export function AdminView() {
   const [runs, setRuns] = useState<JobRun[]>([]);
   const [running, setRunning] = useState<JobName | null>(null);
   const [lastRun, setLastRun] = useState<JobRun | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushResult, setPushResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyUser, setBusyUser] = useState<string | null>(null);
   const [tab, setTab] = useState<"pending" | "users" | "inbox" | "runs">("pending");
@@ -111,6 +113,29 @@ export function AdminView() {
       setError(errorMessage(e));
     } finally {
       setBusyUser(null);
+    }
+  };
+
+  const pushTest = async () => {
+    if (!token || pushBusy) return;
+    setPushBusy(true);
+    setPushResult(null);
+    setError(null);
+    try {
+      const { devices } = await api.admin.pushTest(token);
+      if (!devices.length) {
+        setPushResult("이 계정에 등록된 푸시 기기가 없습니다. 내 정보에서 알림을 켜 주세요.");
+      } else {
+        setPushResult(
+          devices
+            .map((d) => `${d.ok ? "✓" : "✗"} ${d.device} (${d.host.replace(/^https?:\/\//, "")}, 등록 ${d.created_at.slice(0, 10)}) → ${d.status} ${d.message}${d.gone ? " · 구독 만료로 비활성화" : ""}`)
+            .join("\n"),
+        );
+      }
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setPushBusy(false);
     }
   };
 
@@ -199,6 +224,17 @@ export function AdminView() {
         })}
       </ul>
       {lastRun ? <pre className="log">{logText(lastRun)}</pre> : null}
+
+      <div className="jr-pushtest">
+        <div>
+          <b>푸시 테스트</b>
+          <span className="desc">내 계정에 등록된 모든 기기로 테스트 알림을 보냅니다. 기기별로 푸시 서버 응답을 보여줍니다.</span>
+        </div>
+        <button type="button" className="btn" disabled={pushBusy} onClick={pushTest}>
+          {pushBusy ? "보내는 중…" : "테스트 알림 보내기"}
+        </button>
+      </div>
+      {pushResult ? <pre className="log">{pushResult}</pre> : null}
 
       {/* 목록 */}
       <div className="jr-sechead" style={{ marginBottom: 4 }}>
