@@ -14,7 +14,8 @@ import { ViewerBanner } from "./ViewerBanner";
 import { LangToggle, useLang } from "./useLang";
 
 type Props = { feed: FeedResponse; stats: StatsResponse | null };
-type Filter = "all" | "paper" | "article" | Team;
+type KindFilter = "all" | "paper" | "article";
+type TeamFilter = "all" | Team;
 
 function excerpt(html: string, n: number): string {
   const t = stripTags(html).replace(/\s+/g, " ").trim();
@@ -84,11 +85,12 @@ const Icon = {
 
 export function HomeLanding({ feed, stats }: Props) {
   const [lang, setLang] = useLang();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [kindFilter, setKindFilter] = useState<KindFilter>("all");
+  const [teamFilter, setTeamFilter] = useState<TeamFilter>("all");
 
   const card = feed.today;
   const past = feed.items.filter((it) => it.id !== card?.id);
-  const shown = past.filter((a) => filter === "all" || a.kind === filter || a.team === filter);
+  const shown = past.filter((a) => (kindFilter === "all" || a.kind === kindFilter) && (teamFilter === "all" || a.team === teamFilter));
   const duty: Team = feed.duty?.team ?? dutyTeam(card?.featured_date ?? new Date().toISOString().slice(0, 10));
   const viewer = feed.viewer;
   const anon = viewer.kind === "anon";
@@ -373,12 +375,12 @@ export function HomeLanding({ feed, stats }: Props) {
                   type="button"
                   key={id}
                   onClick={() => {
-                    setFilter(filter === id ? "all" : id);
+                    setTeamFilter(teamFilter === id ? "all" : id);
                     document.getElementById("articles")?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
-                  className={`team-card${onDuty ? " on" : ""}${filter === id ? " active" : ""}`}
+                  className={`team-card${onDuty ? " on" : ""}${teamFilter === id ? " active" : ""}`}
                   style={{ borderColor: t.color }}
-                  aria-pressed={filter === id}
+                  aria-pressed={teamFilter === id}
                 >
                   <span className="team-head" style={{ background: t.color }}>
                     {t.team}
@@ -406,26 +408,58 @@ export function HomeLanding({ feed, stats }: Props) {
               {anon ? `최신 ${feed.free_limit}편은 바로 열리고, 그 이전 호는 가입 승인 후 열립니다.` : ""}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                ["all", "전체보기"],
-                ["paper", "논문"],
-                ["article", "아티클"],
-                ...TEAM_ORDER.map((id) => [id, TEAMS[id].team] as const),
-              ] as const
-            ).map(([k, l]) => (
+          <div className="flex flex-col gap-2.5 items-start md:items-end">
+            {/* 종류: 논문/아티클 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider w-8">종류</span>
+              {(
+                [
+                  ["all", "전체"],
+                  ["paper", "논문"],
+                  ["article", "아티클"],
+                ] as const
+              ).map(([k, l]) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setKindFilter(k)}
+                  className={`px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border ${
+                    kindFilter === k ? "bg-ink text-white border-ink shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+            {/* 팀: 고양이 당번 팀 색으로 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider w-8">팀</span>
               <button
-                key={k}
                 type="button"
-                onClick={() => setFilter(k)}
+                onClick={() => setTeamFilter("all")}
                 className={`px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border ${
-                  filter === k ? "bg-ink text-white border-ink shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  teamFilter === "all" ? "bg-ink text-white border-ink shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                {l}
+                전체
               </button>
-            ))}
+              {TEAM_ORDER.map((id) => {
+                const t = TEAMS[id];
+                const on = teamFilter === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setTeamFilter(on ? "all" : id)}
+                    className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border inline-flex items-center gap-1.5 shadow-sm"
+                    style={on ? { background: t.color, color: "#fff", borderColor: t.color } : { background: t.soft, color: t.color, borderColor: t.soft }}
+                  >
+                    <span className="inline-block w-2 h-2 rounded-full" style={{ background: on ? "#fff" : t.color }} />
+                    {t.team}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
