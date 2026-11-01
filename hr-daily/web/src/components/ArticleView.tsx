@@ -1,7 +1,7 @@
 "use client";
 // 상세 = 저널 읽기 화면. 왼쪽 읽기 칼럼(요약·핵심 수치·본문) + 오른쪽 사이드바(목차·단어·원문).
 import Link from "next/link";
-import { TEAMS } from "@/lib/teams";
+import { AREAS } from "@/lib/areas";
 import { useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { Article } from "@/lib/types";
@@ -55,9 +55,14 @@ export function ArticleView({ article }: { article: Article }) {
       <header className="jr-readhead">
         <div className="jr-meta">
           <span className={`kind ${article.kind}`}>{article.kind === "paper" ? "논문" : "아티클"}</span>
-          {article.team ? (
-            <span className="tag team" style={{ background: TEAMS[article.team].soft, color: TEAMS[article.team].color, borderColor: TEAMS[article.team].color }}>
-              {TEAMS[article.team].team} · {TEAMS[article.team].cat}
+          {article.area ? (
+            <span className="tag team" style={{ background: AREAS[article.area].soft, color: AREAS[article.area].color, borderColor: AREAS[article.area].color }} title={AREAS[article.area].en}>
+              {AREAS[article.area].ko}
+            </span>
+          ) : null}
+          {article.area2 ? (
+            <span className="tag team" style={{ background: AREAS[article.area2].soft, color: AREAS[article.area2].color, borderColor: AREAS[article.area2].color }} title={AREAS[article.area2].en}>
+              {AREAS[article.area2].ko}
             </span>
           ) : null}
           {article.category ? <span className="tag">{article.category}</span> : null}

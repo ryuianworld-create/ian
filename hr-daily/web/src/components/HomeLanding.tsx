@@ -7,7 +7,7 @@ import { useState } from "react";
 import type { ArticleCard, FeedResponse, StatsResponse } from "@/lib/types";
 import { SOURCES, longDateKo, longDateEn } from "@/lib/journal";
 import { shortDate, stripTags } from "@/lib/format";
-import { TEAMS, TEAM_ORDER, dutyTeam, isTeam, type Team } from "@/lib/teams";
+import { AREAS, AREA_ORDER, isArea, type Area } from "@/lib/areas";
 import { KakaoButton } from "./KakaoButton";
 import { PushToggle } from "./PushToggle";
 import { ViewerBanner } from "./ViewerBanner";
@@ -15,19 +15,18 @@ import { LangToggle, useLang } from "./useLang";
 
 type Props = { feed: FeedResponse; stats: StatsResponse | null };
 type KindFilter = "all" | "paper" | "article";
-type TeamFilter = "all" | Team;
+type AreaFilter = "all" | Area;
 
 function excerpt(html: string, n: number): string {
   const t = stripTags(html).replace(/\s+/g, " ").trim();
   return t.length > n ? `${t.slice(0, n).trimEnd()}…` : t;
 }
 
-export function TeamPill({ team, cat = false }: { team: Team; cat?: boolean }) {
-  const t = TEAMS[team];
+export function AreaPill({ area }: { area: Area }) {
+  const a = AREAS[area];
   return (
-    <span className="inline-block text-[11px] font-black px-3 py-1 rounded-full whitespace-nowrap" style={{ background: t.soft, color: t.color }}>
-      {t.team}
-      {cat ? ` · ${t.cat}` : ""}
+    <span className="inline-block text-[11px] font-black px-3 py-1 rounded-full whitespace-nowrap" style={{ background: a.soft, color: a.color }} title={a.en}>
+      {a.ko}
     </span>
   );
 }
@@ -86,12 +85,16 @@ const Icon = {
 export function HomeLanding({ feed, stats }: Props) {
   const [lang, setLang] = useLang();
   const [kindFilter, setKindFilter] = useState<KindFilter>("all");
-  const [teamFilter, setTeamFilter] = useState<TeamFilter>("all");
+  const [areaFilter, setAreaFilter] = useState<AreaFilter>("all");
 
   const card = feed.today;
   const past = feed.items.filter((it) => it.id !== card?.id);
-  const shown = past.filter((a) => (kindFilter === "all" || a.kind === kindFilter) && (teamFilter === "all" || a.team === teamFilter));
-  const duty: Team = feed.duty?.team ?? dutyTeam(card?.featured_date ?? new Date().toISOString().slice(0, 10));
+  const shown = past.filter((a) => (kindFilter === "all" || a.kind === kindFilter) && (areaFilter === "all" || a.area === areaFilter || a.area2 === areaFilter));
+  const areaCounts = new Map<Area, number>();
+  for (const a of past) {
+    if (isArea(a.area)) areaCounts.set(a.area, (areaCounts.get(a.area) ?? 0) + 1);
+    if (isArea(a.area2)) areaCounts.set(a.area2, (areaCounts.get(a.area2) ?? 0) + 1);
+  }
   const viewer = feed.viewer;
   const anon = viewer.kind === "anon";
   const full = viewer.kind === "approved" || viewer.kind === "admin";
@@ -356,48 +359,6 @@ export function HomeLanding({ feed, stats }: Props) {
       </section>
 
       {/* ================= 지난 호 ================= */}
-      {/* 고양이 당번: 네 팀이 하루씩 돌아가며 그날의 글을 고른다 */}
-      <section id="teams" className="py-14 lg:py-20 bg-white border-b border-amber-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <span className="text-xs font-black text-amber-900 bg-amber-100 px-3.5 py-1 rounded-full uppercase tracking-wider">HR Team</span>
-            <h2 className="m-0 text-2xl sm:text-4xl font-black text-ink mt-3">하루씩 돌아가며 맡아요</h2>
-            <p className="m-0 text-sm text-slate-600 mt-2 leading-relaxed">
-              네 팀의 고양이 사원이 하루씩 당번을 맡아 자기 분야의 논문·아티클을 골라 아침 7시에 보냅니다. 카드를 누르면 그 팀의 지난 호만 모아 봅니다.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-            {TEAM_ORDER.map((id) => {
-              const t = TEAMS[id];
-              const onDuty = id === duty;
-              return (
-                <button
-                  type="button"
-                  key={id}
-                  onClick={() => {
-                    setTeamFilter(teamFilter === id ? "all" : id);
-                    document.getElementById("articles")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className={`team-card${onDuty ? " on" : ""}${teamFilter === id ? " active" : ""}`}
-                  style={{ borderColor: t.color }}
-                  aria-pressed={teamFilter === id}
-                >
-                  <span className="team-head" style={{ background: t.color }}>
-                    {t.team}
-                  </span>
-                  <span className="team-body">
-                    <img src={t.avatar} alt={t.cat} width={240} height={186} className="team-avatar" loading="lazy" />
-                    <b>{t.cat}</b>
-                    <span className="team-role">{t.role}</span>
-                    {onDuty ? <em className="team-duty">오늘 당번</em> : <em className="team-duty off">&nbsp;</em>}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <section id="articles" className="py-16 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
@@ -431,31 +392,32 @@ export function HomeLanding({ feed, stats }: Props) {
                 </button>
               ))}
             </div>
-            {/* 팀: 고양이 당번 팀 색으로 */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider w-8">팀</span>
+            {/* 분야: HR 영역 분류. 글이 있는 분야만 보여준다 */}
+            <div className="flex flex-wrap items-center gap-2 md:justify-end">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider w-8">분야</span>
               <button
                 type="button"
-                onClick={() => setTeamFilter("all")}
-                className={`px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border ${
-                  teamFilter === "all" ? "bg-ink text-white border-ink shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                onClick={() => setAreaFilter("all")}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer border ${
+                  areaFilter === "all" ? "bg-ink text-white border-ink shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 전체
               </button>
-              {TEAM_ORDER.map((id) => {
-                const t = TEAMS[id];
-                const on = teamFilter === id;
+              {AREA_ORDER.filter((id) => areaCounts.has(id)).map((id) => {
+                const a = AREAS[id];
+                const on = areaFilter === id;
                 return (
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setTeamFilter(on ? "all" : id)}
-                    className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border inline-flex items-center gap-1.5 shadow-sm"
-                    style={on ? { background: t.color, color: "#fff", borderColor: t.color } : { background: t.soft, color: t.color, borderColor: t.soft }}
+                    onClick={() => setAreaFilter(on ? "all" : id)}
+                    className="px-3.5 py-1.5 rounded-full text-xs font-extrabold transition cursor-pointer border inline-flex items-center gap-1.5"
+                    style={on ? { background: a.color, color: "#fff", borderColor: a.color } : { background: a.soft, color: a.color, borderColor: a.soft }}
+                    title={a.en}
                   >
-                    <span className="inline-block w-2 h-2 rounded-full" style={{ background: on ? "#fff" : t.color }} />
-                    {t.team}
+                    {a.ko}
+                    <span className="opacity-70 font-bold">{areaCounts.get(id)}</span>
                   </button>
                 );
               })}
@@ -477,7 +439,7 @@ export function HomeLanding({ feed, stats }: Props) {
                   <div className="flex items-center justify-between mb-4 gap-2">
                     <span className="flex items-center gap-1.5 flex-wrap">
                       <KindPill kind={a.kind} />
-                      {isTeam(a.team) ? <TeamPill team={a.team} /> : null}
+                      {isArea(a.area) ? <AreaPill area={a.area} /> : null}
                     </span>
                     <span className="text-xs text-slate-500 font-bold flex items-center gap-1">{shortDate(a.featured_date)}</span>
                   </div>

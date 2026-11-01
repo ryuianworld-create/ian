@@ -4,7 +4,7 @@
 import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
 import { paperWeekdays } from "../lib/settings.js";
 import { TransientSummarizeError, summarizeText } from "../lib/summarizer.js";
-import { TEAMS, classifyTeam, dutyTeam, type Team } from "../lib/teams.js";
+import { AREAS } from "../lib/areas.js";
 import { env } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import type { InboxRow, Kind } from "../types.js";
@@ -16,11 +16,11 @@ export type SummarizeResult =
   | { status: "done"; featured_date: string; article_id: string; inbox_id: string; model: string }
   | { status: "failed"; featured_date: string; tried: string[] };
 
-type Candidate = Pick<InboxRow, "id" | "source_id" | "source_name" | "kind" | "title" | "url" | "category" | "published" | "raw_text" | "chars" | "score">;
-const CANDIDATE_COLUMNS = "id,source_id,source_name,kind,title,url,category,published,raw_text,chars,score";
+type Candidate = Pick<InboxRow, "id" | "source_id" | "source_name" | "kind" | "title" | "url" | "category" | "published" | "raw_text" | "chars" | "score" | "error">;
+const CANDIDATE_COLUMNS = "id,source_id,source_name,kind,title,url,category,published,raw_text,chars,score,error";
 
-/** 후보 선택: (논문 우선 요일이면 논문 중에서) 당번 팀 주제의 글을 먼저, 없으면 점수순 1위 */
-async function pickCandidate(opts: { preferPaper: boolean; duty: Team; exclude: string[] }): Promise<{ cand: Candidate; teamMatch: boolean } | null> {
+/** 후보 선택: (논문 우선 요일이면 논문 중에서) 점수순. 전에 일시 오류를 낸 글(error 있음)은 뒤로 미룬다 */
+async function pickCandidate(opts: { preferPaper: boolean; exclude: string[] }): Promise<Candidate | null> {
   const top = async (kind?: Kind): Promise<Candidate[]> =>
     unwrap(
       await db()
@@ -33,11 +33,9 @@ async function pickCandidate(opts: { preferPaper: boolean; duty: Team; exclude: 
         .limit(opts.exclude.length + 15),
       `inbox.pick(${kind ?? "any"})`,
     ) as Candidate[];
-  const choose = (rows: Candidate[]) => {
+  const choose = (rows: Candidate[]): Candidate | null => {
     const ok = rows.filter((r) => !opts.exclude.includes(r.id));
-    const match = ok.find((r) => classifyTeam(r.title, r.category) === opts.duty);
-    if (match) return { cand: match, teamMatch: true };
-    return ok[0] ? { cand: ok[0], teamMatch: false } : null;
+    return ok.find((r) => !r.error) ?? ok[0] ?? null;
   };
   if (opts.preferPaper) {
     const paper = choose(await top("paper"));
@@ -83,8 +81,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
 
   const weekday = weekdayOf(featured_date);
   const preferPaper = (await paperWeekdays()).includes(weekday);
-  const duty = dutyTeam(featured_date);
-  log(`요일 ${weekday} → ${preferPaper ? "논문 우선" : "전체 점수순"} · 당번 ${TEAMS[duty].cat} (${TEAMS[duty].team}) 주제 우선`);
+  log(`요일 ${weekday} → ${preferPaper ? "논문 우선" : "전체 점수순"}`);
 
   const tried: string[] = [];
   let transient = false;
@@ -100,9 +97,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
       if (!cand) throw new Error(`inbox ${params.inbox_id} 가 없다`);
       if (!cand.raw_text) throw new Error(`inbox ${params.inbox_id} 에 raw_text 가 없다(이미 처리됨)`);
     } else {
-      const picked = await pickCandidate({ preferPaper, duty, exclude: tried });
-      cand = picked?.cand ?? null;
-      if (picked) log(picked.teamMatch ? `  당번 팀(${TEAMS[duty].team}) 주제의 글을 골랐다` : `  당번 팀 주제의 글이 없어 점수순 1위를 고른다`);
+      cand = await pickCandidate({ preferPaper, exclude: tried });
     }
     if (!cand) {
       log(tried.length ? "다음 후보가 없다" : "요약할 pending 글이 없다");
@@ -140,7 +135,8 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
             url: cand.url,
             published: cand.published,
             category: r.output.category || cand.category,
-            team: r.output.team ?? classifyTeam(cand.title, cand.category),
+            area: r.output.area,
+            area2: r.output.area2,
             summary: r.output.summary,
             findings: r.output.findings,
             detail: r.output.detail,
@@ -161,7 +157,7 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
         .eq("id", cand.id);
       if (error) log(`  ⚠ inbox 상태 갱신 실패: ${error.message}`);
 
-      log(`✓ 저장: articles/${article_id} (${featured_date}), 팀 ${r.output.team ? TEAMS[r.output.team].team : "미분류"}, 단어 ${r.output.vocab.length}개`);
+      log(`✓ 저장: articles/${article_id} (${featured_date}), 분야 ${r.output.area ? AREAS[r.output.area].ko : "미분류"}${r.output.area2 ? `+${AREAS[r.output.area2].ko}` : ""}, 단어 ${r.output.vocab.length}개`);
       return { status: "done", featured_date, article_id, inbox_id: cand.id, model: r.model };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

@@ -3,7 +3,6 @@ import { Hono } from "hono";
 import { isFullAccess, type AppEnv } from "../lib/auth.js";
 import { CARD_COLUMNS, toCard, type CardRow } from "../lib/cards.js";
 import { kstToday } from "../lib/kst.js";
-import { dutyTeam } from "../lib/teams.js";
 import { freeArticleLimit } from "../lib/settings.js";
 import { db, unwrap } from "../lib/supabase.js";
 
@@ -23,5 +22,5 @@ feed.get("/", async (c) => {
   ]);
   const full = isFullAccess(viewer);
   const items = rows.map((row, i) => toCard(row, !full && i >= free_limit));
-  return c.json({ today: items[0] ?? null, items, free_limit, viewer, total: items.length, duty: { date: today, team: dutyTeam(today) } });
+  return c.json({ today: items[0] ?? null, items, free_limit, viewer, total: items.length });
 });

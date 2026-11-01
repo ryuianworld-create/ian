@@ -6,11 +6,11 @@ import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "./env.js";
 import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
-import { TEAM_ORDER, isTeam, type Team } from "./teams.js";
+import { AREAS, AREA_ORDER, isArea, type Area } from "./areas.js";
 import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
 export const DEFAULT_MODEL = "gemini-3.8-flash"; // 무료 등급 가능. 더 높은 품질이 필요하면 GEMINI_MODEL=gemini-4-argon
-export const DEFAULT_FALLBACK_MODEL = "gemini-4-argon"; // 기본 모델이 과부하(503)·한도(429)면 한 번 더 시도할 모델. GEMINI_FALLBACK_MODEL 로 변경, "" 이면 끔
+export const DEFAULT_FALLBACK_MODEL = ""; // 비어 있으면 같은 모델로 경량 재시도(thinking low·입력 절반). 유료 등급이면 GEMINI_FALLBACK_MODEL=gemini-4-argon 등으로 다른 모델 지정
 
 // ---- 출력 스키마 (SPEC「잡 상세 > summarize」). 개수 제한은 API 가 지원하지 않으므로 후처리에서 검증한다 ----
 const LangSchema = z.object({
@@ -20,9 +20,12 @@ const LangSchema = z.object({
 
 export const SummarySchema = z.object({
   category: z.string().describe('Short English topic label, e.g. "HR Strategy", "Talent Acquisition", "Organizational Behavior"'),
-  team: z
-    .enum(["ta", "ops", "strategy", "culture"])
-    .describe('Which HR team owns this topic: "ta" talent acquisition · "ops" HR operations/comp & benefits/policy/compliance/HR systems · "strategy" HR strategy/workforce planning/people analytics/operating model/attendance/AI & future of work · "culture" learning & development/leadership/engagement/wellbeing/DEI/retention/organizational culture'),
+  area: z
+    .enum(["hiring", "comp", "performance", "learning", "leadership", "culture", "wellbeing", "strategy", "tech", "labor", "work", "careers"])
+    .describe("Primary HR area of the text (see the AREA LIST in the instructions). Judge from the whole text, not the title."),
+  area2: z
+    .enum(["hiring", "comp", "performance", "learning", "leadership", "culture", "wellbeing", "strategy", "tech", "labor", "work", "careers", "none"])
+    .describe('Secondary HR area if the text clearly spans two areas, otherwise "none".'),
   summary: LangSchema.describe("ko: 500-800 Korean characters. en: 180-280 words. Plain text, no HTML."),
   findings: z
     .array(
@@ -58,7 +61,8 @@ export const SummarySchema = z.object({
     .describe("8 to 12 HR/management terms that actually appear in the text"),
 });
 
-export type SummaryOutput = Omit<z.infer<typeof SummarySchema>, "team"> & { team: Team | null };
+type RawSummary = z.infer<typeof SummarySchema>;
+export type SummaryOutput = Omit<RawSummary, "area" | "area2"> & { area: Area | null; area2: Area | null };
 
 export type SummarizeInput = {
   title: string;
@@ -94,13 +98,19 @@ Produce a JSON object matching the provided schema. Requirements:
 5. Vocabulary spans: inside detail.body (BOTH ko and en), wrap the place where each vocab term occurs as <span class="vw" data-w="{w}">{text as it appears}</span>, with data-w exactly equal to vocab.w. In the Korean body, use the English term itself at that spot (e.g. 'HR <span class="vw" data-w="operating model">operating model</span>은 …'). Every vocab term should appear in at least one span; do not create spans for words that are not in vocab. Wrap each occurrence at most once per section.
 6. Summarize and restate in your own words. Do not copy sentences from the source verbatim. Do not invent numbers that are not in the text. Keep company and author names as they are.
 7. category: a short English topic label (2–3 words).
-8. team: the HR team that owns the topic — "ta" (talent acquisition: recruiting, sourcing, interviewing, employer branding, onboarding), "ops" (HR operations: compensation & benefits, payroll, policies, labor law & compliance, HR systems/HCM, leave), "strategy" (HR strategy: workforce planning, people analytics, HR operating model, productivity & attendance, AI and the future of work), "culture" (people growth & culture: learning & development, leadership, engagement, wellbeing, DEI, retention, organizational behavior). Pick exactly one.
+8. area / area2: classify the text into the HR AREA LIST below. area is the single area that best describes what the text is mainly about, judged from the whole text (research question, findings, recommendations), never from the title or the source alone. area2 is a second area only when the text genuinely spans two (e.g. a paper on parental leave policy and its effect on wellbeing → area "labor", area2 "wellbeing"); otherwise "none".
+
+AREA LIST:
+${AREA_ORDER.map((id) => `- "${id}" = ${AREAS[id].en} (${AREAS[id].ko}): ${AREAS[id].desc}`).join("\n")}
 
 Match the tone, depth and length of the example below. The example is trimmed (one section, two vocab entries) — your output must have the full counts above.`;
 
 function exampleBlock(): string {
   return `<example title=${JSON.stringify(EXAMPLE_TITLE)}>\n${JSON.stringify(EXAMPLE_OUTPUT, null, 2)}\n</example>`;
 }
+
+/** 모델에 넣는 본문 상한(자). 긴 아티클은 앞부분만으로도 요약이 충분하고, 전체를 넣으면 응답이 4분을 넘긴다 */
+const RAW_INPUT_LIMIT = Number(process.env.SUMMARIZE_INPUT_LIMIT) > 0 ? Number(process.env.SUMMARIZE_INPUT_LIMIT) : 14_000;
 
 function userPrompt(input: SummarizeInput): string {
   const meta = [
@@ -113,7 +123,8 @@ function userPrompt(input: SummarizeInput): string {
   ]
     .filter(Boolean)
     .join("\n");
-  return `Summarize the following ${input.kind === "paper" ? "academic paper (abstract/text)" : "article"} for dailyHR.\n\n<meta>\n${meta}\n</meta>\n\n<text>\n${input.raw_text}\n</text>`;
+  const text = input.raw_text.length > RAW_INPUT_LIMIT ? `${input.raw_text.slice(0, RAW_INPUT_LIMIT)}\n\n[text truncated at ${RAW_INPUT_LIMIT} characters]` : input.raw_text;
+  return `Summarize the following ${input.kind === "paper" ? "academic paper (abstract/text)" : "article"} for dailyHR.\n\n<meta>\n${meta}\n</meta>\n\n<text>\n${text}\n</text>`;
 }
 
 // ---- 후처리 ----
@@ -164,7 +175,7 @@ export function reconcileSpans(html: string, canonical: Map<string, string>, war
   return out.replace(/<span data-strip>([\s\S]*?)<\/span>/g, "$1");
 }
 
-export function postValidate(raw: SummaryOutput): { output: SummaryOutput; warnings: string[] } {
+export function postValidate(raw: RawSummary): { output: SummaryOutput; warnings: string[] } {
   const warnings: string[] = [];
 
   const summary: Lang = { ko: raw.summary.ko.trim(), en: raw.summary.en.trim() };
@@ -214,9 +225,10 @@ export function postValidate(raw: SummaryOutput): { output: SummaryOutput; warni
   const allBody = detail.map((d) => d.body.ko + d.body.en).join(" ");
   for (const v of vocab) if (!allBody.includes(`data-w="${v.w}"`)) warnings.push(`본문에 span 없는 단어: ${v.w}`);
 
-  const team: Team | null = isTeam(raw.team) ? raw.team : null;
-  if (!team) warnings.push(`team 값이 올바르지 않음: ${String(raw.team)} (허용: ${TEAM_ORDER.join(", ")})`);
-  return { output: { category: raw.category.trim(), team, summary, findings, detail, vocab }, warnings };
+  const area: Area | null = isArea(raw.area) ? raw.area : null;
+  if (!area) warnings.push(`area 값이 올바르지 않음: ${String(raw.area)}`);
+  const area2: Area | null = isArea(raw.area2) && raw.area2 !== area ? raw.area2 : null;
+  return { output: { category: raw.category.trim(), area, area2, summary, findings, detail, vocab }, warnings };
 }
 
 // ---- 호출 ----
@@ -306,19 +318,22 @@ export type SummarizeOptions = { timeoutMs?: number };
 export async function summarizeText(input: SummarizeInput, log?: (m: string) => void, opts: SummarizeOptions = {}): Promise<SummarizeResult> {
   const started = Date.now();
   const total = opts.timeoutMs ?? 240_000;
-  const fallback = fallbackModelName();
-  // 예비 모델이 있으면 기본 모델에는 전체 시간의 60% 만 준다. 응답이 늦으면 남은 40% 로 예비 모델을 돌린다.
-  const primaryMs = fallback ? Math.round(total * 0.6) : total;
+  const fallback = fallbackModelName(); // 없으면 같은 모델 경량 재시도
+  // 1차에는 전체 시간의 60% 만 준다. 응답이 늦거나 과부하면 남은 40% 로 재시도(다른 모델, 또는 같은 모델에 thinking low·입력 절반).
+  const primaryMs = Math.round(total * 0.6);
   try {
     return await summarizeWith(modelName(), input, log, { timeoutMs: primaryMs });
   } catch (e) {
     if (!isTransientError(e)) throw e;
     const remaining = total - (Date.now() - started);
     const msg = e instanceof Error ? e.message : String(e);
-    if (!fallback || remaining < 45_000) throw new TransientSummarizeError(msg);
-    log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → 예비 모델 ${fallback} 로 재시도 (남은 ${Math.round(remaining / 1000)}초)`);
+    if (remaining < 45_000) throw new TransientSummarizeError(msg);
+    const retryModel = fallback ?? modelName();
+    const light = !fallback;
+    log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → ${light ? `${retryModel} 경량 재시도(thinking low·입력 절반)` : `예비 모델 ${retryModel}`} (남은 ${Math.round(remaining / 1000)}초)`);
     try {
-      return await summarizeWith(fallback, input, log, { timeoutMs: remaining - 5_000 });
+      const retryInput = light ? { ...input, raw_text: input.raw_text.slice(0, Math.max(4_000, Math.floor(RAW_INPUT_LIMIT / 2))) } : input;
+      return await summarizeWith(retryModel, retryInput, log, { timeoutMs: remaining - 5_000, thinking: light ? "low" : undefined });
     } catch (e2) {
       const m2 = e2 instanceof Error ? e2.message : String(e2);
       if (isTransientError(e2)) throw new TransientSummarizeError(`${msg} / 예비(${fallback}): ${m2}`);
@@ -327,7 +342,7 @@ export async function summarizeText(input: SummarizeInput, log?: (m: string) => 
   }
 }
 
-async function summarizeWith(model: string, input: SummarizeInput, log: ((m: string) => void) | undefined, opts: { timeoutMs: number }): Promise<SummarizeResult> {
+async function summarizeWith(model: string, input: SummarizeInput, log: ((m: string) => void) | undefined, opts: { timeoutMs: number; thinking?: "low" | "medium" | "high" }): Promise<SummarizeResult> {
   const timeoutMs = opts.timeoutMs;
 
   const res = await withTimeout(client().interactions.create({
@@ -335,7 +350,7 @@ async function summarizeWith(model: string, input: SummarizeInput, log: ((m: str
     system_instruction: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
     input: userPrompt(input),
     response_format: { type: "text", mime_type: "application/json", schema: responseJsonSchema() },
-    generation_config: { max_output_tokens: 32000, thinking_level: thinkingLevel() }, // thinking 토큰도 max_output_tokens 에 포함된다
+    generation_config: { max_output_tokens: 32000, thinking_level: opts.thinking ?? thinkingLevel() }, // thinking 토큰도 max_output_tokens 에 포함된다
     store: false, // 원문을 Google 쪽에 남기지 않는다(저작권·개인정보)
   }), timeoutMs);
 
