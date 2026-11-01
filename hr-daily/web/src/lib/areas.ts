@@ -9,18 +9,18 @@ export const AREA_ORDER: readonly Area[] = [
 
 export type AreaInfo = { id: Area; ko: string; en: string; color: string; soft: string };
 export const AREAS: Record<Area, AreaInfo> = {
-  hiring: { id: "hiring", ko: "채용·인재확보", en: "Talent Acquisition", color: "#B45309", soft: "#FDEBD6" },
+  hiring: { id: "hiring", ko: "채용·인재확보", en: "Talent Acquisition", color: "#C2410C", soft: "#FFEDD5" },
   comp: { id: "comp", ko: "보상·복리후생", en: "Compensation & Benefits", color: "#0369A1", soft: "#E0F2FE" },
-  performance: { id: "performance", ko: "성과관리", en: "Performance Management", color: "#92400E", soft: "#FEF3C7" },
-  learning: { id: "learning", ko: "학습·역량개발", en: "Learning & Development", color: "#166534", soft: "#DCFCE7" },
-  leadership: { id: "leadership", ko: "리더십·관리자", en: "Leadership & Managers", color: "#5B21B6", soft: "#EDE9FE" },
-  culture: { id: "culture", ko: "조직문화·몰입", en: "Culture & Engagement", color: "#9D174D", soft: "#FCE7F3" },
+  performance: { id: "performance", ko: "성과관리", en: "Performance Management", color: "#4D7C0F", soft: "#ECFCCB" },
+  learning: { id: "learning", ko: "학습·역량개발", en: "Learning & Development", color: "#15803D", soft: "#DCFCE7" },
+  leadership: { id: "leadership", ko: "리더십·관리자", en: "Leadership & Managers", color: "#6D28D9", soft: "#EDE9FE" },
+  culture: { id: "culture", ko: "조직문화·몰입", en: "Culture & Engagement", color: "#BE185D", soft: "#FCE7F3" },
   wellbeing: { id: "wellbeing", ko: "웰빙·다양성·포용", en: "Wellbeing, DEI", color: "#0F766E", soft: "#CCFBF1" },
-  strategy: { id: "strategy", ko: "HR전략·조직설계", en: "HR Strategy & Org Design", color: "#1E293B", soft: "#E2E8F0" },
+  strategy: { id: "strategy", ko: "HR전략·조직설계", en: "HR Strategy & Org Design", color: "#334155", soft: "#E2E8F0" },
   tech: { id: "tech", ko: "HR테크·피플 애널리틱스", en: "HR Tech & People Analytics", color: "#1D4ED8", soft: "#DBEAFE" },
-  labor: { id: "labor", ko: "노사관계·근로조건·제도", en: "Employee Relations & Policy", color: "#991B1B", soft: "#FEE2E2" },
-  work: { id: "work", ko: "일하는 방식·미래의 일", en: "Work Design & Future of Work", color: "#854D0E", soft: "#FEF9C3" },
-  careers: { id: "careers", ko: "경력·이동·리텐션", en: "Careers, Mobility & Retention", color: "#9A3412", soft: "#FFEDD5" },
+  labor: { id: "labor", ko: "노사관계·근로조건·제도", en: "Employee Relations & Policy", color: "#B91C1C", soft: "#FEE2E2" },
+  work: { id: "work", ko: "일하는 방식·미래의 일", en: "Work Design & Future of Work", color: "#A21CAF", soft: "#FAE8FF" },
+  careers: { id: "careers", ko: "경력·이동·리텐션", en: "Careers, Mobility & Retention", color: "#4338CA", soft: "#E0E7FF" },
 };
 
 export function isArea(s: unknown): s is Area {

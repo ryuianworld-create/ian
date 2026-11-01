@@ -32,10 +32,11 @@ export function AreaPill({ area }: { area: Area }) {
 }
 
 function KindPill({ kind }: { kind: ArticleCard["kind"] }) {
+  // 종류는 무채색(검정 채움 / 검정 테두리)으로 두어 색이 있는 분야 배지와 구분한다
   return kind === "paper" ? (
-    <span className="inline-block text-[11px] font-black text-emerald-900 bg-emerald-100 px-3 py-1 rounded-full">논문</span>
+    <span className="inline-block text-[11px] font-black text-white bg-ink border border-ink px-3 py-1 rounded-full">논문</span>
   ) : (
-    <span className="inline-block text-[11px] font-black text-amber-900 bg-amber-100 px-3 py-1 rounded-full">아티클</span>
+    <span className="inline-block text-[11px] font-black text-ink bg-white border border-ink px-3 py-1 rounded-full">아티클</span>
   );
 }
 

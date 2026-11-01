@@ -1088,8 +1088,8 @@ html:root[data-design="b"] .btn.primary{box-shadow:0 10px 30px -5px rgba(255,200
 html:root[data-design="b"] .btn.primary:hover{background:#FACC15;filter:none;transform:translateY(-1px)}
 html:root[data-design="b"] .readbar .play{box-shadow:0 6px 18px -6px rgba(255,200,0,.6)}
 html:root[data-design="b"] .jr .kind{font-family:var(--font-body);font-weight:800;letter-spacing:.02em;text-transform:none;border-radius:999px;padding:3px 10px;border:0}
-html:root[data-design="b"] .jr .kind.paper{background:#D1FAE5;color:#065F46}
-html:root[data-design="b"] .jr .kind.article{background:#FEF3C7;color:#78350F}
+html:root[data-design="b"] .jr .kind.paper{background:#0F172A;color:#fff;border-color:#0F172A}
+html:root[data-design="b"] .jr .kind.article{background:#fff;color:#0F172A;border-color:#0F172A}
 html:root[data-design="b"] .jr .tag{font-family:var(--font-body);font-weight:700;border-radius:999px;padding:3px 10px}
 
 /* 랜딩(.ld) 전용 */
