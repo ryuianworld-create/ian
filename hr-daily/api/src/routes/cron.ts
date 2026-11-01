@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import { env } from "../lib/env.js";
 import { badRequest, fail } from "../lib/http.js";
 import { isJobName, runNamedJob } from "../jobs/index.js";
+import { addDays, kstToday } from "../lib/kst.js";
+import { db, unwrapMaybe } from "../lib/supabase.js";
 
 export const cron = new Hono();
 
@@ -24,6 +26,27 @@ cron.use("*", async (c, next) => {
 
 // summarize-retry: 06:17 요약이 실패한 날을 위한 두 번째 시도(06:40). 같은 잡이며 이미 글이 있으면 건너뛴다.
 const ALIASES: Record<string, string> = { "summarize-retry": "summarize" };
+
+/** 앞으로 AHEAD_DAYS 일 안에서 글이 없는 가장 이른 날짜. 모두 있으면 null */
+const AHEAD_DAYS = 2;
+async function firstMissingDate(): Promise<string | null> {
+  const today = kstToday();
+  for (let i = 1; i <= AHEAD_DAYS; i++) {
+    const d = addDays(today, i);
+    const hit = unwrapMaybe(await db().from("articles").select("id").eq("featured_date", d).maybeSingle<{ id: string }>(), "articles.ahead");
+    if (!hit) return d;
+  }
+  return null;
+}
+
+// summarize-ahead: 전날 저녁(한국 21시·22시)에 내일·모레 글을 미리 만들어 둔다. Gemini 가 붐비는 새벽을 피하고,
+// 아침 크론(06:17·06:40·07:15)은 이미 글이 있으면 건너뛰므로 안전망으로 남는다.
+cron.on(["GET", "POST"], ["/summarize-ahead", "/summarize-ahead-2"], async (c) => {
+  const date = await firstMissingDate();
+  if (!date) return c.json({ skipped: true, reason: `앞으로 ${AHEAD_DAYS}일치 글이 이미 있다` });
+  const { run, result, error } = await runNamedJob("summarize", { featured_date: date });
+  return c.json({ run, result, error }, run.ok ? 200 : 500);
+});
 
 cron.on(["GET", "POST"], "/:job", async (c) => {
   const job = ALIASES[c.req.param("job")] ?? c.req.param("job");
