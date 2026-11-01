@@ -122,6 +122,15 @@ export async function summarizeJob(log: Log, params: SummarizeParams = {}): Prom
         { timeoutMs },
       );
 
+      // 같은 날짜 요약이 동시에 두 번 돌았을 때(크론 겹침·버튼 연타) 뒤늦게 끝난 쪽은 저장하지 않는다
+      const raced = unwrapMaybe(
+        await db().from("articles").select("id").eq("featured_date", featured_date).maybeSingle<{ id: string }>(),
+        "articles.byDate.recheck",
+      );
+      if (raced) {
+        log(`이미 다른 실행이 ${featured_date} 글을 저장했다: ${raced.id} — 이번 결과는 버린다`);
+        return { status: "skipped", reason: `article exists: ${raced.id}`, featured_date };
+      }
       const article_id = await uniqueArticleId(cand.id);
       unwrap(
         await db()

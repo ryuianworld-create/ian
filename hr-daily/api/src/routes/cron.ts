@@ -27,11 +27,11 @@ cron.use("*", async (c, next) => {
 // summarize-retry: 06:17 요약이 실패한 날을 위한 두 번째 시도(06:40). 같은 잡이며 이미 글이 있으면 건너뛴다.
 const ALIASES: Record<string, string> = { "summarize-retry": "summarize" };
 
-/** 앞으로 AHEAD_DAYS 일 안에서 글이 없는 가장 이른 날짜. 모두 있으면 null */
+/** 오늘부터 AHEAD_DAYS 일 뒤까지 글이 없는 가장 이른 날짜. 모두 있으면 null (오늘 글이 아직 없으면 오늘부터 채운다) */
 const AHEAD_DAYS = 2;
 async function firstMissingDate(): Promise<string | null> {
   const today = kstToday();
-  for (let i = 1; i <= AHEAD_DAYS; i++) {
+  for (let i = 0; i <= AHEAD_DAYS; i++) {
     const d = addDays(today, i);
     const hit = unwrapMaybe(await db().from("articles").select("id").eq("featured_date", d).maybeSingle<{ id: string }>(), "articles.ahead");
     if (!hit) return d;
