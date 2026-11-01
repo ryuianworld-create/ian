@@ -47,7 +47,17 @@ export function AdminView() {
   const [pushResult, setPushResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyUser, setBusyUser] = useState<string | null>(null);
-  const [tab, setTab] = useState<"pending" | "users" | "inbox" | "runs">("pending");
+  type Tab = "pending" | "users" | "inbox" | "runs";
+  const [tab, setTabState] = useState<Tab>("pending");
+  // 주소의 #runs 같은 해시로 탭을 직접 열 수 있게 한다 (예: /admin#runs → 실행 기록)
+  useEffect(() => {
+    const h = window.location.hash.replace("#", "");
+    if (h === "pending" || h === "users" || h === "inbox" || h === "runs") setTabState(h);
+  }, []);
+  const setTab = (t: Tab) => {
+    setTabState(t);
+    window.history.replaceState(null, "", `#${t}`);
+  };
 
   const reload = useCallback(async () => {
     if (!token) return;
