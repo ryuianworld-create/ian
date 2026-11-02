@@ -1,1 +1,3 @@
 .vapid.local.json
+vapid-keys.local.json
+.external-cron-secret.local.txt
