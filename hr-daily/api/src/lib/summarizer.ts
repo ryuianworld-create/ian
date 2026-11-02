@@ -243,6 +243,22 @@ function client(): GoogleGenAI {
   return genai;
 }
 
+/** 모델에 아주 짧은 요청을 보내 응답 시간과 오류를 돌려준다. 유료 등급 전환·과부하 확인용 */
+export async function pingModel(model: string, timeoutMs = 40_000): Promise<{ model: string; ok: boolean; ms: number; detail: string }> {
+  const t0 = Date.now();
+  try {
+    const res = await withTimeout(
+      client().interactions.create({ model, input: "Reply with the single word: pong", generation_config: { max_output_tokens: 20, thinking_level: "low" }, store: false }),
+      timeoutMs,
+    );
+    const text = (res.output_text ?? "").trim().slice(0, 40);
+    return { model, ok: res.status === "completed", ms: Date.now() - t0, detail: res.status === "completed" ? `응답: ${text}` : `상태 ${res.status}` };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { model, ok: false, ms: Date.now() - t0, detail: msg.slice(0, 220) };
+  }
+}
+
 export function modelName(): string {
   return env("GEMINI_MODEL") ?? DEFAULT_MODEL;
 }

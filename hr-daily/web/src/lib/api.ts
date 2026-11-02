@@ -15,7 +15,7 @@ import type {
   ProfileStatus,
   ProgressResponse,
   StatsResponse,
-  ApiErrorBody, PushTestDevice } from "./types";
+  ApiErrorBody, PushTestDevice, GeminiCheck } from "./types";
 import { ApiError } from "./errors";
 import { mock } from "./mock";
 
@@ -167,6 +167,10 @@ export const api = {
     ): Promise<{ run: JobRun }> {
       if (isMock) return Promise.resolve().then(() => mock.unauthorized());
       return request<{ run: JobRun }>(`/v1/admin/jobs/${job}`, { method: "POST", token, body: body ?? {} });
+    },
+    geminiCheck(token: Token): Promise<GeminiCheck> {
+      if (isMock) return Promise.resolve().then(() => mock.unauthorized());
+      return request<GeminiCheck>("/v1/admin/gemini/check", { method: "POST", token, body: {} });
     },
     pushTest(token: Token): Promise<{ devices: PushTestDevice[] }> {
       if (isMock) return Promise.resolve().then(() => mock.unauthorized());

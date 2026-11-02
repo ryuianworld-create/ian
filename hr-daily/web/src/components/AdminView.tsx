@@ -45,6 +45,8 @@ export function AdminView() {
   const [lastRun, setLastRun] = useState<JobRun | null>(null);
   const [pushBusy, setPushBusy] = useState(false);
   const [pushResult, setPushResult] = useState<string | null>(null);
+  const [gemBusy, setGemBusy] = useState(false);
+  const [gemResult, setGemResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busyUser, setBusyUser] = useState<string | null>(null);
   type Tab = "pending" | "users" | "inbox" | "runs";
@@ -123,6 +125,24 @@ export function AdminView() {
       setError(errorMessage(e));
     } finally {
       setBusyUser(null);
+    }
+  };
+
+  const geminiCheck = async () => {
+    if (!token || gemBusy) return;
+    setGemBusy(true);
+    setGemResult(null);
+    setError(null);
+    try {
+      const r = await api.admin.geminiCheck(token);
+      const lines = r.results.map((x) => `${x.ok ? "✓" : "✗"} ${x.model} · ${(x.ms / 1000).toFixed(1)}초 · ${x.detail}`);
+      const argon = r.results.find((x) => x.model === "gemini-4-argon");
+      const tier = argon ? (argon.ok ? "유료 등급으로 보입니다 (gemini-4-argon 응답함)" : /free tier|limit: 0/i.test(argon.detail) ? "아직 무료 등급입니다 (gemini-4-argon 한도 0)" : "등급 판단 불가 (argon 오류가 한도 문제가 아님)") : "";
+      setGemResult([`기본 ${r.primary} · 예비 ${r.fallback ?? "(같은 모델 경량 재시도)"} · 추론 ${r.thinking}`, ...lines, tier].filter(Boolean).join("\n"));
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setGemBusy(false);
     }
   };
 
@@ -234,6 +254,17 @@ export function AdminView() {
         })}
       </ul>
       {lastRun ? <pre className="log">{logText(lastRun)}</pre> : null}
+
+      <div className="jr-pushtest">
+        <div>
+          <b>Gemini 상태 확인</b>
+          <span className="desc">기본·예비 모델에 짧은 요청을 보내 응답 시간과 요금 등급(무료/유료)을 확인합니다.</span>
+        </div>
+        <button type="button" className="btn" disabled={gemBusy} onClick={geminiCheck}>
+          {gemBusy ? "확인 중…" : "상태 확인"}
+        </button>
+      </div>
+      {gemResult ? <pre className="log">{gemResult}</pre> : null}
 
       <div className="jr-pushtest">
         <div>
