@@ -236,7 +236,8 @@ export function postValidate(raw: RawSummary): { output: SummaryOutput; warnings
 let openai: OpenAI | null = null;
 function client(): OpenAI {
   if (!openai) {
-    const apiKey = env("OPENAI_API_KEY");
+    // 두 이름 중 먼저 설정된 것을 쓴다 (Vercel 대시보드에 OpenAI_API 로 넣은 경우 대응)
+    const apiKey = env("OPENAI_API_KEY") ?? env("OpenAI_API");
     if (!apiKey) throw new Error("환경변수 OPENAI_API_KEY 이(가) 설정되지 않았다");
     // 재시도는 summarizeText 가 시간 예산 안에서 직접 한다 (SDK 기본 재시도 2회는 Vercel 300초 제한을 넘길 수 있다)
     openai = new OpenAI({ apiKey, timeout: 270_000, maxRetries: 0 });

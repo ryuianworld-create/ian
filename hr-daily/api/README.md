@@ -22,7 +22,7 @@ scripts/import-legacy.ts  1세대 데이터 이관
 | 변수 | 필수 | 용도 |
 |---|---|---|
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | 예 | DB·Auth 검증 |
-| `OPENAI_API_KEY` | summarize 에 필요 | OpenAI 요약 (platform.openai.com 에서 발급, 결제 등록 필요) |
+| `OPENAI_API_KEY` | summarize 에 필요 | OpenAI 요약 (platform.openai.com 에서 발급, 결제 등록 필요). `OpenAI_API` 라는 이름도 인식한다 |
 | `OPENAI_MODEL` | 아니오 | 기본 `gpt-5.4`. 비용을 낮추려면 `gpt-5.4-mini` |
 | `OPENAI_FALLBACK_MODEL` | 아니오 | 기본 모델이 일시 오류(429·5xx·시간 초과)일 때 한 번 더 시도할 모델. 기본 `gpt-5.4-mini`, `none` 이면 같은 모델 경량 재시도 |
 | `OPENAI_REASONING` | 아니오 | 추론 깊이 `minimal`·`low`·`medium`·`high`. 기본 `medium` |
