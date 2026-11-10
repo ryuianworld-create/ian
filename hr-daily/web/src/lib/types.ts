@@ -86,7 +86,7 @@ export type LibraryResponse = {
   total: number;
 };
 
-export type GeminiCheck = { primary: string; fallback: string | null; thinking: string; results: { model: string; ok: boolean; ms: number; detail: string }[] };
+export type ModelCheck = { primary: string; fallback: string | null; reasoning: string; results: { model: string; ok: boolean; ms: number; detail: string }[] };
 
 export type PushTestDevice = { id: number; device: string; host: string; created_at: string; ok: boolean; status: number; message: string; gone: boolean };
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "HR Daily 백엔드 — Hono + Vercel Functions + Supabase + Claude",
+  "description": "HR Daily 백엔드 — Hono + Vercel Functions + Supabase + OpenAI",
   "scripts": {
     "dev": "tsx watch scripts/dev.ts",
     "typecheck": "tsc --noEmit",
@@ -14,10 +14,10 @@
     "node": "24.x"
   },
   "dependencies": {
-    "@google/genai": "^2.31.0",
     "@hono/node-server": "2.1.5",
     "@supabase/supabase-js": "2.118.0",
     "hono": "4.13.13",
+    "openai": "7.55.0",
     "resend": "6.34.1",
     "web-push": "^3.6.7",
     "zod": "4.6.7"

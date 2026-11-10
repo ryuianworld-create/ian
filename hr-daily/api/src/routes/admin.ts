@@ -5,7 +5,7 @@ import { approvedEmail, sendEmail } from "../lib/email.js";
 import { DATE_RE, UUID_RE, badRequest, notFound, parseLimit, readJson } from "../lib/http.js";
 import { addDays, isValidDate, kstToday } from "../lib/kst.js";
 import { pushEnabled, sendPush } from "../lib/push.js";
-import { fallbackModelName, modelName, pingModel, thinkingLevel } from "../lib/summarizer.js";
+import { fallbackModelName, modelName, pingModel, reasoningEffort } from "../lib/summarizer.js";
 import { webUrl } from "../lib/env.js";
 import { db, unwrap, unwrapMaybe } from "../lib/supabase.js";
 import { isJobName, runNamedJob } from "../jobs/index.js";
@@ -206,13 +206,13 @@ admin.post("/push/test", async (c) => {
   return c.json({ devices });
 });
 
-/** Gemini 상태 확인: 기본 모델·예비 모델·(참고용) gemini-4-argon 에 짧은 요청. 무료 등급이면 argon 이 429 "Free Tier" 로 거절된다 */
-admin.post("/gemini/check", async (c) => {
+/** 요약 모델 상태 확인: 기본·예비 모델에 짧은 요청을 보내 API 키·모델 이름·응답 시간을 확인한다. (/gemini/check 는 예전 웹 호환용 별칭) */
+admin.on("POST", ["/model/check", "/gemini/check"], async (c) => {
   const primary = modelName();
   const fallback = fallbackModelName();
-  const models = [...new Set([primary, fallback ?? "", "gemini-4-argon"].filter(Boolean))];
+  const models = [...new Set([primary, fallback ?? ""].filter(Boolean))];
   const results = await Promise.all(models.map((m) => pingModel(m)));
-  return c.json({ primary, fallback, thinking: thinkingLevel(), results });
+  return c.json({ primary, fallback, reasoning: reasoningEffort(), results });
 });
 
 admin.get("/runs", async (c) => {

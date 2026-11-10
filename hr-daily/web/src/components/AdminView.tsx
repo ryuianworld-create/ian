@@ -10,7 +10,7 @@ import { useAuth } from "./AuthProvider";
 
 const JOBS: { job: JobName; label: string; desc: string }[] = [
   { job: "collect", label: "지금 수집", desc: "학술지·매체 피드 → 대기열" },
-  { job: "summarize", label: "지금 요약", desc: "오늘 한 편 선정 → Gemini 요약" },
+  { job: "summarize", label: "지금 요약", desc: "오늘 한 편 선정 → OpenAI 요약" },
   { job: "digest", label: "지금 발송", desc: "승인 회원에게 이메일·카카오톡 발송" },
 ];
 
@@ -128,17 +128,20 @@ export function AdminView() {
     }
   };
 
-  const geminiCheck = async () => {
+  const modelCheck = async () => {
     if (!token || gemBusy) return;
     setGemBusy(true);
     setGemResult(null);
     setError(null);
     try {
-      const r = await api.admin.geminiCheck(token);
+      const r = await api.admin.modelCheck(token);
       const lines = r.results.map((x) => `${x.ok ? "✓" : "✗"} ${x.model} · ${(x.ms / 1000).toFixed(1)}초 · ${x.detail}`);
-      const argon = r.results.find((x) => x.model === "gemini-4-argon");
-      const tier = argon ? (argon.ok ? "유료 등급으로 보입니다 (gemini-4-argon 응답함)" : /free tier|limit: 0/i.test(argon.detail) ? "아직 무료 등급입니다 (gemini-4-argon 한도 0)" : "등급 판단 불가 (argon 오류가 한도 문제가 아님)") : "";
-      setGemResult([`기본 ${r.primary} · 예비 ${r.fallback ?? "(같은 모델 경량 재시도)"} · 추론 ${r.thinking}`, ...lines, tier].filter(Boolean).join("\n"));
+      const hint = r.results.some((x) => !x.ok && /401|invalid_api_key|incorrect api key/i.test(x.detail))
+        ? "OPENAI_API_KEY 가 없거나 잘못됐습니다. Vercel hr-daily-api 환경변수를 확인하세요."
+        : r.results.some((x) => !x.ok && /insufficient_quota|billing/i.test(x.detail))
+          ? "OpenAI 결제 한도에 걸렸습니다. platform.openai.com 의 Billing 을 확인하세요."
+          : "";
+      setGemResult([`기본 ${r.primary} · 예비 ${r.fallback ?? "(같은 모델 경량 재시도)"} · 추론 ${r.reasoning}`, ...lines, hint].filter(Boolean).join("\n"));
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -257,10 +260,10 @@ export function AdminView() {
 
       <div className="jr-pushtest">
         <div>
-          <b>Gemini 상태 확인</b>
-          <span className="desc">기본·예비 모델에 짧은 요청을 보내 응답 시간과 요금 등급(무료/유료)을 확인합니다.</span>
+          <b>요약 모델 상태 확인</b>
+          <span className="desc">기본·예비 OpenAI 모델에 짧은 요청을 보내 API 키·모델 이름·응답 시간을 확인합니다.</span>
         </div>
-        <button type="button" className="btn" disabled={gemBusy} onClick={geminiCheck}>
+        <button type="button" className="btn" disabled={gemBusy} onClick={modelCheck}>
           {gemBusy ? "확인 중…" : "상태 확인"}
         </button>
       </div>

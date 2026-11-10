@@ -40,9 +40,9 @@ async function firstMissingDate(): Promise<string | null> {
   return null;
 }
 
-// summarize-ahead: 전날 저녁(한국 21시·22시)에 내일·모레 글을 미리 만들어 둔다. Gemini 가 붐비는 새벽을 피하고,
+// summarize-ahead: 전날 저녁(한국 21시·22시)에 내일·모레 글을 미리 만들어 둔다. 모델이 붐비는 새벽을 피하고,
 // 아침 크론(06:17·06:40·07:15)은 이미 글이 있으면 건너뛰므로 안전망으로 남는다.
-/** 매시간 호출돼도 과하지 않게: 직전 요약 시도 후 MIN_GAP_MIN 분 안이거나, 오늘 실패가 MAX_FAILS_PER_DAY 번을 넘으면 건너뛴다 (무료 등급 하루 20회 보호) */
+/** 매시간 호출돼도 과하지 않게: 직전 요약 시도 후 MIN_GAP_MIN 분 안이거나, 오늘 실패가 MAX_FAILS_PER_DAY 번을 넘으면 건너뛴다 (모델 장애 시 호출·비용 낭비 방지) */
 const MIN_GAP_MIN = 50;
 const MAX_FAILS_PER_DAY = 8;
 async function aheadThrottle(): Promise<string | null> {

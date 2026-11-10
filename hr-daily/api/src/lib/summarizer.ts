@@ -1,16 +1,16 @@
-// Gemini 요약기. Interactions API 의 response_format(JSON Schema) 으로 SPEC 의 출력 스키마를 그대로 받는다.
-//  - @google/genai: ai.interactions.create({ model, input, system_instruction, response_format, generation_config })
-//  - status !== "completed" 이면 실패 처리. 응답은 zod 로 다시 검증한다(스키마 제약 일부는 서버가 무시하므로).
+// OpenAI 요약기. Responses API 의 Structured Outputs(text.format = json_schema, strict) 로 SPEC 의 출력 스키마를 그대로 받는다.
+//  - openai SDK: client.responses.create({ model, instructions, input, text: { format }, reasoning, max_output_tokens, store: false })
+//  - status !== "completed" 이면 실패 처리. 응답은 zod 로 다시 검증한다(개수 제한 등은 strict 스키마가 표현하지 못하므로).
 //  - 후처리: body HTML 정리, data-w ↔ vocab 대조(없으면 span 을 벗김), 개수 검증(vocab 8개 미만이면 실패)
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import { z } from "zod";
 import { env } from "./env.js";
 import { EXAMPLE_OUTPUT, EXAMPLE_TITLE } from "./example.js";
 import { AREAS, AREA_ORDER, isArea, type Area } from "./areas.js";
 import type { DetailSection, Finding, Kind, Lang, VocabEntry } from "../types.js";
 
-export const DEFAULT_MODEL = "gemini-3.8-flash"; // 무료 등급 가능. 더 높은 품질이 필요하면 GEMINI_MODEL=gemini-4-argon
-export const DEFAULT_FALLBACK_MODEL = ""; // 비어 있으면 같은 모델로 경량 재시도(thinking low·입력 절반). 유료 등급이면 GEMINI_FALLBACK_MODEL=gemini-4-argon 등으로 다른 모델 지정
+export const DEFAULT_MODEL = "gpt-5.4"; // OPENAI_MODEL 로 변경. 비용을 낮추려면 gpt-5.4-mini
+export const DEFAULT_FALLBACK_MODEL = "gpt-5.4-mini"; // 기본 모델이 일시 오류(429·5xx·시간 초과)일 때 한 번 더 시도할 모델. OPENAI_FALLBACK_MODEL=none 이면 같은 모델로 경량 재시도
 
 // ---- 출력 스키마 (SPEC「잡 상세 > summarize」). 개수 제한은 API 가 지원하지 않으므로 후처리에서 검증한다 ----
 const LangSchema = z.object({
@@ -233,54 +233,66 @@ export function postValidate(raw: RawSummary): { output: SummaryOutput; warnings
 
 // ---- 호출 ----
 
-let genai: GoogleGenAI | null = null;
-function client(): GoogleGenAI {
-  if (!genai) {
-    const apiKey = env("GEMINI_API_KEY");
-    if (!apiKey) throw new Error("환경변수 GEMINI_API_KEY 이(가) 설정되지 않았다");
-    genai = new GoogleGenAI({ apiKey, httpOptions: { timeout: 270_000 } }); // Vercel maxDuration 300s 안에서 끝나도록
+let openai: OpenAI | null = null;
+function client(): OpenAI {
+  if (!openai) {
+    const apiKey = env("OPENAI_API_KEY");
+    if (!apiKey) throw new Error("환경변수 OPENAI_API_KEY 이(가) 설정되지 않았다");
+    // 재시도는 summarizeText 가 시간 예산 안에서 직접 한다 (SDK 기본 재시도 2회는 Vercel 300초 제한을 넘길 수 있다)
+    openai = new OpenAI({ apiKey, timeout: 270_000, maxRetries: 0 });
   }
-  return genai;
+  return openai;
 }
 
-/** 모델에 아주 짧은 요청을 보내 응답 시간과 오류를 돌려준다. 유료 등급 전환·과부하 확인용 */
+const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+
+/** 모델에 아주 짧은 요청을 보내 응답 시간과 오류를 돌려준다. API 키·모델 이름·요금 한도 확인용 */
 export async function pingModel(model: string, timeoutMs = 40_000): Promise<{ model: string; ok: boolean; ms: number; detail: string }> {
   const t0 = Date.now();
   try {
     const res = await withTimeout(
-      client().interactions.create({ model, input: "Reply with the single word: pong", generation_config: { max_output_tokens: 20, thinking_level: "low" }, store: false }),
+      client().responses.create(
+        { model, input: "Reply with the single word: pong", reasoning: { effort: "low" }, max_output_tokens: 256, store: false },
+        { timeout: timeoutMs },
+      ),
       timeoutMs,
     );
     const text = (res.output_text ?? "").trim().slice(0, 40);
-    return { model, ok: res.status === "completed", ms: Date.now() - t0, detail: res.status === "completed" ? `응답: ${text}` : `상태 ${res.status}` };
+    return { model: res.model || model, ok: res.status === "completed", ms: Date.now() - t0, detail: res.status === "completed" ? `응답: ${text}` : `상태 ${res.status}` };
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { model, ok: false, ms: Date.now() - t0, detail: msg.slice(0, 220) };
+    return { model, ok: false, ms: Date.now() - t0, detail: errMsg(e).slice(0, 220) };
   }
 }
 
 export function modelName(): string {
-  return env("GEMINI_MODEL") ?? DEFAULT_MODEL;
+  return env("OPENAI_MODEL") ?? DEFAULT_MODEL;
 }
 
-/** 추론 깊이. 기본 medium (high 는 4분을 넘기는 일이 잦아 Vercel 300초 제한에 걸린다). GEMINI_THINKING 으로 변경 */
-export function thinkingLevel(): "low" | "medium" | "high" {
-  const v = (env("GEMINI_THINKING") ?? "medium").toLowerCase();
-  return v === "low" || v === "high" ? v : "medium";
+export type Effort = "minimal" | "low" | "medium" | "high";
+
+/** 추론 깊이. 기본 medium. OPENAI_REASONING 으로 변경(minimal·low·medium·high). high 는 응답이 길어져 Vercel 300초 제한에 가까워진다 */
+export function reasoningEffort(): Effort {
+  const v = (env("OPENAI_REASONING") ?? "medium").toLowerCase();
+  return v === "minimal" || v === "low" || v === "high" ? v : "medium";
 }
 
+/** 예비 모델. OPENAI_FALLBACK_MODEL 이 none/off 이거나 기본 모델과 같으면 null(같은 모델 경량 재시도) */
 export function fallbackModelName(): string | null {
-  const v = env("GEMINI_FALLBACK_MODEL");
+  const v = env("OPENAI_FALLBACK_MODEL");
   const name = v === undefined ? DEFAULT_FALLBACK_MODEL : v.trim();
-  return name && name !== modelName() ? name : null;
+  if (!name || /^(none|off)$/i.test(name) || name === modelName()) return null;
+  return name;
 }
 
-/** 서버 과부하·요청 한도 같은 일시 오류인가 (후보 글의 잘못이 아니므로 failed 로 두지 않는다) */
+/** 서버 과부하·요청 한도·네트워크 같은 일시 오류인가 (후보 글의 잘못이 아니므로 failed 로 두지 않는다) */
 export function isTransientError(e: unknown): boolean {
-  const msg = e instanceof Error ? e.message : String(e);
-  const status = (e as { status?: number; code?: number } | null)?.status ?? (e as { code?: number } | null)?.code;
-  if (status === 429 || status === 503 || status === 500 || status === 502 || status === 504) return true;
-  return /^(429|50[0234])\b|high demand|overloaded|UNAVAILABLE|RESOURCE_EXHAUSTED|rate limit|ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg) || e instanceof SummarizeTimeout;
+  if (e instanceof SummarizeTimeout) return true;
+  if (e instanceof OpenAI.APIConnectionError) return true; // 네트워크 끊김·SDK 타임아웃
+  if (e instanceof OpenAI.APIError) {
+    const s = e.status ?? 0;
+    return s === 408 || s === 409 || s === 429 || s >= 500; // 429 는 분당 한도와 결제 한도(insufficient_quota) 모두 — 어느 쪽이든 글 탓이 아니다
+  }
+  return /^(429|50[0234])\b|overloaded|server_error|rate limit|ECONNRESET|ETIMEDOUT|fetch failed/i.test(errMsg(e));
 }
 
 export class TransientSummarizeError extends Error {
@@ -290,31 +302,32 @@ export class TransientSummarizeError extends Error {
   }
 }
 
-/** zod → JSON Schema. Gemini 가 받는 부분집합으로 정리한다($schema·additionalProperties 제거) */
+/** zod → JSON Schema (Structured Outputs strict 용). 모든 객체에 additionalProperties:false 와 전 속성 required 를 보장하고 $schema 는 뺀다 */
 export function responseJsonSchema(): Record<string, unknown> {
   const raw = z.toJSONSchema(SummarySchema, { target: "draft-2020-12" }) as Record<string, unknown>;
-  const clean = (node: unknown): unknown => {
-    if (Array.isArray(node)) return node.map(clean);
-    if (node && typeof node === "object") {
-      const out: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
-        if (k === "$schema" || k === "additionalProperties" || k === "$id") continue;
-        out[k] = clean(v);
-      }
-      return out;
+  const strict = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(strict);
+    if (!node || typeof node !== "object") return node;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+      if (k === "$schema" || k === "$id") continue;
+      // properties 의 키는 필드 이름이므로 값만 재귀한다
+      out[k] = k === "properties" && v && typeof v === "object"
+        ? Object.fromEntries(Object.entries(v as Record<string, unknown>).map(([pk, pv]) => [pk, strict(pv)]))
+        : strict(v);
     }
-    return node;
+    if (out.type === "object" && out.properties && typeof out.properties === "object") {
+      out.additionalProperties = false;
+      out.required = Object.keys(out.properties as Record<string, unknown>);
+    }
+    return out;
   };
-  return clean(raw) as Record<string, unknown>;
+  return strict(raw) as Record<string, unknown>;
 }
-
-type InteractionUsage = {
-  total_input_tokens?: number; total_output_tokens?: number; total_thought_tokens?: number; total_cached_tokens?: number;
-};
 
 export class SummarizeTimeout extends Error {
   constructor(ms: number) {
-    super(`Gemini 응답 ${Math.round(ms / 1000)}초 초과 — 중단`);
+    super(`OpenAI 응답 ${Math.round(ms / 1000)}초 초과 — 중단`);
     this.name = "SummarizeTimeout";
   }
 }
@@ -335,61 +348,73 @@ export async function summarizeText(input: SummarizeInput, log?: (m: string) => 
   const started = Date.now();
   const total = opts.timeoutMs ?? 240_000;
   const fallback = fallbackModelName(); // 없으면 같은 모델 경량 재시도
-  // 1차에는 전체 시간의 60% 만 준다. 응답이 늦거나 과부하면 남은 40% 로 재시도(다른 모델, 또는 같은 모델에 thinking low·입력 절반).
+  // 1차에는 전체 시간의 60% 만 준다. 응답이 늦거나 과부하면 남은 40% 로 재시도(예비 모델, 또는 같은 모델에 reasoning low·입력 절반).
   const primaryMs = Math.round(total * 0.6);
   try {
     return await summarizeWith(modelName(), input, log, { timeoutMs: primaryMs });
   } catch (e) {
     if (!isTransientError(e)) throw e;
     const remaining = total - (Date.now() - started);
-    const msg = e instanceof Error ? e.message : String(e);
+    const msg = errMsg(e);
     if (remaining < 45_000) throw new TransientSummarizeError(msg);
     const retryModel = fallback ?? modelName();
     const light = !fallback;
-    log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → ${light ? `${retryModel} 경량 재시도(thinking low·입력 절반)` : `예비 모델 ${retryModel}`} (남은 ${Math.round(remaining / 1000)}초)`);
+    log?.(`  ⚠ 일시 오류(${msg.slice(0, 80)}) → ${light ? `${retryModel} 경량 재시도(reasoning low·입력 절반)` : `예비 모델 ${retryModel}`} (남은 ${Math.round(remaining / 1000)}초)`);
     try {
       const retryInput = light ? { ...input, raw_text: input.raw_text.slice(0, Math.max(4_000, Math.floor(RAW_INPUT_LIMIT / 2))) } : input;
-      return await summarizeWith(retryModel, retryInput, log, { timeoutMs: remaining - 5_000, thinking: light ? "low" : undefined });
+      return await summarizeWith(retryModel, retryInput, log, { timeoutMs: remaining - 5_000, effort: light ? "low" : undefined });
     } catch (e2) {
-      const m2 = e2 instanceof Error ? e2.message : String(e2);
-      if (isTransientError(e2)) throw new TransientSummarizeError(`${msg} / 예비(${fallback}): ${m2}`);
+      const m2 = errMsg(e2);
+      if (isTransientError(e2)) throw new TransientSummarizeError(`${msg} / 예비(${retryModel}): ${m2}`);
       throw e2;
     }
   }
 }
 
-async function summarizeWith(model: string, input: SummarizeInput, log: ((m: string) => void) | undefined, opts: { timeoutMs: number; thinking?: "low" | "medium" | "high" }): Promise<SummarizeResult> {
+async function summarizeWith(model: string, input: SummarizeInput, log: ((m: string) => void) | undefined, opts: { timeoutMs: number; effort?: Effort }): Promise<SummarizeResult> {
   const timeoutMs = opts.timeoutMs;
 
-  const res = await withTimeout(client().interactions.create({
-    model,
-    system_instruction: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
-    input: userPrompt(input),
-    response_format: { type: "text", mime_type: "application/json", schema: responseJsonSchema() },
-    generation_config: { max_output_tokens: 32000, thinking_level: opts.thinking ?? thinkingLevel() }, // thinking 토큰도 max_output_tokens 에 포함된다
-    store: false, // 원문을 Google 쪽에 남기지 않는다(저작권·개인정보)
-  }), timeoutMs);
+  const res = await withTimeout(
+    client().responses.create(
+      {
+        model,
+        instructions: SYSTEM_PROMPT + "\n\n" + exampleBlock(),
+        input: userPrompt(input),
+        text: { format: { type: "json_schema", name: "dailyhr_summary", schema: responseJsonSchema(), strict: true } },
+        reasoning: { effort: opts.effort ?? reasoningEffort() },
+        max_output_tokens: 32_000, // 추론 토큰도 여기에 포함된다
+        store: false, // 원문을 OpenAI 쪽에 남기지 않는다(저작권·개인정보)
+      },
+      { timeout: timeoutMs },
+    ),
+    timeoutMs,
+  );
 
   if (res.status !== "completed") {
-    throw new Error(`Gemini 응답 상태 ${res.status}${res.status === "incomplete" ? " (max_output_tokens 초과 가능성)" : ""}`);
+    const reason = res.incomplete_details?.reason;
+    throw new Error(`OpenAI 응답 상태 ${res.status}${reason ? ` (${reason})` : ""}`);
   }
+  const refusal = res.output.flatMap((o) => (o.type === "message" ? o.content : [])).find((c) => c.type === "refusal");
+  if (refusal) throw new Error(`모델이 요약을 거부함: ${refusal.refusal.slice(0, 160)}`);
   const text = res.output_text?.trim();
-  if (!text) throw new Error("Gemini 가 빈 응답을 돌려줌 (안전 필터 차단 가능성)");
+  if (!text) throw new Error("OpenAI 가 빈 응답을 돌려줌");
 
   let json: unknown;
   try {
     json = JSON.parse(text);
   } catch {
-    throw new Error(`Gemini 출력이 JSON 이 아님: ${text.slice(0, 120)}…`);
+    throw new Error(`OpenAI 출력이 JSON 이 아님: ${text.slice(0, 120)}…`);
   }
   const parsed = SummarySchema.safeParse(json);
   if (!parsed.success) throw new Error(`구조화 출력 스키마 불일치: ${parsed.error.issues.slice(0, 3).map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
 
-  const usage = ((res as unknown as { usage?: InteractionUsage }).usage ?? {}) as InteractionUsage;
-  const tokens_in = (usage.total_input_tokens ?? 0) + (usage.total_cached_tokens ?? 0);
-  const tokens_out = (usage.total_output_tokens ?? 0) + (usage.total_thought_tokens ?? 0);
-  const servedModel = typeof res.model === "string" ? res.model : model;
-  log?.(`  모델 ${servedModel} — in ${tokens_in} / out ${tokens_out} 토큰 (thinking ${usage.total_thought_tokens ?? 0})`);
+  const usage = res.usage;
+  const tokens_in = usage?.input_tokens ?? 0;
+  const tokens_out = usage?.output_tokens ?? 0; // 추론 토큰 포함
+  const reasoningTokens = usage?.output_tokens_details?.reasoning_tokens ?? 0;
+  const cached = usage?.input_tokens_details?.cached_tokens ?? 0;
+  const servedModel = res.model || model;
+  log?.(`  모델 ${servedModel} — in ${tokens_in} (cached ${cached}) / out ${tokens_out} 토큰 (reasoning ${reasoningTokens})`);
 
   const { output, warnings } = postValidate(parsed.data);
   for (const w of warnings) log?.(`  ⚠ ${w}`);

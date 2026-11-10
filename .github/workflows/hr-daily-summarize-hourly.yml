@@ -1,5 +1,5 @@
 # dailyHR — 매시간 요약 시도. Vercel Hobby 크론은 하루 1회까지만 되므로 GitHub Actions 가 API 의 summarize-ahead 를 매시간 호출한다.
-# API 쪽에서 50분 간격·하루 실패 8회 상한으로 걸러 주므로 호출이 잦아도 Gemini 무료 한도(하루 20회)를 넘기지 않는다.
+# API 쪽에서 50분 간격·하루 실패 8회 상한으로 걸러 주므로 호출이 잦아도 모델 장애 때 호출·비용이 쌓이지 않는다.
 # 비밀: 저장소 Settings → Secrets and variables → Actions → HR_DAILY_CRON_SECRET (Vercel hr-daily-api 의 EXTERNAL_CRON_SECRET 와 같은 값)
 name: hr-daily summarize hourly
 

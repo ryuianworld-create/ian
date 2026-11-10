@@ -1,4 +1,4 @@
-// HR 분야 분류. 요약 단계에서 Gemini 가 글 전체를 읽고 이 목록에서 하나(필요하면 보조 하나)를 고른다.
+// HR 분야 분류. 요약 단계에서 요약 모델이 글 전체를 읽고 이 목록에서 하나(필요하면 보조 하나)를 고른다.
 // 제목 키워드가 아니라 본문 기준이라 논문·아티클 내용과 분류가 맞는다. 목록을 바꾸면 web/src/lib/areas.ts 도 같이 바꾼다.
 export type Area =
   | "hiring" | "comp" | "performance" | "learning" | "leadership" | "culture"

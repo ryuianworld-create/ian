@@ -6,7 +6,7 @@ Hono + TypeScript 백엔드. Vercel Functions 하나(`api/index.ts`)로 모든 �
 ```
 api/index.ts          Vercel 진입점 (hono/vercel)
 src/app.ts            Hono 앱: CORS, /v1/*, /cron/*, GET /
-src/lib/              supabase(service role) · auth(viewer) · settings · kst · feed 파서 · score · summarizer(Claude) · email(Resend)
+src/lib/              supabase(service role) · auth(viewer) · settings · kst · feed 파서 · score · summarizer(OpenAI) · email(Resend)
 src/jobs/             collect · summarize · digest · run(job_runs 기록)
 src/routes/           feed · articles · library · me · vocab · stats · admin · cron
 scripts/dev.ts        로컬 서버 (8787)
@@ -22,8 +22,10 @@ scripts/import-legacy.ts  1세대 데이터 이관
 | 변수 | 필수 | 용도 |
 |---|---|---|
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | 예 | DB·Auth 검증 |
-| `GEMINI_API_KEY` | summarize 에 필요 | Gemini 요약 (Google AI Studio 에서 발급) |
-| `GEMINI_MODEL` | 아니오 | 기본 `gemini-3.8-flash` (무료 등급 가능). 품질 우선이면 `gemini-4-argon` |
+| `OPENAI_API_KEY` | summarize 에 필요 | OpenAI 요약 (platform.openai.com 에서 발급, 결제 등록 필요) |
+| `OPENAI_MODEL` | 아니오 | 기본 `gpt-5.4`. 비용을 낮추려면 `gpt-5.4-mini` |
+| `OPENAI_FALLBACK_MODEL` | 아니오 | 기본 모델이 일시 오류(429·5xx·시간 초과)일 때 한 번 더 시도할 모델. 기본 `gpt-5.4-mini`, `none` 이면 같은 모델 경량 재시도 |
+| `OPENAI_REASONING` | 아니오 | 추론 깊이 `minimal`·`low`·`medium`·`high`. 기본 `medium` |
 | `RESEND_API_KEY`, `EMAIL_FROM` | 아니오 | 없으면 메일은 `skipped` 로 기록 |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | 아니오 | 웹 푸시(홈 화면 앱 알림). `npx web-push generate-vapid-keys` 로 생성. 공개키는 web 의 `NEXT_PUBLIC_VAPID_PUBLIC_KEY` 와 같아야 함. 없으면 푸시는 `skipped` |
 | `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET` | 아니오 | 카카오톡 "나에게 보내기" 채널. REST API 키(=OAuth client_id)와 카카오 로그인 클라이언트 시크릿(콘솔 → 플랫폼 키 → 대표 REST 키 수정). 없으면 카카오톡은 `skipped` 로 기록 |
@@ -58,7 +60,7 @@ articles 6편(featured_date = 발행일, 겹치면 하루씩 앞으로), index_i
 ```bash
 npm i -g vercel
 vercel link                         # 이 폴더(api)를 프로젝트 루트로
-for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GEMINI_API_KEY CRON_SECRET ADMIN_EMAILS WEB_URL RESEND_API_KEY EMAIL_FROM KAKAO_REST_API_KEY KAKAO_CLIENT_SECRET; do
+for v in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY OPENAI_API_KEY CRON_SECRET ADMIN_EMAILS WEB_URL RESEND_API_KEY EMAIL_FROM KAKAO_REST_API_KEY KAKAO_CLIENT_SECRET; do
   vercel env add $v production
 done
 vercel --prod

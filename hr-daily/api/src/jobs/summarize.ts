@@ -1,4 +1,4 @@
-// summarize — 대상 날짜(KST 오늘 또는 지정일)에 아티클이 없으면 inbox 에서 한 편 골라 Claude 로 요약한다.
+// summarize — 대상 날짜(KST 오늘 또는 지정일)에 아티클이 없으면 inbox 에서 한 편 골라 OpenAI 로 요약한다.
 // 실패하면 그 inbox 는 failed 로 두고 다음 후보로 1회 재시도.
 // 시간 예산(기본 280초, Vercel maxDuration 300초 안)을 지켜서 함수가 통째로 죽어 로그·상태가 안 남는 일을 막는다.
 import { isValidDate, kstToday, weekdayOf } from "../lib/kst.js";
