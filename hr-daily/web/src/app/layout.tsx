@@ -32,7 +32,7 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-// 헤더의 통계(DAY N)는 요청마다 api 에서 읽는다. 정적 프리렌더에 박히지 않도록 전체를 동적으로 둔다.
+// 헤더의 통계(요약 편수·단어 수)는 요청마다 api 에서 읽는다. 정적 프리렌더에 박히지 않도록 전체를 동적으로 둔다.
 export const dynamic = "force-dynamic";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
