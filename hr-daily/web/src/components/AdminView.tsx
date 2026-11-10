@@ -403,7 +403,8 @@ export function AdminView() {
                           setRunning("summarize");
                           setError(null);
                           try {
-                            const { run } = await api.admin.runJob("summarize", token, { inbox_id: it.id });
+                            // 오늘 글이 이미 있으면 건너뛰므로, 비어 있는 다음 발행일에 넣는다
+                            const { run } = await api.admin.runJob("summarize", token, { inbox_id: it.id, featured_date: overview?.next_featured_date });
                             setLastRun(run);
                             await reload();
                           } catch (e) {
@@ -412,8 +413,9 @@ export function AdminView() {
                             setRunning(null);
                           }
                         }}
+                        title={`이 글을 ${overview?.next_featured_date ?? "다음 발행일"} 글로 요약합니다`}
                       >
-                        이 글 요약
+                        이 글 요약 → {overview?.next_featured_date ?? "다음 발행일"}
                       </button>
                     </div>
                   ) : null}
