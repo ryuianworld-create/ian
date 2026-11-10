@@ -67,12 +67,6 @@ export function ArticleView({ article }: { article: Article }) {
           ) : null}
           {article.category ? <span className="tag">{article.category}</span> : null}
           <span className="src">{article.source_name}</span>
-          {article.published ? (
-            <>
-              <span className="dot">·</span>
-              <span className="src">{article.published}</span>
-            </>
-          ) : null}
         </div>
         <h1 className="jr-title">{article.title}</h1>
         <div className="jr-actions">
@@ -129,7 +123,7 @@ export function ArticleView({ article }: { article: Article }) {
             <a href={article.url} target="_blank" rel="noopener noreferrer">
               {article.source_name} 원문
             </a>
-            에서 보세요.
+            {article.published ? `(${article.published} 게재)` : ""}에서 보세요.
           </p>
         </article>
 

@@ -25,7 +25,7 @@ export function ArticlePreview({ preview, code, viewer }: { preview: ArticleCard
           {preview.published ? (
             <>
               <span className="dot">·</span>
-              <span className="src">{preview.published}</span>
+              <span className="src">원문 {preview.published} 게재</span>
             </>
           ) : null}
         </div>

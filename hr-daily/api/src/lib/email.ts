@@ -102,14 +102,14 @@ export function digestEmail(article: Article): { subject: string; html: string }
     : "";
 
   const inner = `
-<div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(article.source_name)} · ${kindLabel}${areaLabel ? ` · <span style="color:${C.accent};font-weight:700;">${esc(areaLabel)}</span>` : ""}${article.published ? ` · ${esc(article.published)}` : ""}</div>
+<div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(article.source_name)} · ${kindLabel}${areaLabel ? ` · <span style="color:${C.accent};font-weight:700;">${esc(areaLabel)}</span>` : ""}</div>
 <h1 style="margin:8px 0 4px;font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.3;font-weight:600;">${esc(article.title)}</h1>
 <div style="font-family:${C.mono};font-size:12px;color:${C.muted};">${esc(formatKoDate(article.featured_date))}</div>
 <p style="margin:20px 0 0;font-size:15px;line-height:1.8;color:${C.ink};">${esc(article.summary.ko)}</p>
 ${findings}
 ${vocab}
 <div style="margin:28px 0 8px;">${button(readUrl, "앱에서 읽기")}</div>
-<div style="font-size:12px;color:${C.muted};">영문 요약·상세·단어 발음은 앱에서 볼 수 있습니다. 원문: <a href="${esc(article.url)}" style="color:${C.accent};">${esc(article.source_name)}</a></div>`;
+<div style="font-size:12px;color:${C.muted};">영문 요약·상세·단어 발음은 앱에서 볼 수 있습니다. 원문: <a href="${esc(article.url)}" style="color:${C.accent};">${esc(article.source_name)}</a>${article.published ? `, ${esc(article.published)} 게재` : ""}</div>`;
 
   const footer = `매일 아침 7시(KST)에 그날의 HR 아티클·논문 한 편을 보내드립니다.<br>
 더 받고 싶지 않으면 <a href="${esc(base)}/account" style="color:${C.accent};">내 정보</a>에서 "매일 메일 받기"를 끄면 됩니다.`;
