@@ -237,15 +237,16 @@ export function HomeLanding({ feed, stats }: Props) {
 
             {/* ---- 오른쪽: 오늘 글이 담긴 폰 목업 ---- */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-sm">
-                <div className="absolute -top-6 left-0 sm:-left-6 z-20 bg-white rounded-2xl p-3.5 shadow-xl border border-amber-200 flex items-center gap-3 ld-float">
+              {/* 알림 카드·통계 배지는 폰 바깥으로 띄우되 검은 베젤(약 20px)까지만 걸친다 — 화면(상태바 시계·하단 모서리)을 가리지 않게 */}
+              <div className="relative w-full max-w-sm mt-10 mb-6">
+                <div className="absolute -top-12 left-0 sm:-left-6 z-20 bg-white rounded-2xl p-3.5 shadow-xl border border-amber-200 flex items-center gap-3 ld-float">
                   <div className="w-9 h-9 rounded-xl bg-brand text-ink flex items-center justify-center font-black text-xs shadow-sm">07:00</div>
                   <div>
                     <p className="m-0 text-xs font-black text-ink">오늘의 아티클 도착!</p>
                     <p className="m-0 text-[10px] text-slate-500">{card ? card.source_name : "매일 아침 한 편"}</p>
                   </div>
                 </div>
-                <div className="absolute -bottom-6 right-0 sm:-right-6 z-20 bg-ink text-white rounded-2xl p-3.5 shadow-2xl border border-slate-800 flex items-center gap-2.5">
+                <div className="absolute -bottom-8 right-0 sm:-right-6 z-20 bg-ink text-white rounded-2xl p-3.5 shadow-2xl border border-slate-800 flex items-center gap-2.5">
                   <span className="flex h-3 w-3 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
